@@ -18,7 +18,9 @@
     "test": "ember try:each"
   },
   "dependencies": {
-    "ember-cli-babel": "^6.6.0"
+    "ember-cli-babel": "^6.6.0",
+    "process-nextick-args": "^1.0.7",
+    "util-deprecate": "^1.0.2"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",
