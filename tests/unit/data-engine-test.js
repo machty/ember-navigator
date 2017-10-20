@@ -80,8 +80,9 @@ class ResolverState {
     try {
       result = this.iter.next(resumeValue);
     } catch(e) {
-      // TODO: this
-      debugger;
+      this.state = RESOLVER_STATE_FAILED;
+      this.value = e;
+      return;
     }
 
     let { value, done } = result;
@@ -122,7 +123,7 @@ class DataEngine {
   }
 
   addResolver(key, generatorFn) {
-    this.resolvers[key] = new ResolverState(key, generatorFn);
+    return this.resolvers[key] = new ResolverState(key, generatorFn);
   }
 
   subscribe(key, name, callback) {
@@ -327,6 +328,22 @@ test("async dependency chain", function(assert) {
     "EVENT_RESUME_RESOLVER B",
     "EVENT_DATA_RESOLVED ab"
   ]);
+});
+
+test("error handling", function(assert) {
+  let resolver = engine.addResolver('a', function * ({ require }) {
+    throw new Error('wat');
+  });
+
+  let values = [];
+  run(() => {
+    engine.subscribe('a', 'mySubscriber', v => {
+      values.push(v);
+    });
+  });
+
+  assert.equal(resolver.state, RESOLVER_STATE_FAILED);
+  assert.equal(resolver.value.message, 'wat');
 });
 
 skip("it handles falsy yields", function(assert) {
