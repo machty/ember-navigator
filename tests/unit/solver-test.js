@@ -28,3 +28,29 @@ test("it validates against constraints", function(assert){
   assert.ok(solver.validate({foo: 5}).isValid());
 });
 
+test("can provide a solution to constraint violations", function(assert){
+  // DataSet
+  //   SourceDatas
+  //   sourceData map
+  // SourceData
+  //   Source
+  //   data (immutable POJO)
+  // 
+
+  // Params merging doesn't happen 
+
+  let solver = new Solver();
+
+  assert.ok(solver.validate({}).isValid());
+
+  solver.addConstraint(
+    new EqualityConstraint([
+      new Reference(['foo']),
+      new Literal(5)
+    ])
+  );
+
+  assert.ok(!solver.validate({foo: 4}).isValid());
+  assert.ok(solver.validate({foo: 5}).isValid());
+});
+
