@@ -17,10 +17,13 @@ const RESOLVER_STATE_RUNNING = 'running';
 
 const EVENT_DATA_REQUIRED = 'EVENT_DATA_REQUIRED';
 const EVENT_DATA_RESOLVED = 'EVENT_DATA_RESOLVED';
+const EVENT_DATA_REJECTED = 'EVENT_DATA_REJECTED';
 const EVENT_RESUME_RESOLVER = 'EVENT_RESUME_RESOLVER';
+const EVENT_FAIL_RESOLVER = 'EVENT_FAIL_RESOLVER';
 
-const PROVIDE_RESULT_STILL_WAITING = 0;
-const PROVIDE_RESULT_FULFILLED = 1;
+const PROVIDE_RESULT_STILL_WAITING = 'PROVIDE_RESULT_STILL_WAITING';
+const PROVIDE_RESULT_FULFILLED = 'PROVIDE_RESULT_FULFILLED';
+const PROVIDE_RESULT_REJECTED = 'PROVIDE_RESULT_REJECTED';
 
 class Dependency {
   constructor(resolver, key) {
@@ -30,11 +33,11 @@ class Dependency {
   }
 
   provide(engine, key, value) {
-    if (key !== this.key) {
-      throw new Error(`Provided key '${key}' is not the one I was waiting for: ${this.key}`);
-    }
-
     engine.flush_resolveDependency(this.resolver, PROVIDE_RESULT_FULFILLED, value);
+  }
+
+  reject(engine, key, value) {
+    engine.flush_resolveDependency(this.resolver, PROVIDE_RESULT_REJECTED, value);
   }
 
   __handleYield__(engine) {
@@ -43,14 +46,25 @@ class Dependency {
 }
 
 class Subscription {
-  constructor(key, name, callback) {
+  constructor(key, name, onNext, onError) {
     this.name = name;
     this.key = key;
-    this.callback = callback;
+    this.onNext = onNext;
+    this.onError = onError;
   }
 
   provide(engine, key, value) {
-    this.callback(value);
+    this.deliver(this.onNext, value);
+  }
+
+  reject(engine, key, value) {
+    this.deliver(this.onError, value);
+  }
+
+  deliver(callback, value) {
+    if (callback) {
+      callback(value);
+    }
   }
 }
 
@@ -80,13 +94,15 @@ class ResolverState {
     try {
       result = this.iter.next(resumeValue);
     } catch(e) {
-      this.state = RESOLVER_STATE_FAILED;
-      this.value = e;
+      engine.events.push([EVENT_FAIL_RESOLVER, e, this]);
       return;
     }
 
-    let { value, done } = result;
+    this.flush_handleGeneratorResult(engine, result);
+  }
 
+  flush_handleGeneratorResult(engine, result) {
+    let { value, done } = result;
     if (done) {
       this.state = RESOLVER_STATE_FULFILLED;
       this.value = value;
@@ -96,11 +112,18 @@ class ResolverState {
         value.__handleYield__(engine);
       } else if (typeof value.then === 'function') {
         // you can kinda think of promises as anonymous dependencies?
+        // what about partially applied helpers? we should support that too.
+        // require is basically: give me a dependency that requires zero args.
+        // what if you want to inject a dependency and _then_ do an observable?
+        // you should be able to pass the context somewhere else.
+        // IDEA: there should be a 3rd param?
+
         value.then(resolvedValue => {
           engine.events.push([EVENT_RESUME_RESOLVER, resolvedValue, this]);
           engine.scheduleFlush();
-        }, error => {
-          console.log("TODO promise errors");
+        }, e => {
+          engine.events.push([EVENT_FAIL_RESOLVER, e, this]);
+          engine.scheduleFlush();
         });
       }
     }
@@ -126,8 +149,8 @@ class DataEngine {
     return this.resolvers[key] = new ResolverState(key, generatorFn);
   }
 
-  subscribe(key, name, callback) {
-    let subscription = new Subscription(key, name, callback);
+  subscribe(key, name, onNext, onError) {
+    let subscription = new Subscription(key, name, onNext, onError);
     this.events.push([EVENT_DATA_REQUIRED, key, subscription]);
     this.scheduleFlush();
     return subscription;
@@ -159,48 +182,77 @@ class DataEngine {
     // Called when a dependency has resolved, and the resolver that
     // specified that Dependency can now continue running.
 
-    this.events.push([EVENT_RESUME_RESOLVER, value, resolver]);
+    // `resolver` is the resolver that fulfilled / rejected???
+
+    if (resolveType === PROVIDE_RESULT_FULFILLED) {
+      this.events.push([EVENT_RESUME_RESOLVER, value, resolver]);
+    } else if (resolveType === PROVIDE_RESULT_REJECTED) {
+      this.events.push([EVENT_FAIL_RESOLVER, value, resolver]);
+    }
   }
 
   EVENT_DATA_REQUIRED(requiredKey, dependency) {
-    // Something has `require()`d a dependency, so keep
-    // track of it, then look for any resolvers
-    // that might be able to fulfill it, and kick them off
-    // if necessary.
+    // Something has `require()`d a dependency, so keep track of it...
     let requiresForKey = this.requires[requiredKey] = this.requires[requiredKey] || [];
     requiresForKey.push(dependency);
 
-    let resolver = this.resolvers[requiredKey];
-    if (!resolver) {
-      throw new Error(`couldn't find resolver for key ${requiredKey}`);
+    // ... and look for any resolvers that might be able to fulfill it,
+    // and kick them off if necessary.
+    let providingResolver = this.resolvers[requiredKey];
+    if (!providingResolver) {
+      throw new Error(`couldn't find providingResolver for key ${requiredKey}`);
     }
 
-    if (resolver.state === RESOLVER_STATE_INACTIVE) {
-      resolver.flush_start();
-      this.events.push([EVENT_RESUME_RESOLVER, null, resolver]);
+    if (providingResolver.state === RESOLVER_STATE_INACTIVE) {
+      providingResolver.flush_start();
+      this.events.push([EVENT_RESUME_RESOLVER, null, providingResolver]);
     }
   }
 
-  EVENT_DATA_RESOLVED(requiredKey, value, resolver) {
+  EVENT_DATA_RESOLVED(requiredKey, value) {
+    this.flush_publishResult(requiredKey, value, true);
+  }
+
+  EVENT_DATA_REJECTED(requiredKey, value) {
+    this.flush_publishResult(requiredKey, value, false);
+  }
+
+  EVENT_RESUME_RESOLVER(value, resolver) {
+    resolver.flush_resume(this, value);
+  }
+
+  EVENT_FAIL_RESOLVER(error, resolver) {
+    resolver.value = error;
+    resolver.state = RESOLVER_STATE_FAILED;
+    // TODO: should this actually try and .return() the gen fn?
+    // this is weird; the code inside Resolver pushes this event,
+    // this event handler mangles the state, externally?
+    // Should this state update happen within? Does it matter?
+    // Either way, could probably mode this logic inside Resolver.
+
+    this.events.push([EVENT_DATA_REJECTED, resolver.key, error]);
+
+    // TODO: impl pushEvent on engine
+  }
+
+  flush_publishResult(requiredKey, value, isSuccess) {
     let requiresForKey = this.requires[requiredKey];
     if (!requiresForKey) {
       console.warn(`unexpected empty requires array for ${requiredKey}`);
     }
 
-    // let canClear = true;
     for (let i = 0; i < requiresForKey.length; ++i) {
       let req = requiresForKey[i];
-      let result = req.provide(this, requiredKey, value);
-      // TODO: test requires memory leaks.
+      if (isSuccess) {
+        req.provide(this, requiredKey, value);
+      } else {
+        req.reject(this, requiredKey, value);
+      }
     }
 
     // if (canClear) {
     //   requiresForKey.length = 0;
     // }
-  }
-
-  EVENT_RESUME_RESOLVER(value, resolver) {
-    resolver.flush_resume(this, value);
   }
 }
 
@@ -330,7 +382,7 @@ test("async dependency chain", function(assert) {
   ]);
 });
 
-test("error handling", function(assert) {
+test("errors thrown from generator", function(assert) {
   let resolver = engine.addResolver('a', function * ({ require }) {
     throw new Error('wat');
   });
@@ -344,6 +396,37 @@ test("error handling", function(assert) {
 
   assert.equal(resolver.state, RESOLVER_STATE_FAILED);
   assert.equal(resolver.value.message, 'wat');
+});
+
+test("promise rejection", function(assert) {
+  let defer;
+  let resolver = engine.addResolver('a', function * ({ require }) {
+    defer = RSVP.defer();
+    yield defer.promise;
+  });
+
+  let values = [];
+  run(() => {
+    engine.subscribe('a', 'mySubscriber', value => {
+      values.push({ value });
+    }, error => {
+      values.push({ error });
+    });
+  });
+
+  assert.deepEqual(values, []);
+  run(() => defer.reject('wat'));
+  assert.deepEqual(values, [{ error: 'wat' }]);
+
+  assert.equal(resolver.state, RESOLVER_STATE_FAILED);
+  assert.equal(resolver.value, 'wat');
+
+  assert.deepEqual(eventNames(), [
+    "EVENT_DATA_REQUIRED a",
+    "EVENT_RESUME_RESOLVER null",
+    "EVENT_FAIL_RESOLVER wat",
+    "EVENT_DATA_REJECTED a"
+  ]);
 });
 
 skip("it handles falsy yields", function(assert) {
