@@ -264,6 +264,37 @@ test("sync dependency chain", function(assert) {
   assert.deepEqual(values, ['AB']);
 });
 
+test("async dependency chain", function(assert) {
+  let deferA;
+  engine.addResolver('a', function * ({ require }) {
+    deferA = RSVP.defer();
+    let letterA = yield deferA.promise;
+    return letterA;
+  });
+
+  let deferB;
+  engine.addResolver('ab', function * ({ require }) {
+    let a = yield require('a');
+    deferB = RSVP.defer();
+    let letterB = yield deferB.promise;
+    return `${a}${letterB}`;
+  });
+
+  let values = [];
+  run(() => {
+    engine.subscribe('ab', 'mySubscriber', v => {
+      values.push(v);
+    });
+  });
+
+  assert.deepEqual(values, []);
+  run(() => deferA.resolve('A'));
+  assert.deepEqual(values, []);
+  run(() => deferB.resolve('B'));
+
+  assert.deepEqual(values, ['AB']);
+});
+
 skip("it handles falsy yields", function(assert) {
 });
 
