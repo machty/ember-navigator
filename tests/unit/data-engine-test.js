@@ -108,9 +108,9 @@ class ResolverState {
       this.value = value;
       engine.events.push([EVENT_DATA_RESOLVED, this.key, value, this]);
     } else {
-      if (value.__handleYield__) {
+      if (value && typeof value.__handleYield__ === 'function') {
         value.__handleYield__(engine);
-      } else if (typeof value.then === 'function') {
+      } else if (value && typeof value.then === 'function') {
         // you can kinda think of promises as anonymous dependencies?
         // what about partially applied helpers? we should support that too.
         // require is basically: give me a dependency that requires zero args.
@@ -125,6 +125,8 @@ class ResolverState {
           engine.events.push([EVENT_FAIL_RESOLVER, e, this]);
           engine.scheduleFlush();
         });
+      } else {
+        engine.events.push([EVENT_RESUME_RESOLVER, value, this]);
       }
     }
   }
@@ -167,7 +169,6 @@ class DataEngine {
         this.eventDelegate(event);
       }
 
-      console.log(event);
       let handler = this[event[0]];
       handler.apply(this, event.slice(1));
     }
@@ -429,7 +430,16 @@ test("promise rejection", function(assert) {
   ]);
 });
 
-skip("it handles falsy yields", function(assert) {
+test("it handles falsy yields", function(assert) {
+  engine.addResolver('a', function * ({ require }) {
+    yield null;
+  });
+
+  run(() => {
+    engine.subscribe('a', 'mySubscriber', v => {
+      assert.equal(v, undefined);
+    });
+  });
 });
 
 skip("it gives you an error if you return a Dependency", function(assert) {
