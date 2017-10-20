@@ -96,7 +96,7 @@ class ResolverState {
       } else if (typeof value.then === 'function') {
         // you can kinda think of promises as anonymous dependencies?
         value.then(resolvedValue => {
-          engine.events.push([EVENT_RESUME_RESOLVER, this, resolvedValue]);
+          engine.events.push([EVENT_RESUME_RESOLVER, resolvedValue, this]);
           engine.scheduleFlush();
         }, error => {
           console.log("TODO promise errors");
@@ -118,6 +118,7 @@ class DataEngine {
     this.events = [];
     this.requires = {};
     this.providers = {};
+    this.eventDelegate = null;
   }
 
   addResolver(key, generatorFn) {
@@ -138,6 +139,10 @@ class DataEngine {
   flush() {
     for (let i = 0; i < this.events.length; ++i) {
       let event = this.events[i];
+      if (this.eventDelegate) {
+        this.eventDelegate(event);
+      }
+
       console.log(event);
       let handler = this[event[0]];
       handler.apply(this, event.slice(1));
@@ -153,7 +158,7 @@ class DataEngine {
     // Called when a dependency has resolved, and the resolver that
     // specified that Dependency can now continue running.
 
-    this.events.push([EVENT_RESUME_RESOLVER, resolver, value]);
+    this.events.push([EVENT_RESUME_RESOLVER, value, resolver]);
   }
 
   EVENT_DATA_REQUIRED(requiredKey, dependency) {
@@ -171,7 +176,7 @@ class DataEngine {
 
     if (resolver.state === RESOLVER_STATE_INACTIVE) {
       resolver.flush_start();
-      this.events.push([EVENT_RESUME_RESOLVER, resolver, null]);
+      this.events.push([EVENT_RESUME_RESOLVER, null, resolver]);
     }
   }
 
@@ -193,18 +198,26 @@ class DataEngine {
     // }
   }
 
-  EVENT_RESUME_RESOLVER(resolver, value) {
+  EVENT_RESUME_RESOLVER(value, resolver) {
     resolver.flush_resume(this, value);
   }
 }
 
 let engine;
+let events;
 module("Unit - Data Engine", {
   beforeEach: function () {
     engine = new DataEngine(EMBER_SCHEDULER);
+    events = [];
+    engine.eventDelegate = (ev) => events.push(ev);
   },
   afterEach: function () {}
 });
+
+function eventNames() {
+  return events.map(ev => `${ev[0]} ${ev[1]}`);
+}
+
 
 test("adding a resolver doesn't execute unless it's subscribed to", function(assert) {
   assert.expect(0);
@@ -262,6 +275,16 @@ test("sync dependency chain", function(assert) {
     });
   });
   assert.deepEqual(values, ['AB']);
+
+  assert.deepEqual(eventNames(), [
+    "EVENT_DATA_REQUIRED ab",
+    "EVENT_RESUME_RESOLVER null",
+    "EVENT_DATA_REQUIRED a",
+    "EVENT_RESUME_RESOLVER null",
+    "EVENT_DATA_RESOLVED a",
+    "EVENT_RESUME_RESOLVER A",
+    "EVENT_DATA_RESOLVED ab"
+  ]);
 });
 
 test("async dependency chain", function(assert) {
@@ -291,8 +314,19 @@ test("async dependency chain", function(assert) {
   run(() => deferA.resolve('A'));
   assert.deepEqual(values, []);
   run(() => deferB.resolve('B'));
-
   assert.deepEqual(values, ['AB']);
+
+  assert.deepEqual(eventNames(), [
+    "EVENT_DATA_REQUIRED ab",
+    "EVENT_RESUME_RESOLVER null",
+    "EVENT_DATA_REQUIRED a",
+    "EVENT_RESUME_RESOLVER null",
+    "EVENT_RESUME_RESOLVER A",
+    "EVENT_DATA_RESOLVED a",
+    "EVENT_RESUME_RESOLVER A",
+    "EVENT_RESUME_RESOLVER B",
+    "EVENT_DATA_RESOLVED ab"
+  ]);
 });
 
 skip("it handles falsy yields", function(assert) {
