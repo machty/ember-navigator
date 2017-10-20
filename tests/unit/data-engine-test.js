@@ -1,5 +1,9 @@
 // tests/unit/routes/index-test.js
 import { test, module, skip } from 'ember-qunit';
+import { Observable } from 'rxjs/Observable';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/fromPromise';
 
 import Ember from 'ember';
 const { run, RSVP } = Ember;
@@ -16,7 +20,8 @@ const RESOLVER_STATE_FULFILLED = 'fulfilled';
 const RESOLVER_STATE_RUNNING = 'running';
 
 const EVENT_DATA_REQUIRED = 'EVENT_DATA_REQUIRED';
-const EVENT_DATA_RESOLVED = 'EVENT_DATA_RESOLVED';
+const EVENT_DATA_READY = 'EVENT_DATA_READY';
+const EVENT_NEW_VALUE = 'EVENT_NEW_VALUE';
 const EVENT_DATA_REJECTED = 'EVENT_DATA_REJECTED';
 const EVENT_RESUME_RESOLVER = 'EVENT_RESUME_RESOLVER';
 const EVENT_FAIL_RESOLVER = 'EVENT_FAIL_RESOLVER';
@@ -105,8 +110,20 @@ class ResolverState {
     let { value, done } = result;
     if (done) {
       this.state = RESOLVER_STATE_FULFILLED;
-      this.value = value;
-      engine.events.push([EVENT_DATA_RESOLVED, this.key, value, this]);
+
+      let observable;
+      if (value && typeof value.subscribe === 'function') {
+        observable = value;
+      } else if (value && typeof value.then === 'function') {
+        observable = Observable.fromPromise(value);
+      } else {
+        observable = Observable.of(value);
+      }
+
+      engine.events.push([EVENT_DATA_READY, this.key]);
+      this.subscription = observable.subscribe(v => {
+        engine.events.push([EVENT_NEW_VALUE, this.key, v, this]);
+      });
     } else {
       if (value && typeof value.__handleYield__ === 'function') {
         value.__handleYield__(engine);
@@ -210,7 +227,11 @@ class DataEngine {
     }
   }
 
-  EVENT_DATA_RESOLVED(requiredKey, value) {
+  EVENT_DATA_READY(requiredKey) {
+    console.log(`data is ready: ${requiredKey}`)
+  }
+
+  EVENT_NEW_VALUE(requiredKey, value) {
     this.flush_publishResult(requiredKey, value, true);
   }
 
@@ -335,9 +356,11 @@ test("sync dependency chain", function(assert) {
     "EVENT_RESUME_RESOLVER null",
     "EVENT_DATA_REQUIRED a",
     "EVENT_RESUME_RESOLVER null",
-    "EVENT_DATA_RESOLVED a",
+    "EVENT_DATA_READY a",
+    "EVENT_NEW_VALUE a",
     "EVENT_RESUME_RESOLVER A",
-    "EVENT_DATA_RESOLVED ab"
+    "EVENT_DATA_READY ab",
+    "EVENT_NEW_VALUE ab"
   ]);
 });
 
@@ -376,10 +399,12 @@ test("async dependency chain", function(assert) {
     "EVENT_DATA_REQUIRED a",
     "EVENT_RESUME_RESOLVER null",
     "EVENT_RESUME_RESOLVER A",
-    "EVENT_DATA_RESOLVED a",
+    "EVENT_DATA_READY a",
+    "EVENT_NEW_VALUE a",
     "EVENT_RESUME_RESOLVER A",
     "EVENT_RESUME_RESOLVER B",
-    "EVENT_DATA_RESOLVED ab"
+    "EVENT_DATA_READY ab",
+    "EVENT_NEW_VALUE ab"
   ]);
 });
 
@@ -450,6 +475,21 @@ skip("it gives you an error (?) or Just Works(?) when you return (vs yield) a pr
   run(() => {
     engine.subscribe('a', 'mySubscriber', v => {
       assert.equal(v, undefined);
+    });
+  });
+});
+
+test("observables", function(assert) {
+  let subject;
+  engine.addResolver('a', function * ({ require }) {
+    subject = new ReplaySubject(1);
+    subject.next('A');
+    return subject;
+  });
+
+  run(() => {
+    engine.subscribe('a', 'mySubscriber', v => {
+      assert.equal(v, 'A')
     });
   });
 });
