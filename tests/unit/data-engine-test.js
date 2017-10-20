@@ -442,6 +442,15 @@ test("it handles falsy yields", function(assert) {
   });
 });
 
-skip("it gives you an error if you return a Dependency", function(assert) {
+skip("it gives you an error (?) or Just Works(?) when you return (vs yield) a promise/Dependency", function(assert) {
+  engine.addResolver('a', function * ({ require }) {
+    return require('b');
+  });
+
+  run(() => {
+    engine.subscribe('a', 'mySubscriber', v => {
+      assert.equal(v, undefined);
+    });
+  });
 });
 
