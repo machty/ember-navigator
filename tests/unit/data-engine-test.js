@@ -4,8 +4,6 @@ import { test, module, skip } from 'ember-qunit';
 import Ember from 'ember';
 const { run, RSVP } = Ember;
 
-// import ParamsSource from 'ember-constraint-router/params-source';
-
 const EMBER_SCHEDULER = {
   schedule(action) {
     run.schedule('actions', action.context, action.method);
@@ -36,7 +34,7 @@ class Dependency {
       throw new Error(`Provided key '${key}' is not the one I was waiting for: ${this.key}`);
     }
 
-    engine.flush_resolveDependency(PROVIDE_RESULT_FULFILLED, value);
+    engine.flush_resolveDependency(this.resolver, PROVIDE_RESULT_FULFILLED, value);
   }
 
   __handleYield__(engine) {
@@ -78,28 +76,32 @@ class ResolverState {
   }
 
   flush_resume(engine, resumeValue) {
+    let result;
     try {
-      let { value, done } = this.iter.next(resumeValue);
-
-      if (done) {
-        this.state = RESOLVER_STATE_FULFILLED;
-        this.value = value;
-        engine.events.push([EVENT_DATA_RESOLVED, this.key, value, this]);
-      } else {
-        if (value.__handleYield__) {
-          value.__handleYield__(this);
-        } else if (typeof value.then === 'function') {
-          // you can kinda think of promises as anonymous dependencies?
-          value.then(resolvedValue => {
-            engine.events.push([EVENT_RESUME_RESOLVER, this, resolvedValue]);
-            engine.scheduleFlush();
-          }, error => {
-            console.log("TODO promise errors");
-          });
-        }
-      }
+      result = this.iter.next(resumeValue);
     } catch(e) {
+      // TODO: this
       debugger;
+    }
+
+    let { value, done } = result;
+
+    if (done) {
+      this.state = RESOLVER_STATE_FULFILLED;
+      this.value = value;
+      engine.events.push([EVENT_DATA_RESOLVED, this.key, value, this]);
+    } else {
+      if (value.__handleYield__) {
+        value.__handleYield__(engine);
+      } else if (typeof value.then === 'function') {
+        // you can kinda think of promises as anonymous dependencies?
+        value.then(resolvedValue => {
+          engine.events.push([EVENT_RESUME_RESOLVER, this, resolvedValue]);
+          engine.scheduleFlush();
+        }, error => {
+          console.log("TODO promise errors");
+        });
+      }
     }
   }
 }
@@ -136,6 +138,7 @@ class DataEngine {
   flush() {
     for (let i = 0; i < this.events.length; ++i) {
       let event = this.events[i];
+      console.log(event);
       let handler = this[event[0]];
       handler.apply(this, event.slice(1));
     }
@@ -146,8 +149,11 @@ class DataEngine {
     this.events.push([EVENT_DATA_REQUIRED, key, dependency]);
   }
 
-  flush_resolveDependency(resolveType, value) {
-    this.events.push();
+  flush_resolveDependency(resolver, resolveType, value) {
+    // Called when a dependency has resolved, and the resolver that
+    // specified that Dependency can now continue running.
+
+    this.events.push([EVENT_RESUME_RESOLVER, resolver, value]);
   }
 
   EVENT_DATA_REQUIRED(requiredKey, dependency) {
@@ -175,17 +181,16 @@ class DataEngine {
       console.warn(`unexpected empty requires array for ${requiredKey}`);
     }
 
-    let canClear = true;
+    // let canClear = true;
     for (let i = 0; i < requiresForKey.length; ++i) {
       let req = requiresForKey[i];
       let result = req.provide(this, requiredKey, value);
-
       // TODO: test requires memory leaks.
     }
 
-    if (canClear) {
-      requiresForKey.length = 0;
-    }
+    // if (canClear) {
+    //   requiresForKey.length = 0;
+    // }
   }
 
   EVENT_RESUME_RESOLVER(resolver, value) {
@@ -238,6 +243,25 @@ test("subscribing to a single async resolver", function(assert) {
   assert.deepEqual(values, []);
   run(() => defer.resolve('A'));
   assert.deepEqual(values, ['A']);
+});
+
+test("sync dependency chain", function(assert) {
+  engine.addResolver('a', function * ({ require }) {
+    return 'A';
+  });
+
+  engine.addResolver('ab', function * ({ require }) {
+    let a = yield require('a');
+    return `${a}B`;
+  });
+
+  let values = [];
+  run(() => {
+    engine.subscribe('ab', 'mySubscriber', v => {
+      values.push(v);
+    });
+  });
+  assert.deepEqual(values, ['AB']);
 });
 
 skip("it handles falsy yields", function(assert) {
