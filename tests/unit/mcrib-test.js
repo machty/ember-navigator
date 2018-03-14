@@ -15,22 +15,112 @@ const EMBER_SCHEDULER = {
   }
 };
 
-const RESOLVER_STATE_INACTIVE = 'inactive';
-const RESOLVER_STATE_FAILED = 'failed';
-const RESOLVER_STATE_FULFILLED = 'fulfilled';
-const RESOLVER_STATE_RUNNING = 'running';
+module("Unit - McRIB", {
+  beforeEach: function () {
+    // engine = new DataEngine(EMBER_SCHEDULER);
+    // events = [];
+    // engine.eventDelegate = (ev) => events.push(ev);
+  },
+  afterEach: function () {}
+});
 
-const EVENT_DATA_REQUIRED = 'EVENT_DATA_REQUIRED';
-const EVENT_DATA_READY = 'EVENT_DATA_READY';
-const EVENT_NEW_VALUE = 'EVENT_NEW_VALUE';
-const EVENT_DATA_REJECTED = 'EVENT_DATA_REJECTED';
-const EVENT_RESUME_RESOLVER = 'EVENT_RESUME_RESOLVER';
-const EVENT_FAIL_RESOLVER = 'EVENT_FAIL_RESOLVER';
+const DependencyValidation = Ember.Object.extend({
+  validate() {
+  }
+});
 
-const PROVIDE_RESULT_STILL_WAITING = 'PROVIDE_RESULT_STILL_WAITING';
-const PROVIDE_RESULT_FULFILLED = 'PROVIDE_RESULT_FULFILLED';
-const PROVIDE_RESULT_REJECTED = 'PROVIDE_RESULT_REJECTED';
 
+const Dependency = DependencyValidation.extend({
+  validate(obj, key) {
+    throw new Error(`missing dependency: ${key}`);
+  }
+});
+
+const Builder = DependencyValidation.extend({
+  validate(object, key) {
+    if (object._builders[key]) {
+      throw new Error(`duplicate builder: ${key}`);
+    }
+    object._builders[key] = this;
+  }
+});
+
+const Node = Ember.Object.extend({
+  _builders: null,
+  init(...args) {
+    this._super(...args);
+    this._builders = {};
+    this._checkDependencies();
+  },
+
+  _checkDependencies() {
+    for (let key in this) {
+      let value = this[key];
+      if (!(value instanceof DependencyValidation)) {
+        continue;
+      }
+
+      value.validate(this, key);
+    }
+  },
+
+  build(childName, attrs = {}) {
+    let builder = this._builders[childName];
+    if (!(builder instanceof Builder)) {
+      throw new Error(`unknown builder: ${childName}`);
+    }
+    return builder.klass.create(attrs);
+  },
+});
+
+function dependency() {
+  return new Dependency();
+}
+
+function builder(klass) {
+  return new Builder({ klass });
+}
+
+let LoggedInNode = Node.extend({
+  user: dependency(),
+});
+
+let RootNode = Node.extend({
+  loggedIn: builder(LoggedInNode),
+});
+
+const user = { username: 'amatchneer' };
+
+test("dependencies are validated on Node creation", function(assert) {
+  assert.expect(1);
+
+  run(() => {
+    let rootNode = RootNode.create();
+    try {
+      LoggedInNode.create();
+      assert.ok(false, 'exception should have been thrown');
+    } catch(e) {
+      assert.equal(e.message, `missing dependency: user`);
+    }
+
+    let loggedInNode = LoggedInNode.create({ user });
+  });
+});
+
+test("builders can build child ribs", function(assert) {
+  assert.expect(1);
+
+  run(() => {
+    // let user = { username: 'amatchneer' };
+
+    let rootNode = RootNode.create();
+    let loggedIn = rootNode.build('loggedIn', { user });
+    assert.ok(loggedIn instanceof LoggedInNode);
+  });
+});
+
+
+/*
 class Dependency {
   constructor(resolver, key) {
     this.resolver = resolver;
@@ -565,5 +655,4 @@ test("routing sketch", function(assert) {
   });
 });
 
-
-
+*/
