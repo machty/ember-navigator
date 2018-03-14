@@ -18,15 +18,17 @@
     "test": "ember try:each"
   },
   "dependencies": {
+    "ember-browserify": "1.1.13",
     "ember-cli-babel": "^6.6.0",
     "ember-maybe-import-regenerator": "^0.1.6",
     "process-nextick-args": "^1.0.7",
-    "util-deprecate": "^1.0.2"
+    "util-deprecate": "^1.0.2",
+    "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^3.0.0",
-    "ember-cli": "~2.16.0",
+    "ember-cli": "2.14.2",
     "ember-cli-dependency-checker": "^2.0.0",
     "ember-cli-eslint": "^4.0.0",
     "ember-cli-htmlbars": "^2.0.1",
