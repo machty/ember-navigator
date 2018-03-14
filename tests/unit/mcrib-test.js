@@ -4,6 +4,10 @@ import Ember from 'ember';
 const { VNode, diff, patch } = window.virtualDom;
 
 class Node {
+  constructor(props) {
+    this.props = props;
+  }
+
   buildChildren() {
     return {};
   }
@@ -17,23 +21,14 @@ class RouteNode extends Node {
     let childInfo = infos[childIndex];
     if (childInfo) {
       return {
-        child: new VNode(childIndex.nodeClass, {
-          infos,
-          index: childIndex
-        })
+        main: {
+          nodeClass: childInfo.handler,
+          props: { todo: 'this' }
+        }
       };
     }
   }
 }
-
-function buildTree(rootNodeClass, props) {
-  return {
-    nodeClass: rootNodeClass,
-    props
-  };
-}
-
-
 
 
 
@@ -44,181 +39,152 @@ module("Unit - McRIB", {
 });
 
 test("buildTree uses the router map to build a vtree", function(assert) {
-  // canonical tree.
+  let hooks = [];
 
+  class ChildNode extends Node {
+    constructor(props) {
+      super(props);
+      hooks.push('ChildNode()');
+    }
+  }
 
-  return {
-    main: [
-      RootNode,
-      {
-      }
-    ]
-  };
-
-  // this is setState but returns a promise.
-  this.transitionTo({
-    foo: 123
-  });
-
-  this.transitionTo({
-    user: machty
-  });
-
-
-
-
-
-
-  class ChildNode extends RouteNode { }
-
-  class RootNode extends RouteNode {
-
-    // buildChildren() {
-    //   return {
-    //     child: new VNode(ChildNode, {
-    //       foo: 123
-    //     })
-    //   };
-    // }
-
+  class RootNode extends Node {
+    constructor(props) {
+      super(props);
+      hooks.push('RootNode()');
+    }
 
     buildChildren() {
-    }
-  }
-
-  // diff;
-
-  let a = new VNode('div', {
-    className: "greeting"
-  });
-
-  let b = new VNode('div', {
-    className: "greeting"
-  });
-
-  let c = new VNode('div', {
-    className: "greetingOther"
-  }, [
-    new VNode(ChildNode, {
-      className: "greetingOtherInner"
-    })
-  ]);
-
-  let d = new VNode(ChildNode, {
-    className: "greetingOther"
-  });
-
-  let e = new VNode(RootNode, {
-    className: "greetingOther"
-  });
-
-  // classname values can be objects with .hook() and .unhook()
-
-
-  let patches = diff(a, c);
-
-  let renderOptions = {
-    // patch(rootNode, patches, renderOptions) {
-    //   debugger;
-    // },
-    render(vnode, opts) {
-      var warn = opts ? opts.warn : null
-
-      vnode = handleThunk(vnode).a
-
-      if (isWidget(vnode)) {
-        return vnode.init()
-      } else if (isVText(vnode)) {
-        return doc.createTextNode(vnode.text)
-      } else if (!isVNode(vnode)) {
-        if (warn) {
-          warn("Item is not a valid virtual dom node", vnode)
-        }
-        return null
-      }
-
-      var node = (vnode.namespace === null) ? doc.createElement(vnode.tagName) : doc.createElementNS(vnode.namespace, vnode.tagName)
-
-      var props = vnode.properties
-      applyProperties(node, props)
-
-      var children = vnode.children
-
-      for (var i = 0; i < children.length; i++) {
-        var childNode = createElement(children[i], opts)
-        if (childNode) {
-          node.appendChild(childNode)
-        }
-      }
-
-      return node
-    }
-  };
-
-  let rootNode = {
-    childNodes: []
-  };
-
-  debugger;
-  let result = patch(rootNode, patches, renderOptions);
-
-
-    // debugger;
-
-
-
-  let vTree = buildTree(RootNode, {
-    index: 0,
-    infos: [
-      { handler: RootNode },
-      { handler: ChildNode }
-    ]
-  });
-
-  assert.equal(vTree.nodeClass, RootNode);
-  assert.equal(vTree.props.abc, 123);
-  assert.equal(vTree.children.child, 123);
-
-
-  // let graph = diffGraph(emptyGraph, vTree);
-
-  // diffGraph makes changes to things.
-
-
-  // what is the difference between this.transitionTo() and setState()
-  // the state can be handlers. URL can be part of it too, maybe?
-
-  // this.setState({
-  //   infos: [{ handler: RootNode }, { handler: ShitHead }],
-  //   index: 0
-  // });
-});
-
-
-/*
-test("Nodes can be used to reconstruct graphs", function(assert) {
-  class Child extends Node {
-    build() {
-      return [];
-    }
-  }
-
-  class Parent extends Node {
-    buildChild(b) {
-      return [Child, { foo: 123 }];
-    }
-
-    build() {
+      hooks.push('Root.buildChildren()');
       return {
-        main: [
-          Borf,
-          { foo: 123 },
-        ]
+        main: {
+          nodeClass: ChildNode,
+          props: {
+            foo: 123
+          }
+        }
       };
     }
   }
 
-  let graph = buildTree(Parent, {});
-});
-*/
+  // <A><B><C></C></B></A>
+  // A.constructor
+  // - this is created as part of the patch
+  // A.render
+  // B.constructor
+  // B.render
+  // C.constructor
+  // C.render
 
+  // then say we change A.state/props
+  // A.render()
+  // - returns <B> with same props {}. bprops.key is same, preserves component.
+  // B.render()
+  // - same, but let's pretend cProps is changed. We match on component type.
+  // C.render()
+
+
+  function divvyOldNew(oldObj, newObj) {
+    let result = {
+      removed: [],
+      added: [],
+      preserved: [],
+      // changed: [],
+    };
+
+    Object.keys(oldObj).sort().forEach(k => {
+      let newFactory = newObject[k];
+      if (newFactory) {
+        let instance = oldObj[k].instance;
+
+        // TODO: check key here; key defaults to Class
+
+        if (instance.constructor === newFactory.nodeClass) {
+          results.preserved.push(k);
+        } else {
+          // results.changed.push(k);
+          results.removed.push(k);
+          results.added.push(k);
+        }
+      } else {
+        results.removed.push(k);
+      }
+    });
+
+    Object.keys(newObj).sort().forEach(k => {
+      if (!oldObj[k]) {
+        result.added.push(k);
+      }
+    });
+
+    return result;
+  }
+
+  class StateTree {
+    constructor(rootNodeClass, rootProps) {
+      this.rootNodeClass = rootNodeClass;
+      this.rootProps = rootProps;
+      // this.root = new rootNodeClass(rootProps);
+      this.buildTree();
+      // this.currentSet = {};
+    }
+
+    buildTree() {
+      function detach(obj) {
+        if (!obj) {
+          return;
+        }
+
+        Object.keys(obj).forEach(k => {
+          detach(obj[k]);
+        });
+
+        obj.dispose();
+      }
+
+      function diffPatch(oldSet, newChildren) {
+        let divvy = divvyOldNew(oldSet, newChildren);
+
+        divvy.removed.forEach(k => {
+          oldSet[k].dispose();
+          oldSet = null;
+        });
+
+        divvy.added.forEach(k => {
+          let newObj = newChildren[k];
+          let instance = new newObj.nodeClass(newObj.props);
+          oldSet[k] = {
+            instance,
+          };
+
+          let childrenFactories = instance.buildChildren();
+
+          diffPatch({}, childrenFactories);
+        });
+      }
+
+      diffPatch({}, {
+        root: {
+          nodeClass: this.rootNodeClass,
+          props: this.rootProps,
+        }
+      });
+    }
+
+    render() {
+    }
+
+    dispose() {
+      // tears down all the things, including root.
+      // this should be accomplishable by patching with empty set.
+    }
+  }
+
+  let tree = new StateTree(RootNode, {});
+
+  assert.deepEqual(hooks, [
+		"RootNode()",
+		"Root.buildChildren()",
+		"ChildNode()"
+	]);
+});

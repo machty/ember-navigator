@@ -123,3 +123,8 @@ assume no async, just get stuff working.
 The problem/challenge is it'd need to be end-to-end typescript.
 
 
+
+  // tree.subscribe('root.wat', { eager: true })
+
+  tree.changes('root.wat', { eager: true }).subscribe(() => {
+  });
