@@ -114,6 +114,22 @@ assume no async, just get stuff working.
 
 
 
+  // <A><B><C></C></B></A>
+  // A.constructor
+  // - this is created as part of the patch
+  // A.render
+  // B.constructor
+  // B.render
+  // C.constructor
+  // C.render
+
+  // then say we change A.state/props
+  // A.render()
+  // - returns <B> with same props {}. bprops.key is same, preserves component.
+  // B.render()
+  // - same, but let's pretend cProps is changed. We match on component type.
+  // C.render()
+
 
 
 
@@ -128,3 +144,4 @@ The problem/challenge is it'd need to be end-to-end typescript.
 
   tree.changes('root.wat', { eager: true }).subscribe(() => {
   });
+

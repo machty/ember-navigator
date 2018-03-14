@@ -1,7 +1,7 @@
 // tests/unit/routes/index-test.js
-import { test, module, skip } from 'ember-qunit';
+import {test, module, skip} from 'ember-qunit';
 import Ember from 'ember';
-const { VNode, diff, patch } = window.virtualDom;
+const {VNode, diff, patch} = window.virtualDom;
 
 class Node {
   constructor(props) {
@@ -16,83 +16,31 @@ class Node {
 // a node that expects handlerInfo args
 class RouteNode extends Node {
   buildChildren(props, state) {
-    let { index, infos } = props;
+    let {index, infos} = props;
     let childIndex = index + 1;
     let childInfo = infos[childIndex];
     if (childInfo) {
       return {
         main: {
           nodeClass: childInfo.handler,
-          props: { todo: 'this' }
-        }
+          props: {todo: 'this'},
+        },
       };
     }
   }
 }
 
+function divvyOldNew(oldObj, newObj) {
+  let result = {
+    removed: [],
+    added: [],
+    preserved: [],
+    // changed: [],
+  };
 
-
-
-module("Unit - McRIB", {
-  beforeEach: function () {},
-  afterEach: function () {}
-});
-
-test("buildTree uses the router map to build a vtree", function(assert) {
-  let hooks = [];
-
-  class ChildNode extends Node {
-    constructor(props) {
-      super(props);
-      hooks.push('ChildNode()');
-    }
-  }
-
-  class RootNode extends Node {
-    constructor(props) {
-      super(props);
-      hooks.push('RootNode()');
-    }
-
-    buildChildren() {
-      hooks.push('Root.buildChildren()');
-      return {
-        main: {
-          nodeClass: ChildNode,
-          props: {
-            foo: 123
-          }
-        }
-      };
-    }
-  }
-
-  // <A><B><C></C></B></A>
-  // A.constructor
-  // - this is created as part of the patch
-  // A.render
-  // B.constructor
-  // B.render
-  // C.constructor
-  // C.render
-
-  // then say we change A.state/props
-  // A.render()
-  // - returns <B> with same props {}. bprops.key is same, preserves component.
-  // B.render()
-  // - same, but let's pretend cProps is changed. We match on component type.
-  // C.render()
-
-
-  function divvyOldNew(oldObj, newObj) {
-    let result = {
-      removed: [],
-      added: [],
-      preserved: [],
-      // changed: [],
-    };
-
-    Object.keys(oldObj).sort().forEach(k => {
+  Object.keys(oldObj)
+    .sort()
+    .forEach(k => {
       let newFactory = newObject[k];
       if (newFactory) {
         let instance = oldObj[k].instance;
@@ -111,80 +59,132 @@ test("buildTree uses the router map to build a vtree", function(assert) {
       }
     });
 
-    Object.keys(newObj).sort().forEach(k => {
+  Object.keys(newObj)
+    .sort()
+    .forEach(k => {
       if (!oldObj[k]) {
         result.added.push(k);
       }
     });
 
-    return result;
+  return result;
+}
+
+class StateTree {
+  constructor(rootNodeClass, rootProps) {
+    this.rootNodeClass = rootNodeClass;
+    this.rootProps = rootProps;
+    // this.root = new rootNodeClass(rootProps);
+    this.buildTree();
+    // this.currentSet = {};
   }
 
-  class StateTree {
-    constructor(rootNodeClass, rootProps) {
-      this.rootNodeClass = rootNodeClass;
-      this.rootProps = rootProps;
-      // this.root = new rootNodeClass(rootProps);
-      this.buildTree();
-      // this.currentSet = {};
-    }
-
-    buildTree() {
-      function detach(obj) {
-        if (!obj) {
-          return;
-        }
-
-        Object.keys(obj).forEach(k => {
-          detach(obj[k]);
-        });
-
-        obj.dispose();
-      }
-
-      function diffPatch(oldSet, newChildren) {
-        let divvy = divvyOldNew(oldSet, newChildren);
-
-        divvy.removed.forEach(k => {
-          oldSet[k].dispose();
-          oldSet = null;
-        });
-
-        divvy.added.forEach(k => {
-          let newObj = newChildren[k];
-          let instance = new newObj.nodeClass(newObj.props);
-          oldSet[k] = {
-            instance,
-          };
-
-          let childrenFactories = instance.buildChildren();
-
-          diffPatch({}, childrenFactories);
-        });
-      }
-
-      diffPatch({}, {
+  buildTree() {
+    diffPatch(
+      {},
+      {
         root: {
           nodeClass: this.rootNodeClass,
           props: this.rootProps,
-        }
-      });
+        },
+      },
+    );
+  }
+
+  render() {}
+
+  dispose() {
+    // tears down all the things, including root.
+    // this should be accomplishable by patching with empty set.
+  }
+}
+
+function detach(obj) {
+  if (!obj) {
+    return;
+  }
+
+  Object.keys(obj).forEach(k => {
+    detach(obj[k]);
+  });
+
+  obj.dispose();
+}
+
+function diffPatch(oldSet, newChildren) {
+  let divvy = divvyOldNew(oldSet, newChildren);
+
+  divvy.removed.forEach(k => {
+    oldSet[k].dispose();
+    oldSet = null;
+  });
+
+  divvy.added.forEach(k => {
+    let newObj = newChildren[k];
+    let instance = new newObj.nodeClass(newObj.props);
+    oldSet[k] = {
+      instance,
+    };
+
+    let childrenFactories = instance.buildChildren();
+
+    diffPatch({}, childrenFactories);
+  });
+}
+
+module('Unit - McRIB', {
+  beforeEach: function() {},
+  afterEach: function() {},
+});
+
+test('buildTree uses the router map to build a vtree', function(assert) {
+  let hooks = [];
+
+  class ChildNode extends Node {
+    constructor(props) {
+      super(props);
+      hooks.push('ChildNode()');
     }
 
-    render() {
+    willDestroy() {
+      hooks.push('ChildNode.willDestroy()');
+    }
+  }
+
+  class RootNode extends Node {
+    constructor(props) {
+      super(props);
+      hooks.push('RootNode()');
     }
 
-    dispose() {
-      // tears down all the things, including root.
-      // this should be accomplishable by patching with empty set.
+    buildChildren() {
+      hooks.push('RootNode.buildChildren()');
+      return {
+        main: {
+          nodeClass: ChildNode,
+          props: {
+            foo: 123,
+          },
+        },
+      };
+    }
+
+    willDestroy() {
+      hooks.push('RootNode.willDestroy()');
     }
   }
 
   let tree = new StateTree(RootNode, {});
 
   assert.deepEqual(hooks, [
-		"RootNode()",
-		"Root.buildChildren()",
-		"ChildNode()"
-	]);
+    'RootNode()',
+    'RootNode.buildChildren()',
+    'ChildNode()',
+  ]);
+
+  hooks = [];
+
+  tree.dispose();
+
+  // assert.deepEqual(hooks, ['wat']);
 });
