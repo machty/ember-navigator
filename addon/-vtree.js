@@ -39,7 +39,6 @@ function divvyOldNew(oldObj, newObj) {
   };
 
   Object.keys(oldObj)
-    .sort()
     .forEach(k => {
       let newFactory = newObj[k];
       if (newFactory) {
@@ -57,7 +56,6 @@ function divvyOldNew(oldObj, newObj) {
     });
 
   Object.keys(newObj)
-    .sort()
     .forEach(k => {
       if (!oldObj[k]) {
         result.added.push(k);
