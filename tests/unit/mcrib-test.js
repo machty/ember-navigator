@@ -1,17 +1,18 @@
 // tests/unit/routes/index-test.js
 import {test, module, skip} from 'ember-qunit';
 import Ember from 'ember';
+import {StateTree, Node} from 'ember-constraint-router/-vtree';
 
-import { StateTree, Node } from 'ember-constraint-router/-vtree';
+let hooks;
 
 module('Unit - McRIB', {
-  beforeEach: function() {},
+  beforeEach: function() {
+    hooks = [];
+  },
   afterEach: function() {},
 });
 
-test('buildTree uses the router map to build a vtree', function(assert) {
-  let hooks = [];
-
+test('basic buildup and teardown', function(assert) {
   class ChildNode extends Node {
     constructor(props) {
       super(props);
@@ -56,7 +57,10 @@ test('buildTree uses the router map to build a vtree', function(assert) {
 
   hooks = [];
 
-  tree.dispose();
+  tree.destroy();
 
-  assert.deepEqual(hooks, ['wat']);
+  assert.deepEqual(hooks, [
+    'ChildNode.willDestroy()',
+    'RootNode.willDestroy()'
+  ]);
 });

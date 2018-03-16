@@ -405,6 +405,43 @@ class LoggedInNode extends Node {
 
 
 
+{root: {…}}
+root
+:
+children
+:
+main
+:
+children
+:
+__proto__
+:
+Object
+instance
+:
+ChildNode {props: {…}}
+__proto__
+:
+Object
+__proto__
+:
+Object
+instance
+:
+RootNode
+props
+:
+{}
+__proto__
+:
+Node
+__proto__
+:
+Object
+__proto__
+:
+Object
+
 
 
 
