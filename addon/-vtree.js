@@ -7,7 +7,7 @@ export class Node {
     return {};
   }
 
-  willDestroy() { }
+  willDestroy() {}
 
   destroy() {
     this.willDestroy();
@@ -16,7 +16,7 @@ export class Node {
 
 // a node that expects handlerInfo args
 export class RouteNode extends Node {
-  buildChildren(props, state) {
+  buildChildren(props) {
     let {index, infos} = props;
     let childIndex = index + 1;
     let childInfo = infos[childIndex];
@@ -74,32 +74,18 @@ function divvyOldNew(oldObj, newObj) {
 }
 
 export class StateTree {
-  constructor(rootNodeClass, rootProps) {
-    this.rootNodeClass = rootNodeClass;
-    this.rootProps = rootProps;
+  constructor() {
     this.root = {};
-    this.buildTree();
   }
 
-  buildTree() {
-    this.root = diffPatch(
-      this.root,
-      {
-        root: {
-          nodeClass: this.rootNodeClass,
-          props: this.rootProps,
-        },
-      },
-    );
+  update(nodeClass, props) {
+    this.root = diffPatch(this.root, {
+      root: {nodeClass, props},
+    });
   }
-
-  render() {}
 
   destroy() {
-    this.root = diffPatch(
-      this.root,
-      {}
-    );
+    this.root = diffPatch(this.root, {});
   }
 }
 
@@ -127,7 +113,7 @@ function diffPatch(oldSet, newChildren) {
 
     newObject[k] = {
       instance,
-      children: diffPatch({}, childrenFactories)
+      children: diffPatch({}, childrenFactories),
     };
   });
 

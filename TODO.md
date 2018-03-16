@@ -394,63 +394,12 @@ class LoggedInNode extends Node {
 - [ ] get observables working as a method of subscribing to changes
 - [ ] explore typescript
 
+## RenderComponent vs StateTree
 
+In React you do RenderComponent(<App />, domElement).
 
-
-
-
-
-
-
-
-
-
-{root: {…}}
-root
-:
-children
-:
-main
-:
-children
-:
-__proto__
-:
-Object
-instance
-:
-ChildNode {props: {…}}
-__proto__
-:
-Object
-__proto__
-:
-Object
-instance
-:
-RootNode
-props
-:
-{}
-__proto__
-:
-Node
-__proto__
-:
-Object
-__proto__
-:
-Object
-
-
-
-
-
-
-
-
-
-
+I think... the DOM element is the atom. But in our case, our atom is the
+in memory tree.
 
 
 
