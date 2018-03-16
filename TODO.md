@@ -402,6 +402,109 @@ I think... the DOM element is the atom. But in our case, our atom is the
 in memory tree.
 
 
+## So how can i use microstates here?
+
+When something does a setState then omg... we're in the right
+place to use microstates. Next up: use setState.
+
+## McRIB vs Microstates vs React vs Glimmer:
+
+We re-render the state tree every time.
+
+
+
+
+
+
+So, maybe the rule is anything that anything that can
+be swapped out is a node? Unlike React, which has to model
+DOM, we have names of things. Should we make it possible to render
+nodes as data? And just have the data live on the nodes?
+
+Goals to keep in mind:
+
+1. Strong decoupling between parent and child; parent should not
+   be able to reach into children and futz around with data.
+   Observables down (props?)... something/callbacks/listeners up?
+2. We like the idea of state changing in a way that things are well
+   scoped and get cleaned up. This might not be a real concern.
+   Stable references good. So maybe just CPs.
+3. What's the difference between a child node (which we should never
+   touch) and a service that we materialize for downstream use? I don't know.
+
+I like the idea of scoped computeds that get destroyed when invalidated.
+Maybe they're more like owned getters with no dep keys. The worry in the past
+was what if you pass the service to someone and then they outlive you?
+Maybe this is something that can be prevented with DI scopes?
+
+
+
+
+
+Cool, so anyway, how do we render to the screen?
+
+
+- root
+  - foo
+    - bar
+
+
+
+{{outlet 'main'}}
+{{outlet 'header'}}
+{{outlet 'other'}}
+
+So render destinations should be passed in like any other destination.
+For react, the render destination is passed in by way of the parent.
+
+
+// ParentComponent
+render() {
+  return <ChildComponent />
+}
+
+// ChildComponent
+render() {
+  return <SubComponent />
+}
+
+// SubComponent
+render() {
+  return <div></div>
+}
+
+in all of these cases, render constructs a renderable. Each one implicitly gets
+passed a location to render, which is... right there.
+
+
+What if you could do:
+
+// ParentComponent
+
+render() {
+  return [
+    RenderBinding(<HeaderComponent />, this.props.headerComponent),
+    RenderBinding(<BodyComponent />, this.props.BodyComponent),
+    RenderBinding(<FooterComponent />, this.props.footerComponent),
+    // presumably there'd be a default called "here"
+  ];
+}
+
+class Node {
+  @provides
+  myService: owned(() => 
+}
+
+
+Would be great if we could use the Type system prevent render into something
+that's already filled in; make it explicit what's a stack.
+
+
+
+
+
+
+
 
 
 
