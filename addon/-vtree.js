@@ -53,7 +53,6 @@ function divvyOldNew(oldObj, newObj) {
         if (instance.constructor === newFactory.nodeClass) {
           result.preserved.push(k);
         } else {
-          // result.changed.push(k);
           result.removed.push(k);
           result.added.push(k);
         }
@@ -106,14 +105,32 @@ function diffPatch(oldSet, newChildren) {
     oldSet = null;
   });
 
+  divvy.preserved.forEach(k => {
+    let p = oldSet[k];
+    let q = newChildren[k];
+    let instance = p.instance;
+
+    // 1. Update props
+    instance.props = q.props;
+
+    // 2. Render with new props
+    let childrenVTree = instance.buildChildren(instance.props);
+
+    // 3. Store the instance
+    newObject[k] = {
+      instance,
+      children: diffPatch(p.children, childrenVTree),
+    };
+  });
+
   divvy.added.forEach(k => {
     let newObj = newChildren[k];
     let instance = new newObj.nodeClass(newObj.props);
-    let childrenFactories = instance.buildChildren();
+    let childrenVTree = instance.buildChildren(instance.props);
 
     newObject[k] = {
       instance,
-      children: diffPatch({}, childrenFactories),
+      children: diffPatch({}, childrenVTree),
     };
   });
 
