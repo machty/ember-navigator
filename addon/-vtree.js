@@ -45,11 +45,6 @@ function divvyOldNew(oldObj, newObj) {
       if (newFactory) {
         let instance = oldObj[k].instance;
 
-        // TODO: check key here; key defaults to Class
-        // actually key=Class is probably not good. probably
-        // needs to be a name string, or something from the handler info?
-        // in fact, yeah, RouteNodes should use a key of info.name i think, maybe?
-
         if (instance.constructor === newFactory.nodeClass) {
           result.preserved.push(k);
         } else {
