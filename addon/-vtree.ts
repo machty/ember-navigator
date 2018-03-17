@@ -2,7 +2,8 @@ interface Props<T> {
 }
 
 interface Constructor<T> {
-  new (): T;
+  // https://github.com/Microsoft/TypeScript/issues/2794#issuecomment-93713987
+  new(...args: any[]): T;
 }
 
 class VNode<T> {

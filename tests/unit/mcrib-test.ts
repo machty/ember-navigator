@@ -12,6 +12,8 @@ module('Unit - McRIB', {
 });
 
 class TestNode extends Node {
+  name: string;
+
   constructor(props) {
     super(props);
     this.name = this.constructor.name;
@@ -74,14 +76,12 @@ test('changing children root.foo -> root.bar', function(assert) {
 
   class FooNode extends TestNode { }
   class BarNode extends TestNode { }
+
   class RootNode extends TestNode {
-    buildChildren(props) {
+    buildChildren() {
       super.buildChildren();
       return {
-        main: {
-          nodeClass: props.showBar ? BarNode : FooNode,
-          props: {},
-        },
+        main: this.b(this.props.showBar ? BarNode : FooNode, {})
       };
     }
   }
