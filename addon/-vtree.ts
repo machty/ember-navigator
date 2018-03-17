@@ -19,6 +19,12 @@ interface VTree {
   [key: string]: VNode<any>
 }
 
+interface DivvyResult {
+  removed : string[];
+  added: string[];
+  preserved: string[];
+}
+
 // TODO: the point of this is so that people can just return null/undefined/nothing
 // from buildChildren?
 type BuildChildrenResult = VTree | undefined | null | void;
@@ -54,12 +60,6 @@ export class RouteNode extends Node {
       return { main: this.b(childInfo.handler, { todo: 'this' }) };
     }
   }
-}
-
-interface DivvyResult {
-  removed : string[];
-  added: string[];
-  preserved: string[];
 }
 
 function divvyOldNew(oldObj : DiffPatchResult, newObj) : DivvyResult {
