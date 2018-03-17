@@ -500,11 +500,184 @@ Would be great if we could use the Type system prevent render into something
 that's already filled in; make it explicit what's a stack.
 
 
+## React / Glimmer
+
+Re-render app state everytime. As part of reconciliation, we'll make as
+small changes as possible, in exactly where they need to change. Glimmer will see
+these changes and efficiently render on next tick and what not. Best of both worlds?
+
+## So how to get stuff rendering
+
+Depends on navigation.
+
+Imagine a transition type where you push it. You have options for
+how to model that. Rules:
+
+1. Some but not all nodes has a component/template
+2. In order to render component from a node, it needs to have
+   some kind of target ("outlet"?) to render into it.
+   liquid-outlet is just one kind. You could also imagine
+   another kind of outlet that is logical... it's a slot, that's yours
+   to consume or delegate, it might logically represent the top of a stack,
+   but then you render into it and you WIN! If the old pod is still around
+   then it'll support sliding back. You never actually leave the route.
+
+FlowPod
+- Screen1Pod
+- NavStack: []
+
+FlowPod
+- Screen1Pod
+- Screen2Pod
+- NavStack: [Screen1Pod]
+
+FlowPod
+- Screen1Pod
+- Screen2Pod
+- Screen3Pod
+- NavStack: [Screen1Pod, Screen2Pod]
+
+FlowPod
+- Screen1Pod
+- Screen2Pod
+- Screen3Pod
+- Screen4Pod
+- NavStack: [Screen1Pod, Screen2Pod, Screen3Pod]
+
+As you can see, you're adding more pods.
+Possible to represent as:
+
+FlowPod
+- Screen1Pod
+  - Screen2Pod
+    - Screen3Pod
+      - Screen4Pod
+- NavStack: [Screen1Pod, Screen2Pod, Screen3Pod]
+
+## What are blocks in this realm?
+
+You're passing a component with some interesting binding guarantees (TCP)
+
+The rendering component basically says, "while i'm alive, you're alive,
+and during that time, you render to this slot I provide you... it's
+inside me".
+
+## Glimmer QQ: is component instance coupled to dom it maintains?
+
+What if I wanted to teardown all the stuff on a component.
+
+## Ember portal header use case?
+
+How do you render into a portal that might not exist yet?
+
+- Today the intermediary is a server that stores portal names
+  in a hash.
+- Technically that could still work, but much better would be:
+- Declare the header slot in JS, and DI it into the header,
+  and DI it into whoever wants to render into it (e.g. body).
+- voila, runtime errors (especially quite ones) now fixed at compile time :)
+
+- What's the difference between an outlet and portal/elsewhere?
+  - basically both have 3 components:
+    - a. the JS object/identity/atom/pipe
+    - b. the component that renders into the pipe
+    - c. the component that decides where to render to
+  - outlet currently just reads off outlet state
+    - `{{outlet}}` is c
+    - the outlet name is kind of `a.` but very implicit
+    - the child route that renders into requested parent outlet
+
+## Outlet is one usecase for a pipe. So is ember-elsewhere.
+
+## DI revelation
+
+What's so bad about hidden dependencies?
+
+- kinda bad but OK: they serve as documentation, so if they're hidden,
+  it's hard to look at a piece of code and know what needs to change
+- Much Worse: refactoring / moving things around calls late runtime breakage.
+- If you want the documentation and have the means for it then drill holes,
+  otherwise use the type system (I guess this is why they added types to Context?
+  it's not quite DI... but it does type check... but it only type checks what
+  you put in).
+
+## Outlets
+
+We shouldn't change terminology. Pods with components need an outlet to render into.
+
+## Flattening the tree?
 
 
 
 
+```
+class DIContainer<T> {
+  requiredProps: T;
+}
 
+
+type Token = { authToken: string };
+class LoggedInNode {
+  di: DIContainer<Token>;
+}
+
+class Node<R = {}> {
+  di: DIContainer<R>
+}
+
+type Token = { authToken: string };
+
+type SubContainer<N, T> = DIContainer<T & N['parent']['di']>
+type DependentContainer<T> = DIContainer<T>
+
+class LoggedInNode extends Node {
+  di: DependentContainer<Token>
+}
+
+class CoolerThingThatKnowsALot extends Node {
+  parent: RootNode;
+  di: SubContainer<CoolerThingThatKnowsALot, Token>
+  // or maybe `SubContainer<ThisType, Token>`
+}
+
+
+export class Node {
+
+
+  // Node gets provided a compliant di container
+
+  di : DIContainer;
+
+  constructor(props, di) {
+    this.props = props;
+    this.di = di;
+  }
+
+  buildChildren() {
+    return {};
+  }
+
+  willDestroy() {}
+
+  destroy() {
+    this.willDestroy();
+  }
+}
+
+
+class RootNode extends Node {
+
+  di : DIContainer;
+}
+
+class LoggedInNode extends Node {
+
+  // authToken
+
+  di : DIContainer<RootDiContainer + LoggedInStuff>;
+
+}
+```
 
 
 
