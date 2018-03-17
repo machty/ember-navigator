@@ -1,9 +1,11 @@
 export class Node {
+  props : any;
+
   constructor(props) {
     this.props = props;
   }
 
-  buildChildren() {
+  buildChildren(props : any) {
     return {};
   }
 
@@ -65,7 +67,23 @@ function divvyOldNew(oldObj, newObj) {
   return result;
 }
 
+interface VNodeChildren {
+  [key: string]: VNode
+}
+
+class VNode {
+  instance: Node;
+  children: VNodeChildren;
+
+  constructor(instance, children) {
+    this.instance = instance;
+    this.children = children;
+  }
+}
+
 export class StateTree {
+  root : any;
+
   constructor() {
     this.root = {};
   }
@@ -110,10 +128,7 @@ function diffPatch(oldSet, newChildren) {
     let childrenVTree = instance.buildChildren(instance.props);
 
     // 3. Store the instance
-    newObject[k] = {
-      instance,
-      children: diffPatch(p.children, childrenVTree),
-    };
+    newObject[k] = new VNode(instance, diffPatch(p.children, childrenVTree));
   });
 
   divvy.added.forEach(k => {
@@ -121,10 +136,7 @@ function diffPatch(oldSet, newChildren) {
     let instance = new newObj.nodeClass(newObj.props);
     let childrenVTree = instance.buildChildren(instance.props);
 
-    newObject[k] = {
-      instance,
-      children: diffPatch({}, childrenVTree),
-    };
+    newObject[k] = new VNode(instance, diffPatch({}, childrenVTree));
   });
 
   return newObject;
