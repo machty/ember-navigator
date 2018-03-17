@@ -12,9 +12,9 @@ module('Unit - McRIB', {
 });
 
 class TestNode extends Node {
-  constructor(props, name) {
+  constructor(props) {
     super(props);
-    this.name = name;
+    this.name = this.constructor.name;
     hooks.push(`${this.name}()`);
   }
 
@@ -36,17 +36,8 @@ test('building a single node', function(assert) {
 });
 
 test('basic buildup and teardown', function(assert) {
-  class ChildNode extends TestNode {
-    constructor(props) {
-      super(props, 'ChildNode');
-    }
-  }
-
+  class ChildNode extends TestNode { }
   class RootNode extends TestNode {
-    constructor(props) {
-      super(props, 'RootNode');
-    }
-
     buildChildren() {
       super.buildChildren();
       return {
@@ -81,23 +72,9 @@ test('basic buildup and teardown', function(assert) {
 test('changing children root.foo -> root.bar', function(assert) {
   let tree = new StateTree();
 
-  class FooNode extends TestNode {
-    constructor(props) {
-      super(props, 'FooNode');
-    }
-  }
-
-  class BarNode extends TestNode {
-    constructor(props) {
-      super(props, 'BarNode');
-    }
-  }
-
+  class FooNode extends TestNode { }
+  class BarNode extends TestNode { }
   class RootNode extends TestNode {
-    constructor(props) {
-      super(props, 'RootNode');
-    }
-
     buildChildren(props) {
       super.buildChildren();
       return {
