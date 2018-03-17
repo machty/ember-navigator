@@ -28,6 +28,13 @@ class TestNode extends Node {
   }
 }
 
+test('building a single node', function(assert) {
+  let tree = new StateTree();
+  tree.update(Node, {});
+  assert.ok(tree.root.root.instance.props);
+  tree.destroy();
+});
+
 test('basic buildup and teardown', function(assert) {
   class ChildNode extends TestNode {
     constructor(props) {
@@ -51,7 +58,7 @@ test('basic buildup and teardown', function(assert) {
     }
   }
 
-  let tree = new StateTree(RootNode, {});
+  let tree = new StateTree();
   tree.update(RootNode, {});
 
   assert.deepEqual(hooks, [

@@ -1,3 +1,28 @@
+interface Props<T> {
+}
+
+interface Constructor<T> {
+  new (): T;
+}
+
+class VNode<T> {
+  nodeClass: Constructor<T>;
+  props: Props<T>;
+
+  constructor(nodeClass : Constructor<T>, props: Props<T>) {
+    this.nodeClass = nodeClass;
+    this.props = props;
+  }
+}
+
+interface VTree {
+  [key: string]: VNode<any>
+}
+
+// TODO: the point of this is so that people can just return null/undefined/nothing
+// from buildChildren?
+type BuildChildrenResult = VTree | undefined | null | void;
+
 export class Node {
   props : any;
 
@@ -5,8 +30,11 @@ export class Node {
     this.props = props;
   }
 
-  buildChildren(props : any) {
-    return {};
+  buildChildren(props : any) : BuildChildrenResult {
+  }
+
+  b<T>(nodeClass : Constructor<T>, props : Props<T>) : VNode<T> {
+    return new VNode(nodeClass, props);
   }
 
   willDestroy() {}
@@ -18,27 +46,26 @@ export class Node {
 
 // a node that expects handlerInfo args
 export class RouteNode extends Node {
-  buildChildren(props) {
+  buildChildren(props : any) {
     let {index, infos} = props;
     let childIndex = index + 1;
     let childInfo = infos[childIndex];
     if (childInfo) {
-      return {
-        main: {
-          nodeClass: childInfo.handler,
-          props: {todo: 'this'},
-        },
-      };
+      return { main: this.b(childInfo.handler, { todo: 'this' }) };
     }
   }
 }
 
-function divvyOldNew(oldObj, newObj) {
-  let result = {
-    removed: [],
-    added: [],
-    preserved: [],
-  };
+interface DivvyResult {
+  removed : string[];
+  added: string[];
+  preserved: string[];
+}
+
+function divvyOldNew(oldObj : DiffPatchResult, newObj) : DivvyResult {
+  let removed: string[] = [];
+  let added: string[] = [];
+  let preserved: string[] = [];
 
   Object.keys(oldObj)
     .forEach(k => {
@@ -47,33 +74,29 @@ function divvyOldNew(oldObj, newObj) {
         let instance = oldObj[k].instance;
 
         if (instance.constructor === newFactory.nodeClass) {
-          result.preserved.push(k);
+          preserved.push(k);
         } else {
-          result.removed.push(k);
-          result.added.push(k);
+          removed.push(k);
+          added.push(k);
         }
       } else {
-        result.removed.push(k);
+        removed.push(k);
       }
     });
 
   Object.keys(newObj)
     .forEach(k => {
       if (!oldObj[k]) {
-        result.added.push(k);
+        added.push(k);
       }
     });
 
-  return result;
+  return { removed, added, preserved };
 }
 
-interface VNodeChildren {
-  [key: string]: VNode
-}
-
-class VNode {
+class ConcreteNode {
   instance: Node;
-  children: VNodeChildren;
+  children: { [key: string]: ConcreteNode }
 
   constructor(instance, children) {
     this.instance = instance;
@@ -82,7 +105,7 @@ class VNode {
 }
 
 export class StateTree {
-  root : any;
+  root : DiffPatchResult;
 
   constructor() {
     this.root = {};
@@ -106,8 +129,12 @@ function detachTree(tree) {
   tree.instance.destroy();
 }
 
-function diffPatch(oldSet, newChildren) {
-  let newObject = {};
+interface DiffPatchResult {
+  [key: string]: ConcreteNode;
+}
+
+function diffPatch(oldSet, newChildren) : DiffPatchResult {
+  let newObject : DiffPatchResult = {};
 
   let divvy = divvyOldNew(oldSet, newChildren);
 
@@ -115,6 +142,8 @@ function diffPatch(oldSet, newChildren) {
     detachTree(oldSet[k]);
     oldSet = null;
   });
+
+  // VNode has instance and VNode children
 
   divvy.preserved.forEach(k => {
     let p = oldSet[k];
@@ -125,19 +154,23 @@ function diffPatch(oldSet, newChildren) {
     instance.props = q.props;
 
     // 2. Render with new props
-    let childrenVTree = instance.buildChildren(instance.props);
+    let childrenVTree = buildChildrenVTree(instance);
 
     // 3. Store the instance
-    newObject[k] = new VNode(instance, diffPatch(p.children, childrenVTree));
+    newObject[k] = new ConcreteNode(instance, diffPatch(p.children, childrenVTree));
   });
 
   divvy.added.forEach(k => {
     let newObj = newChildren[k];
     let instance = new newObj.nodeClass(newObj.props);
-    let childrenVTree = instance.buildChildren(instance.props);
+    let childrenVTree = buildChildrenVTree(instance);
 
-    newObject[k] = new VNode(instance, diffPatch({}, childrenVTree));
+    newObject[k] = new ConcreteNode(instance, diffPatch({}, childrenVTree));
   });
 
   return newObject;
+}
+
+function buildChildrenVTree(node : Node) : VTree {
+  return node.buildChildren(node.props) || {};
 }

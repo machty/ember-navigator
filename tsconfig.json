@@ -6,6 +6,7 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitThis": true,
     "noEmitOnError": false,
+    "strictNullChecks": true,
     "noEmit": true,
     "inlineSourceMap": true,
     "inlineSources": true,
