@@ -682,5 +682,26 @@ class LoggedInNode extends Node {
 
 
 
+```
 
+WatNode * 
+
+
+
+```
+
+## Orthogonal Concepts
+
+1. code is self-documenting; all dependencies are explicit
+  - function calls (esp. in a null-checking-env)
+  - React hole-drilling
+2. coding errors fail fast
+  - fastest: compile-time
+  - less fast: run-time check at boot
+  - worst case: findout out when a page renders or a button is clicked
+      that you're passing too few/many args, or the type is wrong
+
+Conclusions:
+
+- the DI i want is compile-time, but not immediately obviously self documenting
 
