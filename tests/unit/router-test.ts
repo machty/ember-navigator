@@ -25,8 +25,32 @@ class RouteDescriptor implements MapChild {
   }
 }
 
+const STATE_DESCRIPTOR = "STATE_DESCRIPTOR";
+
+class StateDescriptor implements MapChild {
+  name: string;
+  childrenDesc : MapChildrenDescriptor;
+
+  constructor(name, childrenDesc) {
+    this.name = name;
+    this.childrenDesc = childrenDesc;
+  }
+
+  makeSegment() {
+    return { path: '/', handler: STATE_DESCRIPTOR };
+  }
+}
+
 function route(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
   return new RouteDescriptor(name, childrenDesc || []);
+}
+
+function state(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
+  return new StateDescriptor(name, childrenDesc || []);
+}
+
+interface HandlerInfo {
+  handler: any;
 }
 
 type MapChildren = MapChild[];
@@ -48,6 +72,7 @@ class Map {
     let children = (typeof childrenDesc === 'function') ? childrenDesc() : childrenDesc;
 
     if (children.length === 0) {
+      debugger;
       this.recognizer.add(parentSegments, {as: 'wat'});
       return false;
     }
@@ -61,10 +86,18 @@ class Map {
     return true;
   }
 
-  recognize(url) : any[] {
-    let result = this.recognizer.recognize(url);
+  recognize(url) : HandlerInfo[] {
+    let result = this.recognizer.recognize(url) as HandlerInfo[];
     if (result) {
-      return result.slice(0);
+      let routeHandlers: any[] = [];
+
+      result.slice(0).forEach(h => {
+        if (h.handler !== STATE_DESCRIPTOR) {
+          routeHandlers.push(h);
+        }
+      });
+
+      return routeHandlers;
     } else {
       return [];
     }
@@ -72,17 +105,6 @@ class Map {
 }
 
 function createMap(desc: MapChildrenDescriptor) : Map {
-
-  // MVP route-recognizer can work _between_ states...
-  // which means it can't work?
-  // what if i make it work everywhere, and for each
-  // thing that I add, each state will have a path of `/`.
-  // Problem: route-recognizer needs to support returning multiple routes.
-  // `/foo/bar/baz` will get added twice.
-  // maybe the intermediate `{ path: '/', handler: SPECIAL_STATE_SYMBOL }`
-  // gets used twice, and when we recognize, we do the comparison.
-
-
   let map = new Map();
   map.add(desc);
   return map;
@@ -96,18 +118,23 @@ module('Unit - Router test', {
 });
 
 test('router map', function (assert) {
-  assert.expect(2);
+  assert.expect(3);
 
   let map = createMap([
     route('foo', [
-      route('foochild')
+      route('foochild'),
+      state('admin', [
+        route('posts')
+      ]),
     ]),
     route('bar'),
   ]);
 
   let result;
   result = map.recognize('foo/foochild');
-  assert.deepEqual(result.map(({ handler }) => handler), [ 'foo', 'foochild' ]);
+  assert.deepEqual(result.map(({ handler }) => handler), ['foo', 'foochild']);
   result = map.recognize('bar');
-  assert.deepEqual(result.map(({ handler }) => handler), [ 'bar' ]);
+  assert.deepEqual(result.map(({ handler }) => handler), ['bar']);
+  result = map.recognize('foo/posts');
+  assert.deepEqual(result.map(({ handler }) => handler), ['foo', 'posts']);
 });
