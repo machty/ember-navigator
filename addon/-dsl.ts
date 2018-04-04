@@ -1,5 +1,3 @@
-import { test, module } from 'ember-qunit';
-import { StateTree, Node } from 'ember-constraint-router/-vtree';
 import Ember from 'ember';
 
 let RouteRecognizer;
@@ -8,7 +6,7 @@ RouteRecognizer = Ember.__loader.require('route-recognizer')['default'];
 interface MapChild {
   name: string;
   childrenDesc : MapChildrenDescriptor;
-  makeSegment: () => any;
+  makeSegment: () => HandlerInfo;
 }
 
 class RouteDescriptor implements MapChild {
@@ -56,20 +54,17 @@ class WhenDescriptor implements MapChild {
   }
 }
 
-function route(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
+export function route(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
   return new RouteDescriptor(name, childrenDesc || []);
 }
 
-function state(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
+export function state(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
   return new StateDescriptor(name, childrenDesc || []);
 }
 
-function when(conditionObj: any, childrenDesc: MapChildrenDescriptor) : MapChild {
+export function when(conditionObj: any, childrenDesc: MapChildrenDescriptor) : MapChild {
   return new WhenDescriptor(name, childrenDesc);
 }
-
-// when({ foo: 123 }, [
-// ])
 
 interface HandlerInfo {
   handler: any;
@@ -125,42 +120,8 @@ class Map {
   }
 }
 
-function createMap(desc: MapChildrenDescriptor) : Map {
+export function createMap(desc: MapChildrenDescriptor) : Map {
   let map = new Map();
   map.add(desc);
   return map;
 }
-
-module('Unit - Router test', {
-  beforeEach: function () {
-  },
-  afterEach: function () {
-  },
-});
-
-test('router map', function (assert) {
-  assert.expect(4);
-
-  let map = createMap([
-    route('foo', [
-      route('foochild'),
-      state('admin', (adminState) => [
-        route('posts'),
-        when({ foo: 123 }, [
-          route('comments')
-        ])
-      ]),
-    ]),
-    route('bar'),
-  ]);
-
-  let result;
-  result = map.recognize('foo/foochild');
-  assert.deepEqual(result.map(({ handler }) => handler), ['foo', 'foochild']);
-  result = map.recognize('bar');
-  assert.deepEqual(result.map(({ handler }) => handler), ['bar']);
-  result = map.recognize('foo/posts');
-  assert.deepEqual(result.map(({ handler }) => handler), ['foo', 'posts']);
-  result = map.recognize('foo/comments');
-  assert.deepEqual(result.map(({ handler }) => handler), ['foo', 'comments']);
-});
