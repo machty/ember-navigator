@@ -1,12 +1,19 @@
-import Ember from 'ember';
-
-let RouteRecognizer;
-RouteRecognizer = Ember.__loader.require('route-recognizer')['default'];
+import RouteRecognizer from 'ember-constraint-router/-route-recognizer';
 
 interface MapChild {
   name: string;
   childrenDesc : MapChildrenDescriptor;
   makeSegment: () => HandlerInfo;
+}
+
+interface RecognizerHandler {
+  key: string;
+  name: string;
+}
+
+interface RecognizerSegment {
+  handler: RecognizerHandler;
+  path: string;
 }
 
 class RouteDescriptor implements MapChild {
@@ -18,13 +25,10 @@ class RouteDescriptor implements MapChild {
     this.childrenDesc = childrenDesc;
   }
 
-  makeSegment() {
-    return { path: this.name, handler: this.name };
+  makeSegment() : RecognizerSegment {
+    return { path: this.name, handler: { key: 'key', name: this.name } };
   }
 }
-
-const STATE_DESCRIPTOR = "STATE_DESCRIPTOR";
-const WHEN_DESCRIPTOR = "WHEN_DESCRIPTOR";
 
 class StateDescriptor implements MapChild {
   name: string;
@@ -35,8 +39,8 @@ class StateDescriptor implements MapChild {
     this.childrenDesc = childrenDesc;
   }
 
-  makeSegment() {
-    return { path: '/', handler: STATE_DESCRIPTOR };
+  makeSegment() : RecognizerSegment {
+    return { path: '/', handler: { key: 'key', name: this.name } };
   }
 }
 
@@ -44,13 +48,13 @@ class WhenDescriptor implements MapChild {
   name: string;
   childrenDesc: MapChildrenDescriptor;
 
-  constructor(name, childrenDesc) {
-    this.name = name;
+  constructor(childrenDesc) {
+    this.name = 'when';
     this.childrenDesc = childrenDesc;
   }
 
-  makeSegment() {
-    return { path: '/', handler: WHEN_DESCRIPTOR };
+  makeSegment() : RecognizerSegment {
+    return { path: '/', handler: { key: 'key', name: this.name } };
   }
 }
 
@@ -63,7 +67,7 @@ export function state(name: string, childrenDesc?: MapChildrenDescriptor) : MapC
 }
 
 export function when(conditionObj: any, childrenDesc: MapChildrenDescriptor) : MapChild {
-  return new WhenDescriptor(name, childrenDesc);
+  return new WhenDescriptor(childrenDesc);
 }
 
 interface HandlerInfo {
@@ -101,22 +105,22 @@ class Map {
     return true;
   }
 
-  recognize(url) : HandlerInfo[] {
-    let result = this.recognizer.recognize(url) as HandlerInfo[];
-    if (result) {
+  recognizeAll(url) : HandlerInfo[][] {
+    return this.recognizer.recognizeAll(url).map(r => {
+      let result = r as HandlerInfo[];
+
       let routeHandlers: any[] = [];
 
       result.slice(0).forEach(h => {
-        if (h.handler !== STATE_DESCRIPTOR && 
-            h.handler !== WHEN_DESCRIPTOR) {
-          routeHandlers.push(h);
-        }
+        routeHandlers.push(h);
       });
 
       return routeHandlers;
-    } else {
-      return [];
-    }
+    });
+  }
+
+  recognize(url) : HandlerInfo[] {
+    return this.recognizeAll(url)[0];
   }
 }
 
