@@ -3,7 +3,7 @@ import RouteRecognizer from 'ember-constraint-router/-route-recognizer';
 interface MapChild {
   name: string;
   childrenDesc : MapChildrenDescriptor;
-  makeSegment: () => HandlerInfo;
+  makeSegment: (key: string) => HandlerInfo;
 }
 
 interface RecognizerHandler {
@@ -25,8 +25,8 @@ class RouteDescriptor implements MapChild {
     this.childrenDesc = childrenDesc;
   }
 
-  makeSegment() : RecognizerSegment {
-    return { path: this.name, handler: { key: 'key', name: this.name } };
+  makeSegment(key) : RecognizerSegment {
+    return { path: this.name, handler: { key, name: this.name } };
   }
 }
 
@@ -39,8 +39,8 @@ class StateDescriptor implements MapChild {
     this.childrenDesc = childrenDesc;
   }
 
-  makeSegment() : RecognizerSegment {
-    return { path: '/', handler: { key: 'key', name: this.name } };
+  makeSegment(key) : RecognizerSegment {
+    return { path: '/', handler: { key, name: this.name } };
   }
 }
 
@@ -53,8 +53,8 @@ class WhenDescriptor implements MapChild {
     this.childrenDesc = childrenDesc;
   }
 
-  makeSegment() : RecognizerSegment {
-    return { path: '/', handler: { key: 'key', name: this.name } };
+  makeSegment(key) : RecognizerSegment {
+    return { path: '/', handler: { key, name: this.name } };
   }
 }
 
@@ -86,10 +86,10 @@ class Map {
   }
 
   add(children: MapChildrenDescriptor) {
-    this._addRecursive([], children);
+    this._addRecursive([], children, '');
   }
 
-  _addRecursive(parentSegments, childrenDesc: MapChildrenDescriptor) : Boolean {
+  _addRecursive(parentSegments, childrenDesc: MapChildrenDescriptor, parentKey: string) : Boolean {
     let children = (typeof childrenDesc === 'function') ? childrenDesc() : childrenDesc;
 
     if (children.length === 0) {
@@ -98,8 +98,9 @@ class Map {
     }
 
     let segments = [...parentSegments, {}];
-    children.forEach(child => {
-      this._addRecursive([...parentSegments, child.makeSegment()], child.childrenDesc)
+    children.forEach((child, index) => {
+      let key = `${parentKey}.${index}`;
+      this._addRecursive([...parentSegments, child.makeSegment(key)], child.childrenDesc, key);
     });
 
     return true;
