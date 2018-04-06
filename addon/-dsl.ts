@@ -2,7 +2,7 @@ import RouteRecognizer from 'ember-constraint-router/-route-recognizer';
 
 interface MapChild {
   name: string;
-  childrenDesc : MapChildrenDescriptor;
+  childrenDesc : MapChildrenFn;
   makeSegment: (key: string) => HandlerInfo;
 }
 
@@ -16,26 +16,40 @@ interface RecognizerSegment {
   path: string;
 }
 
+interface RouteDescriptorOptions {
+  path?: string;
+  key?: string;
+}
+
 class RouteDescriptor implements MapChild {
   name: string;
-  childrenDesc: MapChildrenDescriptor;
+  options: RouteDescriptorOptions;
+  childrenDesc: MapChildrenFn;
 
-  constructor(name, childrenDesc) {
+  constructor(name, options, childrenDesc) {
     this.name = name;
+    this.options = options;
     this.childrenDesc = childrenDesc;
   }
 
   makeSegment(key) : RecognizerSegment {
-    return { path: this.name, handler: { key, name: this.name } };
+    let path = this.options.path || this.name;
+    return { path, handler: { key, name: this.name } };
   }
+}
+
+interface StateDescriptorOptions {
+  key?: string;
 }
 
 class StateDescriptor implements MapChild {
   name: string;
-  childrenDesc: MapChildrenDescriptor;
+  options: StateDescriptorOptions;
+  childrenDesc: MapChildrenFn;
 
-  constructor(name, childrenDesc) {
+  constructor(name, options, childrenDesc) {
     this.name = name;
+    this.options = options;
     this.childrenDesc = childrenDesc;
   }
 
@@ -46,7 +60,7 @@ class StateDescriptor implements MapChild {
 
 class WhenDescriptor implements MapChild {
   name: string;
-  childrenDesc: MapChildrenDescriptor;
+  childrenDesc: MapChildrenFn;
 
   constructor(childrenDesc) {
     this.name = 'when';
@@ -58,15 +72,29 @@ class WhenDescriptor implements MapChild {
   }
 }
 
-export function route(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
-  return new RouteDescriptor(name, childrenDesc || []);
+const nullChildrenFn = () => [];
+
+type RouteDescriptorArgs = RouteDescriptorOptions | MapChildrenFn;
+export function route(name: string, options: RouteDescriptorArgs = {}, childrenFn?: MapChildrenFn) : MapChild {
+  if (arguments.length === 2 && typeof options === 'function') {
+    childrenFn = options;
+    options = {}
+  }
+
+  return new RouteDescriptor(name, options, childrenFn);
 }
 
-export function state(name: string, childrenDesc?: MapChildrenDescriptor) : MapChild {
-  return new StateDescriptor(name, childrenDesc || []);
+type StateDescriptorArgs = StateDescriptorOptions | MapChildrenFn;
+export function state(name: string, options: StateDescriptorArgs = {}, childrenFn?: MapChildrenFn) : MapChild {
+  if (arguments.length === 2 && typeof options === 'function') {
+    childrenFn = options;
+    options = {}
+  }
+
+  return new StateDescriptor(name, options, childrenFn);
 }
 
-export function when(conditionObj: any, childrenDesc: MapChildrenDescriptor) : MapChild {
+export function when(conditionObj: any, childrenDesc: MapChildrenFn) : MapChild {
   return new WhenDescriptor(childrenDesc);
 }
 
@@ -74,9 +102,7 @@ interface HandlerInfo {
   handler: any;
 }
 
-type MapChildren = MapChild[];
-type MapChildrenFn = (...any) => MapChildren;
-type MapChildrenDescriptor = MapChildren | MapChildrenFn;
+type MapChildrenFn = (...any) => MapChild[];
 
 class Map {
   recognizer: any;
@@ -85,15 +111,15 @@ class Map {
     this.recognizer = new RouteRecognizer();
   }
 
-  add(children: MapChildrenDescriptor) {
+  add(children: MapChildrenFn) {
     this._addRecursive([], children, '');
   }
 
-  _addRecursive(parentSegments, childrenDesc: MapChildrenDescriptor, parentKey: string) : Boolean {
-    let children = (typeof childrenDesc === 'function') ? childrenDesc() : childrenDesc;
+  _addRecursive(parentSegments, childrenDesc: MapChildrenFn, parentKey: string) : Boolean {
+    let children = childrenDesc ? childrenDesc() : [];
 
     if (children.length === 0) {
-      this.recognizer.add(parentSegments, {as: 'wat'});
+      this.recognizer.add(parentSegments);
       return false;
     }
 
@@ -125,7 +151,7 @@ class Map {
   }
 }
 
-export function createMap(desc: MapChildrenDescriptor) : Map {
+export function createMap(desc: MapChildrenFn) : Map {
   let map = new Map();
   map.add(desc);
   return map;
