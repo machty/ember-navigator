@@ -94,8 +94,8 @@ export function state(name: string, options: StateDescriptorArgs = {}, childrenF
   return new StateDescriptor(name, options, childrenFn);
 }
 
-export function when(conditionObj: any, childrenDesc: MapChildrenFn) : MapChild {
-  return new WhenDescriptor(childrenDesc);
+export function when(conditionObj: any, childrenFn: MapChildrenFn) : MapChild {
+  return new WhenDescriptor(childrenFn);
 }
 
 interface HandlerInfo {
