@@ -1,10 +1,9 @@
-// tests/unit/routes/index-test.js
 import {test, module} from 'ember-qunit';
 import {StateTree, Node} from 'ember-constraint-router/-vtree';
 
 let hooks;
 
-module('Unit - McRIB', {
+module('Unit - VTrees', {
   beforeEach: function() {
     hooks = [];
   },
