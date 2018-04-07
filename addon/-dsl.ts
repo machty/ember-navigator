@@ -104,50 +104,83 @@ interface HandlerInfo {
 
 type MapChildrenFn = (...any) => MapChild[];
 
+class MapScope {
+  childScopes: MapScope[];
+  desc: MapChild;
+  parent?: MapScope;
+  childScopeRegistry: {
+    [key: string]: MapScope
+  };
+
+  constructor(desc: MapChild, parent?: MapScope) {
+    this.desc = desc;
+    this.childScopes = [];
+    this.childScopeRegistry = {};
+    this.parent = parent;
+  }
+
+  add(childrenDesc: MapChildrenFn) {
+    let children = childrenDesc ? childrenDesc() : [];
+
+    children.forEach((child, index) => {
+      let childScope = new MapScope(child, this);
+      childScope.add(child.childrenDesc);
+      this._registerScope(childScope);
+      this.childScopes.push(childScope);
+    });
+  }
+  
+  _registerScope(scope: MapScope) {
+    if (scope.name === 'child') { debugger; }
+    this.childScopeRegistry[scope.name] = scope;
+    if (this.parent) {
+      this.parent._registerScope(scope);
+    }
+  }
+
+  getScope(name: string) : MapScope | undefined {
+    return this.childScopeRegistry[name];
+  }
+
+  get name() : string {
+    return this.desc.name;
+  }
+}
+
+function makeRouterDslFn(childScopes : MapScope[]) {
+  return function() {
+    let emberRouterDsl = this;
+    childScopes.forEach((cs) => {
+      emberRouterDsl.route(cs.desc.name, { resetNamespace: true }, 
+        makeRouterDslFn(cs.childScopes)
+      );
+    });
+  }
+}
+
 class Map {
   recognizer: any;
+  registry: any;
+  root: MapScope;
 
   constructor() {
     this.recognizer = new RouteRecognizer();
+    this.registry = {};
+
+    let rootDesc = new RouteDescriptor('root', { path: '/' }, null);
+    this.root = new MapScope(rootDesc);
   }
 
   add(children: MapChildrenFn) {
-    this._addRecursive([], children, '');
+    this.root.add(children);;
   }
 
-  _addRecursive(parentSegments, childrenDesc: MapChildrenFn, parentKey: string) : Boolean {
-    let children = childrenDesc ? childrenDesc() : [];
-
-    if (children.length === 0) {
-      this.recognizer.add(parentSegments);
-      return false;
-    }
-
-    let segments = [...parentSegments, {}];
-    children.forEach((child, index) => {
-      let key = `${parentKey}.${index}`;
-      this._addRecursive([...parentSegments, child.makeSegment(key)], child.childrenDesc, key);
-    });
-
-    return true;
+  getScope(name : string) {
+    return this.root.getScope(name);
   }
 
-  recognizeAll(url) : HandlerInfo[][] {
-    return this.recognizer.recognizeAll(url).map(r => {
-      let result = r as HandlerInfo[];
-
-      let routeHandlers: any[] = [];
-
-      result.slice(0).forEach(h => {
-        routeHandlers.push(h);
-      });
-
-      return routeHandlers;
-    });
-  }
-
-  recognize(url) : HandlerInfo[] {
-    return this.recognizeAll(url)[0];
+  mount(emberRouterDsl) {
+    makeRouterDslFn(this.root.childScopes).call(emberRouterDsl);
   }
 }
 

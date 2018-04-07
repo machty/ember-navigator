@@ -55,10 +55,15 @@ export class Node {
 export class RouteNode extends Node {
   buildChildren(props : any) {
     let {index, infos} = props;
-    let childIndex = index + 1;
+    let childIndex = index;
     let childInfo = infos[childIndex];
     if (childInfo) {
-      return { main: this.b(childInfo.handler, { todo: 'this' }) };
+      return {
+        main: this.b(RouteNode, { 
+          index: index + 1,
+          infos
+        })
+      };
     }
   }
 }

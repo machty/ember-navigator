@@ -20,12 +20,10 @@
     "postpublish": "ember ts:clean"
   },
   "dependencies": {
-    "ember-browserify": "1.1.13",
     "ember-cli-babel": "^6.6.0",
     "ember-maybe-import-regenerator": "^0.1.6",
     "process-nextick-args": "^1.0.7",
-    "util-deprecate": "^1.0.2",
-    "virtual-dom": "^2.1.1"
+    "util-deprecate": "^1.0.2"
   },
   "devDependencies": {
     "@types/ember": "^2.8.16",

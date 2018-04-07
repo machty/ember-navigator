@@ -9,6 +9,9 @@ module.exports = function(defaults) {
       exclude: [
         'transform-regenerator',
       ]
+    },
+    isDevelopingAddon: function() {
+      return true;
     }
   });
 
