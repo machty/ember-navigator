@@ -15,7 +15,7 @@ test('.mount can mount to ember dsl', function (assert) {
   let emberRouterMap = {
     route(name, options) {
       assert.equal(name, 'foo');
-      assert.deepEqual(options, { resetNamespace: true });
+      assert.deepEqual(options, { resetNamespace: true, path: 'foo' });
     }
   };
 
@@ -56,21 +56,56 @@ test('allows state constraints', function (assert) {
   let emberRouterMap = {
     route(name, options, desc) {
       dslCalls.push(['route', name, options]);
-      desc.call(emberRouterMap);
+      desc && desc.call(emberRouterMap);
     },
     state(name, options, desc) {
       dslCalls.push(['state', name, options]);
-      desc.call(emberRouterMap);
+      desc && desc.call(emberRouterMap);
     }
   };
 
   map.mount(emberRouterMap);
 
   assert.deepEqual(dslCalls, [
-    [ "route", "root-state-0", { "path": "/", "resetNamespace": true } ],
-    [ "route", "user-session-when-0", { "path": "/", "resetNamespace": true } ],
-    [ "route", "get-user-session", { "resetNamespace": true } ],
-    [ "route", "user-session-when-1", { "path": "/", "resetNamespace": true } ],
-    [ "route", "logged-in", { "resetNamespace": true } ]
+    [
+      "route",
+      "root-state-0",
+      {
+        "path": "/",
+        "resetNamespace": true
+      }
+    ],
+    [
+      "route",
+      "user-session-when-0",
+      {
+        "path": "/",
+        "resetNamespace": true
+      }
+    ],
+    [
+      "route",
+      "get-user-session",
+      {
+        "path": "get-user-session",
+        "resetNamespace": true
+      }
+    ],
+    [
+      "route",
+      "user-session-when-1",
+      {
+        "path": "/",
+        "resetNamespace": true
+      }
+    ],
+    [
+      "route",
+      "logged-in",
+      {
+        "path": "logged-in",
+        "resetNamespace": true
+      }
+    ]
   ]);
 });
