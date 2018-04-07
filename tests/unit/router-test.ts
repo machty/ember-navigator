@@ -37,3 +37,40 @@ test('it maintains a registry of child names', function (assert) {
   let scope2 = map.getScope('child');
   assert.equal(scope2, scope);
 });
+
+test('allows state constraints', function (assert) {
+  assert.expect(1);
+  const map = createMap(() => [
+    state('user-session', (us) => [
+      when('absent', () => [
+        route('get-user-session')
+      ]),
+      when('present', () => [
+        route('logged-in')
+      ]),
+    ])
+  ]);
+
+  let dslCalls: any[] = [];
+
+  let emberRouterMap = {
+    route(name, options, desc) {
+      dslCalls.push(['route', name, options]);
+      desc.call(emberRouterMap);
+    },
+    state(name, options, desc) {
+      dslCalls.push(['state', name, options]);
+      desc.call(emberRouterMap);
+    }
+  };
+
+  map.mount(emberRouterMap);
+
+  assert.deepEqual(dslCalls, [
+    [ "route", "root-state-0", { "path": "/", "resetNamespace": true } ],
+    [ "route", "user-session-when-0", { "path": "/", "resetNamespace": true } ],
+    [ "route", "get-user-session", { "resetNamespace": true } ],
+    [ "route", "user-session-when-1", { "path": "/", "resetNamespace": true } ],
+    [ "route", "logged-in", { "resetNamespace": true } ]
+  ]);
+});
