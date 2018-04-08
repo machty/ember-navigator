@@ -1,7 +1,80 @@
-<h2 id="title">Welcome to Ember</h2>
+<h2 id="title">ember-constraint-router demo</h2>
+
+<p>
+  simulate websocket events that update the state of your app
+  (internally this justs .set()s the model on the 'current-ride' service)<br>
+</p>
+
+<p>
+  <button {{action 'simulateRiding'}}>Simulate Riding</button>
+  <button {{action 'simulateRideComplete'}}>Simulate Ride Complete</button>
+  <button {{action 'simulateNotRiding'}}>Simulate Not Riding</button>
+</p>
+
+<h4>Current Ride model</h4>
+
+<pre style="height: 60px;">{{currentRide.rideJson}}</pre>
+
+<ul>
+  <li>
+    Constrained routes (these routes can only be entered
+    when the current-ride service is in a certain state):
+  </li>
+
+  <ul>
+    <li>
+      {{link-to 'request-ride' 'request-ride'}}
+    </li>
+    <li>
+      {{link-to 'riding' 'riding'}}
+    </li>
+    <li>
+      {{link-to 'ride-complete' 'ride-complete'}}
+    </li>
+  </ul>
+
+  <li>
+    Unconstrained routes:
+  </li>
+
+  <ul>
+    <li>
+      {{link-to 'fun' 'fun'}}
+    </li>
+    <li>
+      {{link-to 'foo' 'foo'}}
+    </li>
+    <li>
+      {{link-to 'bar' 'bar'}}
+    </li>
+  </ul>
+</ul>
 
 currentRoute={{currentRouteName}}
+<div class="mobile-frame">
+  {{outlet}}
+</div>
 
-{{link-to 'riding' 'riding'}}
+<h4>route definition</h4>
 
-{{outlet}}
+<pre>export default createMap(() => [
+  route('fun'),
+  route('foo', () => [
+    route('bar', () => [
+      state('current-ride', (ride) => [
+        ride.match('notRiding', () => [
+          route('request-ride')
+        ]),
+        ride.match('riding', () => [
+          route('riding')
+        ]),
+        ride.match('complete', () => [
+          route('ride-complete')
+        ]),
+      ])
+    ])
+  ])
+]);
+</pre>
+
+

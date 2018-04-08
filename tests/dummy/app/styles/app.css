@@ -1,0 +1,17 @@
+body {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.mobile-frame {
+  border: 1px solid black;
+  width: 320px;
+  height: 570px;
+  padding: 10px;
+}
+
+button {
+  font-weight: bolder;
+  font-size: 18px;
+
+}

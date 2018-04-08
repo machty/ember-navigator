@@ -103,7 +103,7 @@ export default Service.extend({
 
     let currentScope = startScope.parent;
     let handlerIndex = transition.resolveIndex;
-    let handlerInfo = transition.handlerInfos[handlerIndex];
+
     while (currentScope) {
       if (currentScope.name === 'root') {
         break;
@@ -111,34 +111,39 @@ export default Service.extend({
 
       switch(currentScope.type) {
         case 'route':
-          handlerIndex--;
-          handlerInfo = transition.handlerInfos[handlerIndex];
-          if (!handlerInfo || handlerInfo.name !== currentScope.name) {
-            throw new Error(`ember-constraint-router unable to find route while walking tree`);
-          }
+          // no need to revalidate more then the parent route
+          return;
           break;
         case 'state':
+          // continue til we find a route
           break;
         case 'when':
           let owner = getOwner(this);
+          let serviceName = currentScope.parent.name;
+          let service = owner.lookup(`service:${serviceName}`);
+          if (!service) {
+            throw new Error(`ember-constraint-router: couldn't find backing service for ${serviceName}`)
+          }
 
-          let validationContext = {
-            get: (name) => {
-              // TODO: eventually this can be a keyed State builder
-              // rather than something that does lookups on a singleton.
-              return owner.lookup(`service:${name}`);
+          let val = service.get('routeValidation');
+          let validationResult = val[currentScope.desc.condition];
+
+          if (validationResult) {
+            if (!service._hasSubscribedToRouteChanges) {
+              // let closestRoute = owner.lookup('route:application');
+              let closestRoute = transition.handlerInfos[handlerIndex-1].handler;
+              service.addObserver('routeValidation', null, () => {
+                closestRoute.refresh();
+              });
+              service._hasSubscribedToRouteChanges = true;
             }
-          };
-
-          let isValid = currentScope.desc.validatePresence(validationContext);
-
-          if (!isValid) {
+          } else {
             let alternatives = currentScope.parent.childScopes.map(cs => {
               if (cs === currentScope) {
                 return null;
               }
 
-              let result = cs.desc.validatePresence(validationContext);
+              let result = val[cs.desc.condition];
               if (result) {
                 return cs;
               }
@@ -156,6 +161,7 @@ export default Service.extend({
               }
 
               if (foundLeafRoute) {
+                // whether we have a solution or not, we need to subscribe.
                 this.router.transitionTo(foundLeafRoute.name);
               } else {
                 // TODO: bubble
@@ -171,16 +177,5 @@ export default Service.extend({
       }
       currentScope = currentScope.parent;
     }
-
-    if (transition === this.activeTransition) {
-    } else {
-      this.activeTransition = transition;
-      // this.activeTransition.then(value => {
-      //   alert('completed')
-      // }, error => {
-      //   alert('error')
-      // });
-    }
-    this.lastRouteLoaded = route;
   }
 });

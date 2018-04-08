@@ -5,11 +5,14 @@ export default createMap(() => [
   route('foo', () => [
     route('bar', () => [
       state('current-ride', (ride) => [
-        ride.match('absent', () => [
+        ride.match('notRiding', () => [
+          route('request-ride')
+        ]),
+        ride.match('riding', () => [
           route('riding')
         ]),
-        ride.match('present', () => [
-          route('not-riding')
+        ride.match('complete', () => [
+          route('ride-complete')
         ]),
       ])
     ])

@@ -98,10 +98,10 @@ export class WhenDescriptor implements ScopeDescriptor {
     return { scope };
   }
 
-  validatePresence(context) {
-    let stateDesc = this.source.desc as StateDescriptor;
-    return stateDesc.validateMatch(this, context);
-  }
+  // validatePresence(context) {
+  //   let stateDesc = this.source.desc as StateDescriptor;
+  //   return stateDesc.validateMatch(this, context);
+  // }
 }
 
 const nullChildrenFn = () => [];
