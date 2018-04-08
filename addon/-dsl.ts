@@ -1,6 +1,10 @@
-export interface MapChild {
+type ScopeDescriptorType = 'route' | 'state' | 'when';
+
+export interface ScopeDescriptor {
   name: string;
   childrenDesc : MapChildrenFn;
+  type: ScopeDescriptorType;
+  buildBlockParam(scope: MapScope, index: number) : any;
 }
 
 export interface RouteDescriptorOptions {
@@ -8,19 +12,26 @@ export interface RouteDescriptorOptions {
   key?: string;
 }
 
-export class RouteDescriptor implements MapChild {
+interface ValidationFailure {
+}
+
+
+
+export class RouteDescriptor implements ScopeDescriptor {
   name: string;
   options: RouteDescriptorOptions;
   childrenDesc: MapChildrenFn;
+  type: ScopeDescriptorType;
 
   constructor(name, options, childrenDesc) {
     this.name = name;
     this.options = options;
     this.childrenDesc = childrenDesc;
+    this.type = 'route';
   }
 
-  getEmberRouterDslArgs() {
-    return [this.name, this.options];
+  buildBlockParam(scope: MapScope, index: number) {
+    return { scope };
   }
 }
 
@@ -28,32 +39,75 @@ export interface StateDescriptorOptions {
   key?: string;
 }
 
-export class StateDescriptor implements MapChild {
+export class StateDescriptor implements ScopeDescriptor {
   name: string;
   options: StateDescriptorOptions;
   childrenDesc: MapChildrenFn;
+  type: ScopeDescriptorType;
 
   constructor(name, options, childrenDesc) {
     this.name = name;
     this.options = options;
     this.childrenDesc = childrenDesc;
+    this.type = 'state';
+  }
+
+  buildBlockParam(scope: MapScope, index: number) {
+    return {
+      match: (conditionObj: any, fn: MapChildrenFn) => {
+        return new WhenDescriptor(conditionObj, scope, fn);
+      }
+    };
+  }
+
+  validateMatch(when: WhenDescriptor, context: any) : ValidationFailure | void {
+    let stateObj = context.get(this.name);
+    if (!stateObj) {
+      throw new Error(`ember-constraint-router: couldn't find backing service for ${this.name}`)
+    }
+
+    // let isValid = stateObj.validateConstraint(when.condition);
+    return stateObj.validateConstraint(when.condition);
+
+    // if (isValid) {
+    //   // yes
+    // } else {
+    //   // decide how to fix validation.
+    // }
+
+    // as the service or whatever it is whether it's still valid.
   }
 }
 
-export class WhenDescriptor implements MapChild {
+export class WhenDescriptor implements ScopeDescriptor {
   name: string;
   childrenDesc: MapChildrenFn;
+  type: ScopeDescriptorType;
+  condition: any;
+  source: MapScope;
 
-  constructor(childrenDesc) {
+  constructor(condition: any, source: MapScope, childrenDesc) {
     this.name = 'when';
     this.childrenDesc = childrenDesc;
+    this.type = 'when';
+    this.source = source;
+    this.condition = condition;
+  }
+
+  buildBlockParam(scope: MapScope, index: number) {
+    return { scope };
+  }
+
+  validatePresence(context) {
+    let stateDesc = this.source.desc as StateDescriptor;
+    return stateDesc.validateMatch(this, context);
   }
 }
 
 const nullChildrenFn = () => [];
 
 export type RouteDescriptorArgs = RouteDescriptorOptions | MapChildrenFn;
-export function route(name: string, options: RouteDescriptorArgs = {}, childrenFn?: MapChildrenFn) : MapChild {
+export function route(name: string, options: RouteDescriptorArgs = {}, childrenFn?: MapChildrenFn) : ScopeDescriptor {
   if (arguments.length === 2 && typeof options === 'function') {
     childrenFn = options;
     options = {}
@@ -63,7 +117,7 @@ export function route(name: string, options: RouteDescriptorArgs = {}, childrenF
 }
 
 export type StateDescriptorArgs = StateDescriptorOptions | MapChildrenFn;
-export function state(name: string, options: StateDescriptorArgs = {}, childrenFn?: MapChildrenFn) : MapChild {
+export function state(name: string, options: StateDescriptorArgs = {}, childrenFn?: MapChildrenFn) : ScopeDescriptor {
   if (arguments.length === 2 && typeof options === 'function') {
     childrenFn = options;
     options = {}
@@ -72,37 +126,33 @@ export function state(name: string, options: StateDescriptorArgs = {}, childrenF
   return new StateDescriptor(name, options, childrenFn);
 }
 
-export function when(conditionObj: any, childrenFn: MapChildrenFn) : MapChild {
-  return new WhenDescriptor(childrenFn);
-}
-
 export interface HandlerInfo {
   handler: any;
 }
 
-export type MapChildrenFn = (...any) => MapChild[];
+export type MapChildrenFn = (blockParams?: any) => ScopeDescriptor[];
 
 export class MapScope {
   childScopes: MapScope[];
-  desc: MapChild;
+  desc: ScopeDescriptor;
   parent?: MapScope;
   childScopeRegistry: {
     [key: string]: MapScope
   };
 
-  constructor(desc: MapChild, parent?: MapScope) {
+  constructor(desc: ScopeDescriptor, parent?: MapScope) {
     this.desc = desc;
     this.childScopes = [];
     this.childScopeRegistry = {};
     this.parent = parent;
   }
 
-  add(childrenDesc: MapChildrenFn) {
-    let children = childrenDesc ? childrenDesc() : [];
+  add(childrenDesc: MapChildrenFn, blockParam?: any) {
+    let children = childrenDesc ? childrenDesc(blockParam) : [];
 
     children.forEach((child, index) => {
       let childScope = new MapScope(child, this);
-      childScope.add(child.childrenDesc);
+      childScope.add(child.childrenDesc, child.buildBlockParam(childScope, index));
       this._registerScope(childScope);
       this.childScopes.push(childScope);
     });
@@ -122,6 +172,10 @@ export class MapScope {
   get name() : string {
     return this.desc.name;
   }
+
+  get type() : string {
+    return this.desc.type;
+  }
 }
 
 interface RouteReduction {
@@ -135,18 +189,19 @@ function makeRouterDslFn(rr: RouteReduction) {
       let emberRouterDsl = this;
       rr.children.forEach((childRr, index) => {
         let rdesc = childRr.scope.desc as RouteDescriptor;
-        emberRouterDsl.route(rdesc.name, rdesc.options, makeRouterDslFn(childRr));
+
+        // TODO: provide default path for non resetNamespace fully qualified route names
+        let options = Object.assign({ resetNamespace: true }, rdesc.options);
+        emberRouterDsl.route(rdesc.name, options, makeRouterDslFn(childRr));
       });
     }
   }
 }
 
 export class Map {
-  registry: any;
   root: MapScope;
 
   constructor() {
-    this.registry = {};
     let rootDesc = new RouteDescriptor('root', { path: '/' }, null);
     this.root = new MapScope(rootDesc);
   }
@@ -167,7 +222,7 @@ export class Map {
 
   _reduceToRouteTree(routes: any[], scope: MapScope) {
     scope.childScopes.forEach((cs) => {
-      if (cs.desc instanceof RouteDescriptor) {
+      if (cs.type === 'route') {
         let childRoutes = [];
         this._reduceToRouteTree(childRoutes, cs);
         routes.push({ scope: cs, children: childRoutes });

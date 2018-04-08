@@ -1,5 +1,6 @@
 import { test, module } from 'ember-qunit';
-import { route, state, when, createMap } from 'ember-constraint-router/-dsl';
+import { route, state, createMap } from 'ember-constraint-router/-dsl';
+import Ember from 'ember';
 
 module('Unit - Router test', {
   beforeEach: function () {
@@ -46,10 +47,10 @@ test('allows state constraints', function (assert) {
   assert.expect(1);
   const map = createMap(() => [
     state('user-session', (us) => [
-      when('absent', () => [
+      us.match('absent', () => [
         route('get-user-session')
       ]),
-      when('present', () => [
+      us.match('present', () => [
         route('logged-in')
       ]),
     ])
@@ -66,8 +67,8 @@ test('allows state constraints', function (assert) {
 
   map.mount(emberRouterMap);
   assert.deepEqual(dslCalls, [
-    [ "route", "get-user-session", {} ],
-    [ "route", "logged-in", {} ]
+    [ "route", "get-user-session", { "resetNamespace": true } ],
+    [ "route", "logged-in", { "resetNamespace": true } ]
   ]);
 });
 
@@ -77,12 +78,12 @@ test('route reduction', function (assert) {
   let map = createMap(() => [
     route('foo', { path: 'foo/:foo_id' }, () => [
       route('foochild', { path: 'foochild2' }),
-      state('admin', (adminState) => [
+      state('admin', (admin) => [
         route('posts'),
-        when({ foo: 123 }, () => [
+        admin.match({ foo: 123 }, () => [
           route('comments')
         ]),
-        when({ other: 123 }, () => [
+        admin.match({ other: 123 }, () => [
           route('comments')
         ]),
       ]),
