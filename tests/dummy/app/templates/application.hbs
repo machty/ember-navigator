@@ -1,11 +1,16 @@
 <h2 id="title">ember-constraint-router demo</h2>
 
 <p>
-  simulate websocket events that update the state of your app
-  (internally this justs .set()s the model on the 'current-ride' service)<br>
+  simulate websocket events that update the state of your app;
+  internally these just do .set()s on the model property of
+  the 'current-user' and 'current-ride' services.
 </p>
 
 <p>
+
+  <button {{action 'simulateLogin'}}>Simulate User Login</button>
+  <button {{action 'simulateLogout'}}>Simulate User Logout</button>
+
   <button {{action 'simulateRiding'}}>Simulate Riding</button>
   <button {{action 'simulateRideComplete'}}>Simulate Ride Complete</button>
   <button {{action 'simulateNotRiding'}}>Simulate Not Riding</button>
@@ -23,6 +28,9 @@
 
   <ul>
     <li>
+      {{link-to 'login' 'login'}}
+    </li>
+    <li>
       {{link-to 'request-ride' 'request-ride'}}
     </li>
     <li>
@@ -39,13 +47,7 @@
 
   <ul>
     <li>
-      {{link-to 'fun' 'fun'}}
-    </li>
-    <li>
-      {{link-to 'foo' 'foo'}}
-    </li>
-    <li>
-      {{link-to 'bar' 'bar'}}
+      {{link-to 'index' 'index'}}
     </li>
   </ul>
 </ul>
@@ -54,27 +56,3 @@ currentRoute={{currentRouteName}}
 <div class="mobile-frame">
   {{outlet}}
 </div>
-
-<h4>route definition</h4>
-
-<pre>export default createMap(() => [
-  route('fun'),
-  route('foo', () => [
-    route('bar', () => [
-      state('current-ride', (ride) => [
-        ride.match('notRiding', () => [
-          route('request-ride')
-        ]),
-        ride.match('riding', () => [
-          route('riding')
-        ]),
-        ride.match('complete', () => [
-          route('ride-complete')
-        ]),
-      ])
-    ])
-  ])
-]);
-</pre>
-
-

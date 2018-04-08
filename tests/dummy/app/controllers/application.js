@@ -3,8 +3,17 @@ import { inject as service } from '@ember/service';
 
 export default Ember.Controller.extend({
   currentRide: service(),
+  currentUser: service(),
 
   actions: {
+    simulateLogin() {
+      this.get('currentUser').simulateLogin();
+    },
+
+    simulateLogout() {
+      this.get('currentUser').simulateLogout();
+    },
+
     simulateNotRiding() {
       this.get('currentRide').simulateNotRiding();
     },
@@ -15,6 +24,6 @@ export default Ember.Controller.extend({
 
     simulateRideComplete() {
       this.get('currentRide').simulateRideComplete();
-    }
+    },
   }
 });

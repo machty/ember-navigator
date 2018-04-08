@@ -1,9 +1,12 @@
 import { route, state, when, createMap } from 'ember-constraint-router/-dsl';
 
 export default createMap(() => [
-  route('fun'),
-  route('foo', () => [
-    route('bar', () => [
+  state('current-user', (user) => [
+    user.match('absent', () => [
+      route('login'),
+    ]),
+
+    user.match('present', () => [
       state('current-ride', (ride) => [
         ride.match('notRiding', () => [
           route('request-ride')
@@ -15,6 +18,6 @@ export default createMap(() => [
           route('ride-complete')
         ]),
       ])
-    ])
-  ])
+    ]),
+  ]),
 ]);
