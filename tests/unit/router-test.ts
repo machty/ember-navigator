@@ -9,17 +9,21 @@ module('Unit - Router test', {
 });
 
 test('.mount can mount to ember dsl', function (assert) {
-  assert.expect(2);
-  const map = createMap(() => [ route('foo') ]);
+  assert.expect(1);
+  const map = createMap(() => [ route('foo'), route('bar', { path: 'other' }) ]);
 
+  let routes: any[] = [];
   let emberRouterMap = {
     route(name, options) {
-      assert.equal(name, 'foo');
-      assert.deepEqual(options, { resetNamespace: true, path: 'foo' });
+      routes.push({ name, options })
     }
   };
 
   map.mount(emberRouterMap);
+  assert.deepEqual(routes, [
+    { "name": "foo", "options": {} },
+    { "name": "bar", "options": { "path": "other" } }
+  ]);
 });
 
 test('it maintains a registry of child names', function (assert) {
@@ -61,24 +65,9 @@ test('allows state constraints', function (assert) {
   };
 
   map.mount(emberRouterMap);
-
   assert.deepEqual(dslCalls, [
-    [
-      "route",
-      "get-user-session",
-      {
-        "path": "get-user-session",
-        "resetNamespace": true
-      }
-    ],
-    [
-      "route",
-      "logged-in",
-      {
-        "path": "logged-in",
-        "resetNamespace": true
-      }
-    ]
+    [ "route", "get-user-session", {} ],
+    [ "route", "logged-in", {} ]
   ]);
 });
 

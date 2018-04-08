@@ -1,7 +1,6 @@
 export interface MapChild {
   name: string;
   childrenDesc : MapChildrenFn;
-  getEmberRouterDslArgs(scope: MapScope, ctx: any): any[];
 }
 
 export interface RecognizerHandler {
@@ -31,8 +30,7 @@ export class RouteDescriptor implements MapChild {
   }
 
   getEmberRouterDslArgs() {
-    let path = this.options.path || this.name;
-    return [this.name, Object.assign({ path, resetNamespace: true }, this.options)];
+    return [this.name, this.options];
   }
 }
 
@@ -50,11 +48,6 @@ export class StateDescriptor implements MapChild {
     this.options = options;
     this.childrenDesc = childrenDesc;
   }
-
-  getEmberRouterDslArgs(scope, { index }) {
-    let options = Object.assign({ path: '/', resetNamespace: true }, this.options);
-    return [`${scope.name}-state-${index}`, options];
-  }
 }
 
 export class WhenDescriptor implements MapChild {
@@ -64,10 +57,6 @@ export class WhenDescriptor implements MapChild {
   constructor(childrenDesc) {
     this.name = 'when';
     this.childrenDesc = childrenDesc;
-  }
-
-  getEmberRouterDslArgs(scope, { index }) {
-    return [`${scope.name}-when-${index}`, { path: '/', resetNamespace: true }];
   }
 }
 
@@ -155,9 +144,8 @@ function makeRouterDslFn(rr: RouteReduction) {
     return function(this: any) {
       let emberRouterDsl = this;
       rr.children.forEach((childRr, index) => {
-        let dslArgs = childRr.scope.desc.getEmberRouterDslArgs(childRr.scope, { index });
-        let [name, options] = dslArgs;
-        emberRouterDsl.route(name, options, makeRouterDslFn(childRr));
+        let rdesc = childRr.scope.desc as RouteDescriptor;
+        emberRouterDsl.route(rdesc.name, rdesc.options, makeRouterDslFn(childRr));
       });
     }
   }
