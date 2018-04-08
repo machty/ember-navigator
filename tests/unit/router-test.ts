@@ -57,10 +57,6 @@ test('allows state constraints', function (assert) {
     route(name, options, desc) {
       dslCalls.push(['route', name, options]);
       desc && desc.call(emberRouterMap);
-    },
-    state(name, options, desc) {
-      dslCalls.push(['state', name, options]);
-      desc && desc.call(emberRouterMap);
     }
   };
 
@@ -69,33 +65,9 @@ test('allows state constraints', function (assert) {
   assert.deepEqual(dslCalls, [
     [
       "route",
-      "root-state-0",
-      {
-        "path": "/",
-        "resetNamespace": true
-      }
-    ],
-    [
-      "route",
-      "user-session-when-0",
-      {
-        "path": "/",
-        "resetNamespace": true
-      }
-    ],
-    [
-      "route",
       "get-user-session",
       {
         "path": "get-user-session",
-        "resetNamespace": true
-      }
-    ],
-    [
-      "route",
-      "user-session-when-1",
-      {
-        "path": "/",
         "resetNamespace": true
       }
     ],
@@ -108,4 +80,32 @@ test('allows state constraints', function (assert) {
       }
     ]
   ]);
+});
+
+test('route reduction', function (assert) {
+  assert.expect(2);
+
+  let map = createMap(() => [
+    route('foo', { path: 'foo/:foo_id' }, () => [
+      route('foochild', { path: 'foochild2' }),
+      state('admin', (adminState) => [
+        route('posts'),
+        when({ foo: 123 }, () => [
+          route('comments')
+        ]),
+        when({ other: 123 }, () => [
+          route('comments')
+        ]),
+      ]),
+      state('my-service')
+    ]),
+    route('bar'),
+  ]);
+
+  let routes: any[] = [];
+  map._reduceToRouteTree(routes, map.root);
+
+  assert.equal(routes[0].scope.name, 'foo');
+  assert.deepEqual(routes[0].children.map(r => r.scope.name), 
+    ["foochild", "posts", "comments", "comments"]);
 });

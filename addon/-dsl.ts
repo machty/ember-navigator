@@ -145,14 +145,19 @@ export class MapScope {
   }
 }
 
-function makeRouterDslFn(scope: MapScope) {
-  let childScopes = scope.childScopes;
-  if (childScopes.length) {
+interface RouteReduction {
+  scope: MapScope;
+  children: RouteReduction[];
+}
+
+function makeRouterDslFn(rr: RouteReduction) {
+  if (rr.children.length) {
     return function(this: any) {
       let emberRouterDsl = this;
-      childScopes.forEach((cs, index) => {
-        let [name, options] = cs.desc.getEmberRouterDslArgs(scope, { index });
-        emberRouterDsl.route(name, options, makeRouterDslFn(cs));
+      rr.children.forEach((childRr, index) => {
+        let dslArgs = childRr.scope.desc.getEmberRouterDslArgs(childRr.scope, { index });
+        let [name, options] = dslArgs;
+        emberRouterDsl.route(name, options, makeRouterDslFn(childRr));
       });
     }
   }
@@ -177,7 +182,21 @@ export class Map {
   }
 
   mount(emberRouterDsl) {
-    makeRouterDslFn(this.root)!.call(emberRouterDsl);
+    let rootRoutes: any[] = [];
+    this._reduceToRouteTree(rootRoutes, this.root);
+    makeRouterDslFn({ scope: this.root, children: rootRoutes })!.call(emberRouterDsl);
+  }
+
+  _reduceToRouteTree(routes: any[], scope: MapScope) {
+    scope.childScopes.forEach((cs) => {
+      if (cs.desc instanceof RouteDescriptor) {
+        let childRoutes = [];
+        this._reduceToRouteTree(childRoutes, cs);
+        routes.push({ scope: cs, children: childRoutes });
+      } else {
+        this._reduceToRouteTree(routes, cs);
+      }
+    });
   }
 }
 
