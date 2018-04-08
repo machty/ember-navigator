@@ -3,16 +3,6 @@ export interface MapChild {
   childrenDesc : MapChildrenFn;
 }
 
-export interface RecognizerHandler {
-  key: string;
-  name: string;
-}
-
-export interface RecognizerSegment {
-  handler: RecognizerHandler;
-  path: string;
-}
-
 export interface RouteDescriptorOptions {
   path?: string;
   key?: string;
