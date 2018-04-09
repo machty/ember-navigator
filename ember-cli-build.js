@@ -11,7 +11,7 @@ module.exports = function(defaults) {
       ]
     },
     isDevelopingAddon: function() {
-      return true;
+      return false;
     }
   });
 
