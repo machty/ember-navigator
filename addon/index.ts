@@ -1,5 +1,15 @@
 import Ember from 'ember';
 
+export interface ConstraintRouterService {
+  routeWillLoad;
+}
+
+declare module '@ember/service' {
+  interface Registry {
+    ["-constraint-router"]: ConstraintRouterService;
+  }
+}
+
 export function initialize() {
   Ember.Router.reopen({
     _constraintRouter: Ember.inject.service('-constraint-router'),

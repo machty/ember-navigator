@@ -1,4 +1,4 @@
-type ScopeDescriptorType = 'route' | 'state' | 'when';
+export type ScopeDescriptorType = 'route' | 'state' | 'when';
 
 export interface ScopeDescriptor {
   name: string;
@@ -11,11 +11,6 @@ export interface RouteDescriptorOptions {
   path?: string;
   key?: string;
 }
-
-interface ValidationFailure {
-}
-
-
 
 export class RouteDescriptor implements ScopeDescriptor {
   name: string;
@@ -59,24 +54,6 @@ export class StateDescriptor implements ScopeDescriptor {
       }
     };
   }
-
-  validateMatch(when: WhenDescriptor, context: any) : ValidationFailure | void {
-    let stateObj = context.get(this.name);
-    if (!stateObj) {
-      throw new Error(`ember-constraint-router: couldn't find backing service for ${this.name}`)
-    }
-
-    // let isValid = stateObj.validateConstraint(when.condition);
-    return stateObj.validateConstraint(when.condition);
-
-    // if (isValid) {
-    //   // yes
-    // } else {
-    //   // decide how to fix validation.
-    // }
-
-    // as the service or whatever it is whether it's still valid.
-  }
 }
 
 export class WhenDescriptor implements ScopeDescriptor {
@@ -97,11 +74,6 @@ export class WhenDescriptor implements ScopeDescriptor {
   buildBlockParam(scope: MapScope, index: number) {
     return { scope };
   }
-
-  // validatePresence(context) {
-  //   let stateDesc = this.source.desc as StateDescriptor;
-  //   return stateDesc.validateMatch(this, context);
-  // }
 }
 
 const nullChildrenFn = () => [];
@@ -125,6 +97,7 @@ export function state(name: string, options: StateDescriptorArgs = {}, childrenF
 
   return new StateDescriptor(name, options, childrenFn);
 }
+export let service = state;
 
 export interface HandlerInfo {
   handler: any;

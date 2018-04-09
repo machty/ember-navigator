@@ -14,27 +14,6 @@ export default Service.extend({
     this._scopeNameToRoute = {};
     this.router = getOwner(this).lookup('router:main');
 
-    // let owner = getOwner(this);
-    // let emberRouter = owner.lookup('router:main');
-    // let dsl = emberRouter._buildDSL();
-    // let dslCallbacks = emberRouter.constructor.dslCallbacks || [function() {}];
-
-    // dsl.route(
-    //   'application',
-    //   { path: '/', resetNamespace: true, overrideNameAssertion: true },
-    //   function() {
-    //     for (let i = 0; i < dslCallbacks.length; i++) {
-    //       dslCallbacks[i].call(this);
-    //     }
-    //   }
-    // );
-    // debugger;
-
-    // let res = dsl.generate();
-    // res(function() {
-    //   debugger;
-    // })
-
     let map = this._lookupFactory('constraint-router:main');
 
     if (!map) {
@@ -66,38 +45,10 @@ export default Service.extend({
     return scope;
   },
 
-  // lookupRouteByScope(scope) {
-  //   let scopeName = scope.name;
-  //   if (scopeName in this._scopeNameToRoute) {
-  //     return this._scopeNameToRoute[scopeName];
-  //   }
-
-  //   // TODO: full support for resetNamespace and long names.
-  //   let scope = this.map.getScope(shortName);
-  //   this._mapScopeRegistry[routeGuid] = scope;
-  //   return scope;
-  // },
-
   routeWillLoad(route, transition) {
-    // on the router side of things, this is the only hook we need
-    // to detect things and revalidate. the plan:
-    //
-    // 1. there might already be an activeTransition, e.g.
-    //    the user has already clicked away and THEN something
-    //    invalidates, and we need to detect that; we should ideally
-    //    try and let the original transition try to run to completion
-    //    IF it is within the bounds of hard state constraints. So the 
-    //    rule is: don't get in the way of running / valid router transitions.
-    //    but if the router is settled and there are no transitions then we
-    //    need to revalidate and put the on the correct path.
-    // 2. naive version of this algorithm, revalidate from the parent down.
-    //    look at resolved models and all the known states. 
-
-
     let startScope = this.lookupMapScope(route);
 
     if (!startScope) {
-      // TODO: when would this be considered an error?
       return;
     }
 
