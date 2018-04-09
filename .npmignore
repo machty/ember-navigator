@@ -15,3 +15,4 @@ bower.json
 ember-cli-build.js
 testem.js
 TODO.md
+/config/addon-docs.js
