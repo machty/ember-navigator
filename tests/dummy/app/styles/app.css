@@ -1,6 +1,5 @@
 body {
   padding: 20px;
-  font-family: Arial, sans-serif;
 }
 
 .mobile-frame {
@@ -8,10 +7,4 @@ body {
   width: 320px;
   height: 570px;
   padding: 10px;
-}
-
-button {
-  font-weight: bolder;
-  font-size: 18px;
-
 }

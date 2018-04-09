@@ -2015,7 +2015,7 @@ chokidar@1.7.0:
   optionalDependencies:
     fsevents "^1.0.0"
 
-chokidar@^2.0.2:
+chokidar@^2.0.2, chokidar@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-2.0.3.tgz#dcbd4f6cbb2a55b4799ba8a840ac527e5f4b1176"
   dependencies:
@@ -3126,9 +3126,9 @@ ember-cli-test-loader@^2.2.0:
   dependencies:
     ember-cli-babel "^6.8.1"
 
-ember-cli-typescript@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/ember-cli-typescript/-/ember-cli-typescript-1.2.1.tgz#92d889e6c9c9fbd7061c3eeec9faa071e8feea54"
+ember-cli-typescript@typed-ember/ember-cli-typescript#programmatic-compilation:
+  version "1.2.0"
+  resolved "https://codeload.github.com/typed-ember/ember-cli-typescript/tar.gz/9f2f49b833376d625e80e9d079c31a16403fee3f"
   dependencies:
     broccoli-debug "^0.6.4"
     broccoli-funnel "^2.0.1"
@@ -3136,6 +3136,7 @@ ember-cli-typescript@^1.2.1:
     broccoli-plugin "^1.2.1"
     broccoli-stew "^1.4.0"
     chalk "^2.3.0"
+    chokidar "^2.0.3"
     debug "^3.1.0"
     ember-cli "~2.18.2"
     ember-cli-get-component-path-option "^1.0.0"
