@@ -7,11 +7,10 @@
 </p>
 
 <p>
-
-  <button {{action 'simulateLogin'}}>Simulate User Login</button>
+  <button data-test="simulate-user-login" {{action 'simulateLogin'}}>Simulate User Login</button>
   <button {{action 'simulateLogout'}}>Simulate User Logout</button>
 
-  <button {{action 'simulateRiding'}}>Simulate Riding</button>
+  <button data-test="simulate-riding" {{action 'simulateRiding'}}>Simulate Riding</button>
   <button {{action 'simulateRideComplete'}}>Simulate Ride Complete</button>
   <button {{action 'simulateNotRiding'}}>Simulate Not Riding</button>
 </p>

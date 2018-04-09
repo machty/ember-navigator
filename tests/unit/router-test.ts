@@ -22,8 +22,8 @@ test('.mount can mount to ember dsl', function (assert) {
 
   map.mount(emberRouterMap);
   assert.deepEqual(routes, [
-    { "name": "foo", "options": {} },
-    { "name": "bar", "options": { "path": "other" } }
+    { "name": "foo", "options": { "resetNamespace": true } },
+    { "name": "bar", "options": { "path": "other", "resetNamespace": true } },
   ]);
 });
 
