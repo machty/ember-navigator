@@ -2,12 +2,7 @@ import { test, module } from 'ember-qunit';
 import { route, state, createMap } from 'ember-constraint-router/-dsl';
 import Ember from 'ember';
 
-module('Unit - Router test', {
-  beforeEach: function () {
-  },
-  afterEach: function () {
-  },
-});
+module('Unit - Router test');
 
 test('.mount can mount to ember dsl', function (assert) {
   assert.expect(1);

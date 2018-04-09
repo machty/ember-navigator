@@ -34,6 +34,7 @@
     "@types/rsvp": "^4.0.1",
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^3.0.0",
+    "ember-app-scheduler": "^0.2.1",
     "ember-cli": "^3.0.0",
     "ember-cli-addon-docs": "^0.3.0",
     "ember-cli-addon-docs-yuidoc": "^0.1.1",

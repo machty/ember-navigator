@@ -7,16 +7,16 @@ module('Acceptance | root', function(hooks) {
   setupApplicationTest(hooks);
 
   test('navigating to inaccessible URL causes redirect', async function(assert) {
-    await visit('/');
-    await visit('/request-ride');
-    assert.equal(currentURL(), '/login');
+    await visit('/demo');
+    await visit('/demo/request-ride');
+    assert.equal(currentURL(), '/demo/login');
   });
 
   test('state changes update the url', async function(assert) {
-    await visit('/login');
+    await visit('/demo/login');
     await click('[data-test="simulate-user-login"]')
-    assert.equal(currentURL(), '/request-ride');
+    assert.equal(currentURL(), '/demo/request-ride');
     await click('[data-test="simulate-riding"]')
-    assert.equal(currentURL(), '/riding');
+    assert.equal(currentURL(), '/demo/riding');
   });
 });

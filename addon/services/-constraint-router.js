@@ -1,6 +1,4 @@
 import Service from '@ember/service';
-import Ember from 'ember';
-
 import { getOwner } from '@ember/application';
 
 export default Service.extend({
@@ -64,11 +62,10 @@ export default Service.extend({
         case 'route':
           // no need to revalidate more then the parent route
           return;
-          break;
         case 'state':
           // continue til we find a route
           break;
-        case 'when':
+        case 'when': {
           let owner = getOwner(this);
           let serviceName = currentScope.parent.name;
           let service = owner.lookup(`service:${serviceName}`);
@@ -82,7 +79,7 @@ export default Service.extend({
           if (validationResult) {
             if (!service._hasSubscribedToRouteChanges) {
               // let closestRoute = owner.lookup('route:application');
-              let closestRoute = transition.handlerInfos[handlerIndex-1].handler;
+              let closestRoute = transition.handlerInfos[handlerIndex - 1].handler;
               service.addObserver('routeValidation', null, () => {
                 closestRoute.refresh();
               });
@@ -123,8 +120,8 @@ export default Service.extend({
               transition.abort();
             }
           }
-
           break;
+        }
       }
       currentScope = currentScope.parent;
     }

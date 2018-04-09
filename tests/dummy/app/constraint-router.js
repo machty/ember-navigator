@@ -1,4 +1,4 @@
-import { route, state, when, createMap } from 'ember-constraint-router/-dsl';
+import { route, state, createMap } from 'ember-constraint-router/-dsl';
 
 export default createMap(() => [
   route('demo', () => [
