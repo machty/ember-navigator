@@ -67,7 +67,8 @@ export default Service.extend({
           break;
         case 'when': {
           let owner = getOwner(this);
-          let serviceName = currentScope.parent.name;
+          let source = currentScope.desc.source;
+          let serviceName = source.name;
           let service = owner.lookup(`service:${serviceName}`);
           if (!service) {
             throw new Error(`ember-constraint-router: couldn't find backing service for ${serviceName}`)

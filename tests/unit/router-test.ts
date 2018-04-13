@@ -4,27 +4,9 @@ import Ember from 'ember';
 
 module('Unit - Router test');
 
-test('.mount can mount to ember dsl', function (assert) {
-  assert.expect(1);
-  const map = createMap(() => [ route('foo'), route('bar', { path: 'other' }) ]);
-
-  let routes: any[] = [];
-  let emberRouterMap = {
-    route(name, options) {
-      routes.push({ name, options })
-    }
-  };
-
-  map.mount(emberRouterMap);
-  assert.deepEqual(routes, [
-    { "name": "foo", "options": { "resetNamespace": true } },
-    { "name": "bar", "options": { "path": "other", "resetNamespace": true } },
-  ]);
-});
-
 test('.mount can mount classic ember dsl', function (assert) {
   assert.expect(1);
-  const map = createMap2(function() {
+  const map = createMap(function() {
     this.route('foo');
     this.route('bar', { path: 'other' });
   });
@@ -45,34 +27,18 @@ test('.mount can mount classic ember dsl', function (assert) {
   ]);
 });
 
-test('it maintains a registry of child names', function (assert) {
-  assert.expect(2);
-  const map = createMap(() => [
-    route('foo'),
-    route('parent', () => [
-      route('child'),
-    ]),
-  ]);
-
-  let scope = map.getScope('parent')!.getScope('child')!;
-  assert.equal(scope.name, 'child');
-
-  let scope2 = map.getScope('child');
-  assert.equal(scope2, scope);
-});
-
 test('allows state constraints', function (assert) {
   assert.expect(1);
-  const map = createMap(() => [
-    state('user-session', (us) => [
-      us.match('absent', () => [
-        route('get-user-session')
-      ]),
-      us.match('present', () => [
-        route('logged-in')
-      ]),
-    ])
-  ]);
+  const map = createMap(function() {
+    let us = this.state('user-session');
+    this.match(us, 'absent', function() {
+      this.route('get-user-session')
+    });
+
+    this.match(us, 'present', function() {
+      this.route('logged-in')
+    });
+  });
 
   let dslCalls: any[] = [];
 
@@ -88,32 +54,4 @@ test('allows state constraints', function (assert) {
     [ "route", "get-user-session", { "resetNamespace": true } ],
     [ "route", "logged-in", { "resetNamespace": true } ]
   ]);
-});
-
-test('route reduction', function (assert) {
-  assert.expect(2);
-
-  let map = createMap(() => [
-    route('foo', { path: 'foo/:foo_id' }, () => [
-      route('foochild', { path: 'foochild2' }),
-      state('admin', (admin) => [
-        route('posts'),
-        admin.match({ foo: 123 }, () => [
-          route('comments')
-        ]),
-        admin.match({ other: 123 }, () => [
-          route('comments')
-        ]),
-      ]),
-      state('my-service')
-    ]),
-    route('bar'),
-  ]);
-
-  let routes: any[] = [];
-  map._reduceToRouteTree(routes, map.root);
-
-  assert.equal(routes[0].scope.name, 'foo');
-  assert.deepEqual(routes[0].children.map(r => r.scope.name), 
-    ["foochild", "posts", "comments", "comments"]);
 });

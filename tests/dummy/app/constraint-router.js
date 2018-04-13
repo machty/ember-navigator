@@ -1,25 +1,27 @@
-import { route, state, createMap } from 'ember-constraint-router/-dsl';
+import { createMap } from 'ember-constraint-router/-dsl';
 
-export default createMap(() => [
-  route('demo', () => [
-    state('current-user', (user) => [
-      user.match('absent', () => [
-        route('login'),
-      ]),
+export default createMap(function() {
+  this.route('demo', function() {
+    let user = this.state('current-user');
 
-      user.match('present', () => [
-        state('current-ride', (ride) => [
-          ride.match('notRiding', () => [
-            route('request-ride')
-          ]),
-          ride.match('riding', () => [
-            route('riding')
-          ]),
-          ride.match('complete', () => [
-            route('ride-complete')
-          ]),
-        ])
-      ]),
-    ]),
-  ]),
-]);
+    this.match(user, 'absent', function() {
+      this.route('login');
+    });
+
+    this.match(user, 'present', function() {
+      let ride = this.state('current-ride');
+
+      this.match(ride, 'notRiding', function() {
+        this.route('request-ride');
+      });
+
+      this.match(ride, 'riding', function() {
+        this.route('riding');
+      });
+
+      this.match(ride, 'complete', function() {
+        this.route('ride-complete');
+      });
+    });
+  });
+});

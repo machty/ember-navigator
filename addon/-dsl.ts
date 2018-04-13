@@ -1,8 +1,10 @@
 export type ScopeDescriptorType = 'route' | 'state' | 'when';
 
+type DslFn = (this: RouterDsl, arg?: any) => void;
+export type RouteDescriptorArgs = RouteDescriptorOptions | DslFn;
+
 export interface ScopeDescriptor {
   name: string;
-  childrenDesc: MapChildrenFn;
   type: ScopeDescriptorType;
   buildBlockParam(scope: MapScope, index: number) : any;
 }
@@ -15,13 +17,11 @@ export interface RouteDescriptorOptions {
 export class RouteDescriptor implements ScopeDescriptor {
   name: string;
   options: RouteDescriptorOptions;
-  childrenDesc: MapChildrenFn;
   type: ScopeDescriptorType;
 
   constructor(name, options, childrenDesc) {
     this.name = name;
     this.options = options;
-    this.childrenDesc = childrenDesc;
     this.type = 'route';
   }
 
@@ -37,13 +37,11 @@ export interface StateDescriptorOptions {
 export class StateDescriptor implements ScopeDescriptor {
   name: string;
   options: StateDescriptorOptions;
-  childrenDesc: MapChildrenFn;
   type: ScopeDescriptorType;
 
-  constructor(name, options, childrenDesc) {
+  constructor(name, options) {
     this.name = name;
     this.options = options;
-    this.childrenDesc = childrenDesc;
     this.type = 'state';
   }
 
@@ -78,27 +76,6 @@ export class WhenDescriptor implements ScopeDescriptor {
 
 const nullChildrenFn = () => [];
 
-export type RouteDescriptorArgs = RouteDescriptorOptions | MapChildrenFn;
-export function route(name: string, options: RouteDescriptorArgs = {}, childrenFn?: MapChildrenFn) : ScopeDescriptor {
-  if (arguments.length === 2 && typeof options === 'function') {
-    childrenFn = options;
-    options = {}
-  }
-
-  return new RouteDescriptor(name, options, childrenFn);
-}
-
-export type StateDescriptorArgs = StateDescriptorOptions | MapChildrenFn;
-export function state(name: string, options: StateDescriptorArgs = {}, childrenFn?: MapChildrenFn) : ScopeDescriptor {
-  if (arguments.length === 2 && typeof options === 'function') {
-    childrenFn = options;
-    options = {}
-  }
-
-  return new StateDescriptor(name, options, childrenFn);
-}
-export let service = state;
-
 export interface HandlerInfo {
   handler: any;
 }
@@ -120,17 +97,6 @@ export class MapScope {
     this.parent = parent;
   }
 
-  add(childrenDesc: MapChildrenFn, blockParam?: any) {
-    let children = childrenDesc ? childrenDesc(blockParam) : [];
-
-    children.forEach((child, index) => {
-      let childScope = new MapScope(child, this);
-      childScope.add(child.childrenDesc, child.buildBlockParam(childScope, index));
-      this._registerScope(childScope);
-      this.childScopes.push(childScope);
-    });
-  }
-  
   _registerScope(scope: MapScope) {
     this.childScopeRegistry[scope.name] = scope;
     if (this.parent) {
@@ -179,10 +145,6 @@ export class Map {
     this.root = new MapScope(rootDesc);
   }
 
-  add(children: MapChildrenFn) {
-    this.root.add(children);;
-  }
-
   getScope(name : string) {
     return this.root.getScope(name);
   }
@@ -206,17 +168,11 @@ export class Map {
   }
 }
 
-export function createMap(desc: MapChildrenFn) : Map {
-  let map = new Map();
-  map.add(desc);
-  return map;
-}
-
 interface RouterDsl {
-  route: (name: string, options?: RouteDescriptorArgs, childrenFn?: MapChildrenFn) => any;
+  route(name: string, options?: RouteDescriptorArgs, callback?: DslFn) : any;
+  state(name: string, options?: RouteDescriptorArgs, callback?: DslFn) : any;
+  match(blockParam: any, cond: string, callback: DslFn) : any;
 }
-
-type DslFn = (this: RouterDsl) => void;
 
 class RouterDslScope implements RouterDsl {
   scope: MapScope;
@@ -231,7 +187,28 @@ class RouterDslScope implements RouterDsl {
       options = {}
     }
 
-    let desc = new RouteDescriptor(name, options, callback)
+    let desc = new RouteDescriptor(name, options, callback);
+    let childScope = new MapScope(desc, this.scope);
+    this.scope._registerScope(childScope);
+
+    if (callback) {
+      let childDslScope = new RouterDslScope(childScope);
+      callback.call(childDslScope);
+    }
+
+    this.scope.childScopes.push(childScope);
+  }
+
+  state(name: string, options: RouteDescriptorArgs = {}): MapScope {
+    let desc = new StateDescriptor(name, options);
+    let childScope = new MapScope(desc, this.scope);
+    this.scope._registerScope(childScope);
+    this.scope.childScopes.push(childScope);
+    return childScope;
+  }
+
+  match(blockParam: MapScope, cond: string, callback: DslFn) {
+    let desc = new WhenDescriptor(cond, blockParam, callback);
     let childScope = new MapScope(desc, this.scope);
 
     if (callback) {
@@ -243,7 +220,7 @@ class RouterDslScope implements RouterDsl {
   }
 }
 
-export function createMap2(callback: DslFn) : Map {
+export function createMap(callback: DslFn) : Map {
   let map = new Map();
   let rootDslScope = new RouterDslScope(map.root);
   callback.call(rootDslScope);
