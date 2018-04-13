@@ -1,5 +1,5 @@
 import { test, module } from 'ember-qunit';
-import { route, state, createMap } from 'ember-constraint-router/-dsl';
+import { route, state, createMap, createMap2 } from 'ember-constraint-router/-dsl';
 import Ember from 'ember';
 
 module('Unit - Router test');
@@ -7,6 +7,29 @@ module('Unit - Router test');
 test('.mount can mount to ember dsl', function (assert) {
   assert.expect(1);
   const map = createMap(() => [ route('foo'), route('bar', { path: 'other' }) ]);
+
+  let routes: any[] = [];
+  let emberRouterMap = {
+    route(name, options) {
+      routes.push({ name, options })
+    }
+  };
+
+  map.mount(emberRouterMap);
+  assert.deepEqual(routes, [
+    { "name": "foo", "options": { "resetNamespace": true } },
+    { "name": "bar", "options": { "path": "other", "resetNamespace": true } },
+  ]);
+});
+
+test('.mount can mount classic ember dsl', function (assert) {
+  assert.expect(1);
+  const map = createMap2(function() {
+    this.route('foo');
+    this.route('bar', { path: 'other' });
+  });
+
+  debugger;
 
   let routes: any[] = [];
   let emberRouterMap = {
