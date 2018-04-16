@@ -1,0 +1,13 @@
+<p>
+  I'm a nav-stack component.
+  I receive a Router map and a state string (e.g. mutable query param) as input.
+  Internally I build and maintain the state required to present routes to the screen.
+</p>
+
+{{#each frames key="@index" as |f|}}
+  <div style="width: 300px; height: 450px; border: 1px solid black; display: inline-block;">
+    {{#-with-dynamic-vars outletState=f.outletState}}
+      {{component f.componentName}}
+    {{/-with-dynamic-vars}}
+  </div>
+{{/each}}

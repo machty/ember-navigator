@@ -11,8 +11,6 @@ test('.mount can mount classic ember dsl', function (assert) {
     this.route('bar', { path: 'other' });
   });
 
-  debugger;
-
   let routes: any[] = [];
   let emberRouterMap = {
     route(name, options) {

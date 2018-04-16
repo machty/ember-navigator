@@ -16,12 +16,16 @@ export default createMap(function() {
       });
 
       this.match(ride, 'riding', function() {
+        // HERE
         this.route('riding');
+        this.route('request-music');
       });
 
       this.match(ride, 'complete', function() {
         this.route('ride-complete');
       });
+
+      this.route('user-settings');
     });
   });
 });

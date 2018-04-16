@@ -20,4 +20,25 @@ export function initialize() {
       constraintRouter.routeWillLoad(route, transition);
     },
   });
+
+  Ember.Component.reopen({
+    _registerOnConstraintRouter: Ember.on('init', function() {
+      if (!this._scope) {
+        return;
+      }
+      // debugger;
+
+      // this._scope.registerFrameComponent();
+
+      // todo: register `this` on frame?
+    }),
+  });
+}
+
+export function scopedService() {
+  return Ember.computed(function(key) {
+    let service = Ember.get(this, `_scope.${key}`)
+    Ember.assert(`scoped service ${key} does not appear to be available on this scope`, service);
+    return service;
+  });
 }

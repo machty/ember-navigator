@@ -17,6 +17,8 @@ export default Ember.Service.extend({
     return JSON.stringify(this.get('model'), null, 2);
   }),
 
+  foo: 123,
+
   simulateNotRiding() {
     this.set('model', null);
   },
