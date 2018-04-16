@@ -10,11 +10,15 @@ export default Ember.Component.extend({
   init(...args) {
     this._super(...args);
 
-    this.navStack = new NavStack({
+    let owner = Ember.getOwner(this);
+    let map = owner.factoryFor('constraint-router:main').class;
+
+    this.navStack = new NavStack(map, {
       onNewFrames: (frames) => {
         this.set('frames', frames);
 
-        this._stateString = JSON.stringify(frames.map(f => ({ url: f.componentName })));
+        // TODO: split URL from other forms of serialization that may be used.
+        this._stateString = JSON.stringify(frames.map(f => ({ url: f.url })));
         this.set('stateString', this._stateString);
       }
     });

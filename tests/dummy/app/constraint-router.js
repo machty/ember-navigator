@@ -5,7 +5,7 @@ export default createMap(function() {
     let user = this.state('current-user');
 
     this.match(user, 'absent', function() {
-      this.route('login');
+      this.route('sign-in');
     });
 
     this.match(user, 'present', function() {

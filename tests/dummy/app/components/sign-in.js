@@ -11,7 +11,7 @@ export default Ember.Component.extend({
     },
 
     doStuff() {
-      this.get('myRouter').transitionTo('borflex');
+      this.get('myRouter').transitionTo('demo/sign-in');
     },
   }
 });
