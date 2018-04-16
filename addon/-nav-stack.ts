@@ -10,23 +10,54 @@ interface NavStackListener {
 export class NavStack {
   listener: NavStackListener;
   frames: FrameState[];
+  _sequence: number;
+  stateString: string;
 
   constructor(listener: NavStackListener) {
     this.listener = listener;
     this.frames = [];
-    this.push('some frame desc');
+    this._sequence = 0;
+    this.stateString = "";
+  }
+
+  recognize(url) {
+    return {
+      handler: url.split('/').pop()
+    };
+  }
+
+  didUpdateStateString(stateString: string) {
+    let json = JSON.parse(stateString);
+
+    let frames = json.map((j) => {
+      let param = this.recognize(j.url);
+      return {
+        componentName: param.handler,
+        outletState: {
+          scope: {
+            myRouter: this.makeRouter(),
+          }
+        }
+      };
+    });
+
+    this._updateFrames(frames);
+    // this.push('some frame desc');
   }
 
   push(...args) {
     let frames = this.frames.slice();
     frames.push(this.makeFrame());
-    this.frames = frames;
-    this.listener.onNewFrames(this.frames);
+    this._updateFrames(frames);
   }
 
   pop() {
     let frames = this.frames.slice();
     frames.pop();
+    this._updateFrames(frames);
+  }
+
+  _updateFrames(frames) {
     this.frames = frames;
     this.listener.onNewFrames(this.frames);
   }

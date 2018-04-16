@@ -26,10 +26,8 @@ export function initialize() {
       if (!this._scope) {
         return;
       }
-      // debugger;
 
       // this._scope.registerFrameComponent();
-
       // todo: register `this` on frame?
     }),
   });
