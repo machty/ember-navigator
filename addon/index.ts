@@ -35,7 +35,8 @@ export function initialize() {
 
 export function scopedService() {
   return Ember.computed(function(key) {
-    let service = Ember.get(this, `_scope.${key}`)
+    let service = Ember.get(this, `_scope.registry.${key}`)
+    if (!service) { debugger; }
     Ember.assert(`scoped service ${key} does not appear to be available on this scope`, service);
     return service;
   });

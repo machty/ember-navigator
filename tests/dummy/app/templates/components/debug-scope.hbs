@@ -1,0 +1,15 @@
+<button {{action 'goBack'}}>Pop Nav Stack (go back)</button>
+
+<p>auth: {{auth.name}}</p>
+<p>url: {{myRouter.url}}</p>
+
+{{x-foo numChildren=3}}
+
+<ul>
+  <li>
+    <a href="#" {{action 'push' 'demo/sign-in'}}>Sign-In</a>
+  </li>
+  <li>
+    <a href="#" {{action 'push' 'demo/request-ride'}}>Request Ride</a>
+  </li>
+</ul>

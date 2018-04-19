@@ -2,7 +2,8 @@
 
   <p>
     x-foo component<br>
-    scopedService myRouter <strong>{{routerGuid}}</strong>
+    scopedService myRouter <strong>{{routerGuid}}</strong><br>
+    my url <strong>{{myRouter.url}}</strong><br>
   </p>
   {{#each children}}
     {{#if hasBlock}}
@@ -11,5 +12,4 @@
       {{x-foo numChildren=0}}
     {{/if}}
   {{/each}}
-
 </div>

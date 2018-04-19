@@ -1,13 +1,37 @@
-<p>
-  I'm a nav-stack component.
-  I receive a Router map and a state string (e.g. mutable query param) as input.
-  Internally I build and maintain the state required to present routes to the screen.
-</p>
+<h3>nav-stack demo</h3>
+<p>still meager, but some cool concepts starting to brew:</p>
+
+<ul>
+  <li>each "frame" of the stack has its own URL</li>
+  <li>concurrent routing: each frame is a different route being rendered at the same time as any other</li>
+  <li>this approach to nav+routing can be used to build the coveted iOS interactive mobile swipable outlet</li>
+  <li>
+    scoped services: each frame has its own DI scope, managed by the nav-stack
+    <ul>
+      <li>
+        In this demo, each frame has its own scoped router;
+        each frame has a separate myRouter scoped service, but every component
+        rendered within the same frame shares the same instance of myRouter.
+      </li>
+      <li>
+        The concept of a scoped router is necessary for what I plan on doing with
+        ember-constraint-router: today, every link-to / transitionTo has direct
+        global access to a singleton router, but in this setup, there are many micro routers,
+        and it's the nav-stack that gets to decide what to do when various child routers report
+        an intent to link-to elsewhere, or report that some constraint has been violated, etc.
+        The nav-stack can decide how to resolve complex constraint violations (e.g. you've pushed
+        5 frames onto the nav stack, and 4 of them invalidate at the same time because the server
+        tells you the user is logged out). This is what I hope to demo next.
+      </li>
+    </ul>
+  </li>
+</ul>
 
 {{#each frames key="@index" as |f|}}
-  <div style="width: 300px; height: 450px; border: 1px solid black; display: inline-block;">
+  <div style="width: 300px; height: 450px; border: 1px solid black; float: left; position: relative;">
     {{#-with-dynamic-vars outletState=f.outletState}}
       {{component f.componentName}}
     {{/-with-dynamic-vars}}
   </div>
 {{/each}}
+<div style="clear:both;"></div>

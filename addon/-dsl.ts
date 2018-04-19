@@ -145,8 +145,20 @@ export class Map {
     this.root = new MapScope(rootDesc);
   }
 
-  getScope(name : string) {
+  getScope(name: string) {
     return this.root.getScope(name);
+  }
+
+  getScopePath(name: string) : MapScope[] {
+    let leaf = this.getScope(name);
+    if (!leaf) { return []; }
+    let path: MapScope[] = [];
+    let scope: MapScope | undefined = leaf;
+    while (scope) {
+      path.push(scope);
+      scope = scope.parent;
+    }
+    return path.reverse();
   }
 
   mount(emberRouterDsl) {

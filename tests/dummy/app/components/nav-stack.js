@@ -13,7 +13,7 @@ export default Ember.Component.extend({
     let owner = Ember.getOwner(this);
     let map = owner.factoryFor('constraint-router:main').class;
 
-    this.navStack = new NavStack(map, {
+    this.navStack = new NavStack(map, owner, {
       onNewFrames: (frames) => {
         this.set('frames', frames);
 

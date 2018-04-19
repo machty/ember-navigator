@@ -2,16 +2,16 @@ import { createMap } from 'ember-constraint-router/-dsl';
 
 export default createMap(function() {
   this.route('demo', function() {
-    let user = this.state('current-user');
+    let auth = this.state('auth');
 
-    this.match(user, 'absent', function() {
+    this.match(auth, 'user-absent', function() {
       this.route('sign-in');
     });
 
-    this.match(user, 'present', function() {
-      let ride = this.state('current-ride');
+    this.match(auth, 'current-user', function() {
+      let ride = this.state('ride');
 
-      this.match(ride, 'notRiding', function() {
+      this.match(ride, 'not-riding', function() {
         this.route('request-ride');
       });
 
