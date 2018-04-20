@@ -1,2 +1,11 @@
 <h1>Sign in</h1>
-{{debug-scope}}
+
+<div style="zoom:0.5;">
+  {{#if showStack}}
+    {{nav-stack stateString=stateString map=map2}}
+  {{else}}
+    <button {{action 'enableStack'}}>EnableStack</button>
+  {{/if}}
+</div>
+
+{{debug-scope numChildren=2}}

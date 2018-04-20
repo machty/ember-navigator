@@ -78,10 +78,10 @@ export class NavStack {
 
   didUpdateStateString(stateString: string) {
     this.stateString = stateString;
-    this._refreshState();
+    this.buildInitialStack();
   }
 
-  _refreshState() {
+  buildInitialStack() {
     let json;
     if (this.stateString) {
       json = JSON.parse(this.stateString);
@@ -104,12 +104,31 @@ export class NavStack {
     this._updateFrames(frames);
   }
 
+  _revalidate() {
+    let frames = this.frames;
+    for (let f = 0; f < frames.length; f++) {
+      let frame = frames[f];
+      let scope = frame.outletState.scope;
+      debugger;
+    }
+  }
+
+  _revalidateFrame() {
+    // console.log("REVALIDATING");
+  }
+
   frameFromUrl(url, baseScope: FrameScope) {
     let frameScope = new FrameScope(baseScope);
     let recogResult = this.recognize(url);
     let name = recogResult.handler;
     let mapScopes = this.map.getScopePath(name);
 
+    // when do we rebuild from URL?
+    // 1. page reload
+    // 2. back/forward button pressed? lets not plan on this.
+    //    in future maybe there's way to get history stack to behind like our nav stack.
+
+    // debugger;
 
     for (let m = 0; m < mapScopes.length; m++) {
       let ms = mapScopes[m];
@@ -136,7 +155,7 @@ export class NavStack {
           // the problem is this is going to refresh state... it's going to
           // recreate everything from scratch from an empty scope.
           // but we need to reuse the current frames and reconcile...
-          Ember.run.once(this, this._refreshState);
+          Ember.run.once(this, this._revalidate);
         });
 
         // TODO: look at matchData, check for validation errors.
