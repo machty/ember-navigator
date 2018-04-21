@@ -143,7 +143,7 @@ export class NavStack {
         let key = `k_${keyParts.join('&')}`;
 
         let instance = frameScope.registry[camelized];
-        if (instance && instance.scopeKey !== key) {
+        if (instance && instance.scopeData.key !== key) {
           instance = null;
         }
 
@@ -151,7 +151,8 @@ export class NavStack {
           // TODO: update existing references on the downstream instance???
         } else {
           let factory = this.owner.factoryFor(`route:${dasherized}`)
-          instance = factory.class.create({ scopeKey: key });
+          let scopeData = { params: recog.params, key };
+          instance = factory.class.create({ scopeData });
           frameScope.register(camelized, instance);
         }
       }

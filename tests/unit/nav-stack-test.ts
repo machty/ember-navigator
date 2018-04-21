@@ -32,20 +32,36 @@ test('it shares states', function (assert) {
   assert.equal(frameUpdates.length, 0);
 });
 
-test('dynamic params', function (assert) {
+test('dynamic param services are keyed by param value', function (assert) {
   let { scopeTree, frameUpdates, navStack } = buildWorld(map);
 
   navStack.didUpdateStateString(JSON.stringify([
     { url: "users/machty/posts" },
+    { url: "users/machty/posts" },
     { url: "users/amatchneer/posts" },
+    { url: "users/amatchneer/posts" },
+    { url: "users/machty/posts" },
   ]));
 
   assert.deepEqual(scopeTree(frameUpdates.pop()), [
     { "auth": 1, "myRouter": 1, "posts": 1, "root": 1, "user": 1 },
-    { "auth": 1, "myRouter": 2, "posts": 1, "root": 1, "user": 2 },
+    { "auth": 1, "myRouter": 2, "posts": 1, "root": 1, "user": 1 },
+    { "auth": 1, "myRouter": 3, "posts": 1, "root": 1, "user": 2 },
+    { "auth": 1, "myRouter": 4, "posts": 1, "root": 1, "user": 2 },
+    { "auth": 1, "myRouter": 5, "posts": 1, "root": 1, "user": 3 },
   ]);
 
   assert.equal(frameUpdates.length, 0);
+});
+
+test('scoped services are passed useful contextual info for loading data', function (assert) {
+  let { scopeTree, frameUpdates, navStack } = buildWorld(map);
+
+  navStack.didUpdateStateString(JSON.stringify([ { url: "users/machty/posts" } ]));
+
+  let f = frameUpdates[0][0];
+  let user = f.outletState.scope.registry.user;
+  assert.deepEqual(user.scopeData, { key: 'k_user_id=machty', params: { user_id: 'machty' } });
 });
 
 function tagger() {
