@@ -68,12 +68,29 @@ export class NavStack {
 
   recognize(url) {
     let results = this.recognizer.recognize(url);
-    if (!results) {
-      throw new Error(`failed to parse/recognize url ${url}`);
-    }
+    assert(`failed to parse/recognize url ${url}`, results);
 
-    let handler = results[results.length - 1].handler;
-    return { handler };
+    let name = results[results.length - 1].handler;
+    let mapScopes = this.map.getScopePath(name);
+
+    assert(`unexpected empty map scopes for url ${url}`, mapScopes.length > 0);
+
+    let r = 0;
+    return mapScopes.map(ms => {
+      let params;
+      if (ms.type === 'route' && ms.name !== 'root') {
+        let recog = results[r++];
+        assert(`ran out of recognizer results`, recog.handler === ms.name);
+        params = recog.params;
+      } else {
+        params = {};
+      }
+
+      return {
+        scope: ms,
+        params,
+      };
+    });
   }
 
   didUpdateStateString(stateString: string) {
@@ -83,9 +100,6 @@ export class NavStack {
 
   buildInitialStack() {
     let json = JSON.parse(this.stateString);
-    if (this.stateString) {
-    } else {
-    }
 
     // we need a key serialized into the URL in order to prevent recursion.
     console.log(`old frames length: ${this.frames.length}`);
@@ -115,19 +129,33 @@ export class NavStack {
 
   frameFromUrl(url, baseScope: FrameScope) {
     let frameScope = new FrameScope(baseScope);
-    let recogResult = this.recognize(url);
-    let name = recogResult.handler;
-    let mapScopes = this.map.getScopePath(name);
+    let recogResults = this.recognize(url);
 
-    // when do we rebuild from URL?
-    // 1. page reload
-    // 2. back/forward button pressed? lets not plan on this.
-    //    in future maybe there's way to get history stack to behind like our nav stack.
+    for (let m = 0; m < recogResults.length; m++) {
+      let recog = recogResults[m];
+      let ms = recog.scope;
 
-    // debugger;
+      if (ms.type === 'route') {
+        let dasherized = ms.desc.name;
+        let camelized = Ember.String.camelize(dasherized);
 
-    for (let m = 0; m < mapScopes.length; m++) {
-      let ms = mapScopes[m];
+        let keyParts = ms.desc.params.map(k => `${k}=${recog.params[k]}`);
+        let key = `k_${keyParts.join('&')}`;
+
+        let instance = frameScope.registry[camelized];
+        if (instance && instance.scopeKey !== key) {
+          instance = null;
+        }
+
+        if (instance) {
+          // TODO: update existing references on the downstream instance???
+        } else {
+          let factory = this.owner.factoryFor(`route:${dasherized}`)
+          instance = factory.class.create({ scopeKey: key });
+          frameScope.register(camelized, instance);
+        }
+      }
+
       if (ms.type === 'when') {
         let sourceName: string = Ember.String.camelize(ms.desc.source.desc.name);
         let sourceInstance = frameScope.registry[sourceName];
@@ -165,6 +193,7 @@ export class NavStack {
           if (factory) {
             // perhaps this is how we can pass down
             // the latest reference to the current user?
+            debugger;
             instance = factory.create({ matchData });
           } else {
             instance = { baz: 1000 };

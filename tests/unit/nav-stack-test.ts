@@ -11,6 +11,9 @@ const Factory = Ember.Object.extend();
 const map = createMap(function() {
   this.route('welcome');
   this.state('auth');
+  this.route('user', { path: 'users/:user_id' }, function() {
+    this.route('posts');
+  });
 });
 
 test('it shares states', function (assert) {
@@ -22,8 +25,24 @@ test('it shares states', function (assert) {
   ]));
 
   assert.deepEqual(scopeTree(frameUpdates.pop()), [
-    { auth: 1, myRouter: 2 },
-    { auth: 1, myRouter: 3 }
+    { "auth": 1, "myRouter": 1, "root": 1, "welcome": 1 },
+    { "auth": 1, "myRouter": 2, "root": 1, "welcome": 1 },
+  ]);
+
+  assert.equal(frameUpdates.length, 0);
+});
+
+test('dynamic params', function (assert) {
+  let { scopeTree, frameUpdates, navStack } = buildWorld(map);
+
+  navStack.didUpdateStateString(JSON.stringify([
+    { url: "users/machty/posts" },
+    { url: "users/amatchneer/posts" },
+  ]));
+
+  assert.deepEqual(scopeTree(frameUpdates.pop()), [
+    { "auth": 1, "myRouter": 1, "posts": 1, "root": 1, "user": 1 },
+    { "auth": 1, "myRouter": 2, "posts": 1, "root": 1, "user": 2 },
   ]);
 
   assert.equal(frameUpdates.length, 0);
@@ -31,6 +50,7 @@ test('it shares states', function (assert) {
 
 function tagger() {
   let tag = 1;
+  let tags = {};
 
   function scopeTreeSingle(frame) {
     let registry = frame.outletState.scope.registry;
@@ -38,7 +58,8 @@ function tagger() {
     Object.keys(registry).map(k => {
       let obj = registry[k];
       if (!obj.__tag) {
-        obj.__tag = tag++;
+        if (!tags[k]) { tags[k] = 1; }
+        obj.__tag = tags[k]++;
       }
       result[k] = obj.__tag;
     });

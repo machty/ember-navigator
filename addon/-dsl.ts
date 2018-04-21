@@ -14,15 +14,21 @@ export interface RouteDescriptorOptions {
   key?: string;
 }
 
+
+const PARAMS_REGEX = /([:*][a-z_]+)/g;
 export class RouteDescriptor implements ScopeDescriptor {
   name: string;
   options: RouteDescriptorOptions;
   type: ScopeDescriptorType;
+  path: string;
+  params: string[];
 
   constructor(name, options, childrenDesc) {
     this.name = name;
     this.options = options;
     this.type = 'route';
+    this.path = options.path || '/';
+    this.params = (this.path.match(PARAMS_REGEX) || []).map(s => s.slice(1));
   }
 
   buildBlockParam(scope: MapScope, index: number) {
