@@ -82,13 +82,9 @@ export class NavStack {
   }
 
   buildInitialStack() {
-    let json;
+    let json = JSON.parse(this.stateString);
     if (this.stateString) {
-      json = JSON.parse(this.stateString);
     } else {
-      json = [
-        { url: 'demo/sign-in' }
-      ];
     }
 
     // we need a key serialized into the URL in order to prevent recursion.
