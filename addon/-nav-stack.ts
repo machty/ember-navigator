@@ -6,6 +6,70 @@ const RouteRecognizer = Ember.__loader.require('route-recognizer')['default'];
 const RouterJs = Ember.__loader.require("router")['default'];
 const EmberRouterDSL = Ember.__loader.require("ember-routing/system/dsl")['default'];
 
+const EMPTY_ARRAY = [];
+
+class DataPool {
+  nodes: AsyncDataNode[];
+  mark: number;
+
+  constructor() {
+    this.nodes = [];
+    this.mark = 0;
+  }
+
+  register(node: AsyncDataNode) {
+    this.nodes.push(node);
+  }
+
+  sweep() {
+    let remainingNodes = [];
+    // this.nodes.filter(n => n.mark === this.mark);
+  }
+}
+
+class AsyncDataNode {
+  state: 'as';
+  value: any;
+  mark: number;
+
+  constructor(public key: string, public deps: string[] = EMPTY_ARRAY) {
+    this.mark = 0;
+  }
+
+  // freshness: 'fresh' | 'loading' | 'depsLoading'
+
+  // how does this know that the upstream is stale?
+
+  // user -> wat -> comments
+  // if each line takes 2 seconds to resolve, and user invalidates and
+  // starts loading again, how do wat/comments realize this?
+
+
+
+
+  // User
+  // deps: []
+  // keyid: 'user-123'
+  //
+  // Wat
+  // deps: {
+  //   'user-123': { latest: null}
+  // }
+  //
+  // Comments
+  // deps: {
+  //   'user-123': {}
+  // }
+
+
+}
+
+
+
+
+
+
+
 interface FrameState {
   componentName: string;
   outletState: any;
@@ -13,14 +77,6 @@ interface FrameState {
 
 interface NavStackListener {
   onNewFrames: (frames: FrameState[]) => void;
-}
-
-class FactoryNode {
-  key: string;
-  object?: any;
-
-  constructor(key: string) {
-  }
 }
 
 class FrameScope {
@@ -39,18 +95,13 @@ class FrameScope {
 }
 
 export class NavStack {
-  listener: NavStackListener;
   frames: FrameState[];
   _sequence: number;
   stateString: string;
-  map: Map;
   recognizer: null;
-  owner: any;
+  dataPool: DataPool;
 
-  constructor(map: Map, owner, listener: NavStackListener) {
-    this.map = map;
-    this.owner = owner;
-
+  constructor(public map: Map, public owner, public listener: NavStackListener) {
     // Hackishly delegate to ember router dsl / router.js to generate
     // the same kind of Route Recognizer that would be generated internally.
     let edsl = new EmberRouterDSL(null, {});
@@ -59,8 +110,8 @@ export class NavStack {
     routerjs.map(edsl.generate());
     let recognizer = routerjs.recognizer;
     this.recognizer = recognizer;
+    this.dataPool = new DataPool();
 
-    this.listener = listener;
     this.frames = [];
     this._sequence = 0;
     this.stateString = "";
@@ -130,6 +181,9 @@ export class NavStack {
   frameFromUrl(url, baseScope: FrameScope) {
     let frameScope = new FrameScope(baseScope);
     let recogResults = this.recognize(url);
+    // debugger;
+
+    let matchKeys: string[] = [];
 
     for (let m = 0; m < recogResults.length; m++) {
       let recog = recogResults[m];
@@ -140,7 +194,10 @@ export class NavStack {
         let camelized = Ember.String.camelize(dasherized);
 
         let keyParts = ms.desc.params.map(k => `${k}=${recog.params[k]}`);
-        let key = `k_${keyParts.join('&')}`;
+        let key = `${camelized}_${keyParts.join('&')}`;
+
+        let dataNode = new AsyncDataNode(key, matchKeys.slice());
+        this.dataPool.register(dataNode);
 
         let instance = frameScope.registry[camelized];
         if (instance && instance.scopeData.key !== key) {
@@ -164,14 +221,71 @@ export class NavStack {
         let dasherized = ms.desc.condition;
         let camelized = Ember.String.camelize(dasherized);
 
+        let key = `${sourceName}_${camelized}`;
+        matchKeys.push(key);
+        let dataNode = new AsyncDataNode(key);
+        this.dataPool.register(dataNode);
+
         let matchData = sourceInstance.get(camelized);
         if (!matchData) {
+          // so this is resolving the data now.
+          // but i don't think this should be a .get()
+          // this should be an observable?
+          // other routes / models are observables sending
+          // values downward too? Or maybe they're just
+          // updating the value in space? Both should work.
+
+          // we need to avoid a situation though where the match
+          // emits another data and then that is received downstream.
+          // there needs to be a gate at the match.
+
+          // take current user.
+          // current user subscribes to auth.
+          // auth nulls out the current user.
+          // match(current-user)
+
+          // auth
+          // match(auth, 'current-user')
+          //   route('i-use-current-user')
+
+          // currentUser subscribes to auth-user.
+          // it emits values from auth user right until the moment
+          // that it's invalid, then it emits invalid.
+          // route 'i-use-current-user' subscribes to 'current-user'.
+          // it'll only get new users, never. 
+
+          // ember observable state:
+          // - no value yet
+          // - value present
+          // - value present but stale
+
+
+          // auth is its own thing. There's no reference.
+          // match will produce a reference and hook into the
+          // auth service.
+
+          // MVP:
+          // have it return a reference.
+
+
+
+
+
+
+
+
+
+
+
           console.log(`${sourceName} ${dasherized} is invalid`)
-          return {
-            componentName: 'invalid-scope',
-            url, // needed for serializing into url
-            outletState: { scope: frameScope }
-          };
+
+          // todo need to get rid of this for now....
+
+        //   return {
+        //     componentName: 'invalid-scope',
+        //     url, // needed for serializing into url
+        //     outletState: { scope: frameScope }
+        //   };
         }
 
         // TODO: do we also want to do this before returning?
@@ -194,8 +308,8 @@ export class NavStack {
           if (factory) {
             // perhaps this is how we can pass down
             // the latest reference to the current user?
-            debugger;
-            instance = factory.create({ matchData });
+            // debugger;
+            instance = factory.class.create({ matchData });
           } else {
             instance = { baz: 1000 };
           }
