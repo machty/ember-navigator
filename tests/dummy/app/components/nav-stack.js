@@ -28,7 +28,8 @@ export default Ember.Component.extend({
 
   didUpdateStateString: Ember.observer('stateString', function() {
     let stateString = this.get('stateString') || 
-      JSON.stringify([ { url: 'demo/sign-in' } ]);
+      JSON.stringify([ { url: 'demo/users/amatchneer/posts' } ]);
+      // JSON.stringify([ { url: 'demo/sign-in' } ]);
 
     if (stateString !== this._stateString) {
       this._stateString = stateString;

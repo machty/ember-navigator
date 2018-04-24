@@ -1,4 +1,4 @@
-import { Map } from './-dsl';
+import { Map, MapScope } from './-dsl';
 import Ember from 'ember';
 import { assert } from '@ember/debug';
 
@@ -8,66 +8,81 @@ const EmberRouterDSL = Ember.__loader.require("ember-routing/system/dsl")['defau
 
 const EMPTY_ARRAY = [];
 
-class DataPool {
-  nodes: AsyncDataNode[];
-  mark: number;
+const DEFAULT_FACTORY = {
+  class: Ember.Object
+};
 
-  constructor() {
-    this.nodes = [];
-    this.mark = 0;
-  }
+enum LoadState {
+  Init = 'INIT',
+  Loading = 'LOADING',
+  Loaded = 'LOADED',
+};
 
-  register(node: AsyncDataNode) {
-    this.nodes.push(node);
-  }
+enum Freshness {
+  Stale = 'STALE',
+  Fresh = 'FRESH',
+};
 
-  sweep() {
-    let remainingNodes = [];
-    // this.nodes.filter(n => n.mark === this.mark);
-  }
-}
-
-class AsyncDataNode {
-  state: 'as';
+class DataNode {
+  instance: any;
+  loadState: LoadState;
+  freshness: Freshness;
   value: any;
-  mark: number;
+  valueOptions: any;
+  notify: (DataNode, any) => void;
 
-  constructor(public key: string, public deps: string[] = EMPTY_ARRAY) {
-    this.mark = 0;
+  constructor(public name: string, notify) {
+    this.notify = notify;
+    this.loadState = LoadState.Init;
+    this.freshness = Freshness.Stale;
   }
 
-  // freshness: 'fresh' | 'loading' | 'depsLoading'
+  pushValue(object: any, options: any) {
+    this.value = object;
+    this.valueOptions = options;
+    this.notify(this, this.value);
+  }
 
-  // how does this know that the upstream is stale?
-
-  // user -> wat -> comments
-  // if each line takes 2 seconds to resolve, and user invalidates and
-  // starts loading again, how do wat/comments realize this?
-
-
-
-
-  // User
-  // deps: []
-  // keyid: 'user-123'
-  //
-  // Wat
-  // deps: {
-  //   'user-123': { latest: null}
-  // }
-  //
-  // Comments
-  // deps: {
-  //   'user-123': {}
-  // }
-
-
+  startLoading() {
+  }
 }
 
+class RouteDataNode extends DataNode {
+  constructor(public navParams: NavParams, public owner: any, notify) {
+    super(navParams.scope.name, notify);
+  }
 
+  startLoading() {
+    if (!this.instance) {
+      let dasherizedName = this.navParams.scope.name;
+      let factory = this.owner.factoryFor(`route:${dasherizedName}`) || DEFAULT_FACTORY;
+      let camelized = Ember.String.camelize(dasherizedName);
 
+      // let scopeData = { params: recog.params, key };
+      let scopeData = {
+        pushValue: (object, options) => {
+          this.pushValue(object, options);
+        }
+      };
+      this.instance = factory.class.create({ scopeData });
+    }
 
+    this.loadState = LoadState.Loading;
 
+    if (this.instance.model) {
+      Ember.RSVP.resolve().then(() => {
+        return this.instance.model(this.navParams.params);
+      }).then((v) => {
+        this.pushValue(v, {});
+      }, (e) => {
+        alert(`error not implemented: ${e.message}`)
+      });
+    } else {
+      this.pushValue({ empty: 'lol' }, {});
+    }
+  }
+
+}
 
 
 interface FrameState {
@@ -79,18 +94,91 @@ interface NavStackListener {
   onNewFrames: (frames: FrameState[]) => void;
 }
 
+interface NavParams {
+  scope: MapScope;
+  params: any;
+  key: string;
+}
+
 class FrameScope {
-  registry: any;
+  registry: { [k: string]: DataNode };
+  dataNodes: DataNode[];
+  notifyNewData: (DataNode, any) => void;
+
+  newData: [DataNode, any][];
 
   constructor(base?: FrameScope) {
     this.registry = {};
+    this.dataNodes = [];
     if (base) {
       Object.assign(this.registry, base.registry);
     }
+    this.newData = [];
+    this.notifyNewData = this._notifyNewData.bind(this);
   }
 
-  register(name: string, object: any) {
-    this.registry[name] = object;
+  _notifyNewData(dataNode: DataNode, value: any) {
+    this.newData.push([dataNode, value]);
+    Ember.run.scheduleOnce('actions', this, this._flushNewData);
+  }
+
+  _flushNewData() {
+    let newData = this.newData;
+    this.newData = [];
+
+    // newData is an array of newly resolved data. For each value we
+    // need to loop through the tree and provide other data nodes with
+    // their new dependent values.
+
+    newData.forEach(([dataNode, value]) => {
+      debugger;
+    });
+
+    // what should we do now?
+    // we need to actually fulfill the thing with a scoped service.
+    // at this point the nodes aren't done.
+
+    // basically the question is whether we can provide a stable Frame to render.
+    // will all the services properly have a scoped service.
+
+    // how does a frame know if it's ready to render?
+    // it needs to switch between component loading?
+
+    // solution: introduce a data node for the frame?
+
+
+
+  }
+
+  register(dataNode: DataNode) {
+    this.registry[dataNode.name] = dataNode;
+    this.dataNodes.push(dataNode);
+  }
+
+  startLoading() {
+    this.dataNodes.forEach(dataNode => {
+      dataNode.startLoading();
+    });
+  }
+}
+
+class Frame {
+  componentName: string;
+  url: string;
+  outletState: any;
+  value: any;
+
+  constructor(public frameScope: FrameScope) {
+    let dataNode = new DataNode('_frameRoot', (dataNode: DataNode, value: any)  => {
+      debugger;
+    });
+
+    this.frameScope.register(dataNode);
+
+
+    // TODO: register dependencies...
+
+    // frameScope.register(dataNode);
   }
 }
 
@@ -98,8 +186,7 @@ export class NavStack {
   frames: FrameState[];
   _sequence: number;
   stateString: string;
-  recognizer: null;
-  dataPool: DataPool;
+  recognizer: any;
 
   constructor(public map: Map, public owner, public listener: NavStackListener) {
     // Hackishly delegate to ember router dsl / router.js to generate
@@ -110,14 +197,13 @@ export class NavStack {
     routerjs.map(edsl.generate());
     let recognizer = routerjs.recognizer;
     this.recognizer = recognizer;
-    this.dataPool = new DataPool();
 
     this.frames = [];
     this._sequence = 0;
     this.stateString = "";
   }
 
-  recognize(url) {
+  recognize(url) : NavParams[] {
     let results = this.recognizer.recognize(url);
     assert(`failed to parse/recognize url ${url}`, results);
 
@@ -137,9 +223,12 @@ export class NavStack {
         params = {};
       }
 
+      let key = ms.computeKey(params);
+
       return {
         scope: ms,
         params,
+        key,
       };
     });
   }
@@ -178,10 +267,38 @@ export class NavStack {
     // console.log("REVALIDATING");
   }
 
-  frameFromUrl(url, baseScope: FrameScope) {
+  frameFromUrl(url, baseScope: FrameScope) : Frame {
     let frameScope = new FrameScope(baseScope);
-    let recogResults = this.recognize(url);
-    // debugger;
+    let frame = new Frame(frameScope);
+    frame.url = url;
+    frame.componentName = 'invalid-scope'; // fixme
+    frame.outletState = { scope: frameScope };
+    let navParamsArray = this.recognize(url);
+
+    navParamsArray.forEach(navParams => {
+      let dataNode = new RouteDataNode(navParams, this.owner, frameScope.notifyNewData);
+      frameScope.register(dataNode);
+    });
+
+    // now we have a "tree" of things.
+    // go through each one and kick it off?
+
+    frameScope.startLoading();
+    debugger;
+
+    return frame;
+
+
+    // this returns something easily introspectable in the template.
+    // componentName, url, outletState
+
+    // can we ask desc for the key?
+    // let scopeData = { params: recog.params, key };
+    // let instance = factory.class.create({ scopeData });
+
+
+    /*
+
 
     let matchKeys: string[] = [];
 
@@ -196,8 +313,6 @@ export class NavStack {
         let keyParts = ms.desc.params.map(k => `${k}=${recog.params[k]}`);
         let key = `${camelized}_${keyParts.join('&')}`;
 
-        let dataNode = new AsyncDataNode(key, matchKeys.slice());
-        this.dataPool.register(dataNode);
 
         let instance = frameScope.registry[camelized];
         if (instance && instance.scopeData.key !== key) {
@@ -209,8 +324,10 @@ export class NavStack {
         } else {
           let factory = this.owner.factoryFor(`route:${dasherized}`)
           let scopeData = { params: recog.params, key };
-          instance = factory.class.create({ scopeData });
-          frameScope.register(camelized, instance);
+
+          let instance = factory.class.create({ scopeData });
+          let dataNode = new AsyncDataNode(key, instance, [...matchKeys]);
+          frameScope.register(camelized, dataNode);
         }
       }
 
@@ -223,69 +340,10 @@ export class NavStack {
 
         let key = `${sourceName}_${camelized}`;
         matchKeys.push(key);
-        let dataNode = new AsyncDataNode(key);
-        this.dataPool.register(dataNode);
 
         let matchData = sourceInstance.get(camelized);
         if (!matchData) {
-          // so this is resolving the data now.
-          // but i don't think this should be a .get()
-          // this should be an observable?
-          // other routes / models are observables sending
-          // values downward too? Or maybe they're just
-          // updating the value in space? Both should work.
-
-          // we need to avoid a situation though where the match
-          // emits another data and then that is received downstream.
-          // there needs to be a gate at the match.
-
-          // take current user.
-          // current user subscribes to auth.
-          // auth nulls out the current user.
-          // match(current-user)
-
-          // auth
-          // match(auth, 'current-user')
-          //   route('i-use-current-user')
-
-          // currentUser subscribes to auth-user.
-          // it emits values from auth user right until the moment
-          // that it's invalid, then it emits invalid.
-          // route 'i-use-current-user' subscribes to 'current-user'.
-          // it'll only get new users, never. 
-
-          // ember observable state:
-          // - no value yet
-          // - value present
-          // - value present but stale
-
-
-          // auth is its own thing. There's no reference.
-          // match will produce a reference and hook into the
-          // auth service.
-
-          // MVP:
-          // have it return a reference.
-
-
-
-
-
-
-
-
-
-
-
           console.log(`${sourceName} ${dasherized} is invalid`)
-
-          // todo need to get rid of this for now....
-
-        //   return {
-        //     componentName: 'invalid-scope',
-        //     url, // needed for serializing into url
-        //     outletState: { scope: frameScope }
-        //   };
         }
 
         // TODO: do we also want to do this before returning?
@@ -313,28 +371,20 @@ export class NavStack {
           } else {
             instance = { baz: 1000 };
           }
-          frameScope.register(camelized, instance);
+
+          let dataNode = new AsyncDataNode(key, instance, []);
+          frameScope.register(camelized, dataNode);
         }
       }
 
       ms.childScopes.forEach((cs) => {
+        if (cs.type !== 'state') { return; }
+
+        return this.makeStateNode(cs);
+
         // only state scopes should be "entered" on children.
         // matches should only be entered when entered.
         // TODO: should it be possible for states to return validation errors?
-        if (cs.type === 'state') {
-          let dasherized = cs.name;
-          let camelized = Ember.String.camelize(dasherized);
-          let instance = frameScope.registry[camelized];
-          if (!instance) {
-            let factory = this.owner.factoryFor(`route:${dasherized}`)
-            if (factory) {
-              instance = new factory.class();
-            } else {
-              instance = { baz: 999 };
-            }
-            frameScope.register(camelized, instance);
-          }
-        } 
       });
     }
 
@@ -356,11 +406,26 @@ export class NavStack {
 
     frameScope.register('myRouter', this.makeRouter(url));
 
-    return {
-      componentName: name,
-      url, // needed for serializing into url
-      outletState: { scope: frameScope }
-    };
+    */
+  }
+
+  makeStateNode(stateScope: MapScope) : DataNode {
+
+
+
+
+    let dasherized = stateScope.name;
+    let camelized = Ember.String.camelize(dasherized);
+    let instance = frameScope.registry[camelized];
+    if (!instance) {
+      let factory = this.owner.factoryFor(`route:${dasherized}`)
+      if (factory) {
+        instance = new factory.class();
+      } else {
+        instance = { baz: 999 };
+      }
+      frameScope.register(camelized, instance);
+    }
   }
 
   push(url) {

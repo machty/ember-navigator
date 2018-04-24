@@ -26,5 +26,9 @@ export default createMap(function() {
 
       this.route('user-settings');
     });
+
+    this.route('user', { path: 'users/:user_id' }, function () {
+      this.route('posts');
+    });
   });
 });
