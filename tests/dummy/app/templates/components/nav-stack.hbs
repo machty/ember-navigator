@@ -1,7 +1,7 @@
 {{#each frames key="@index" as |f|}}
   <div style="width: 400px; height: 500px; border: 1px solid black; float: left; position: relative; overflow: scroll;">
-    {{#-with-dynamic-vars outletState=f.outletState}}
-      {{component f.componentName}}
+    {{#-with-dynamic-vars outletState=f.value.outletState}}
+      {{component f.value.componentName}}
     {{/-with-dynamic-vars}}
   </div>
 {{/each}}
