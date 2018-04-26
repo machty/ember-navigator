@@ -1,6 +1,7 @@
 import { Map, MapScope } from './-dsl';
 import Ember from 'ember';
 import { assert } from '@ember/debug';
+import { sendEvent, addListener } from '@ember/object/events';
 
 const RouteRecognizer = Ember.__loader.require('route-recognizer')['default'];
 const RouterJs = Ember.__loader.require("router")['default'];
@@ -28,21 +29,33 @@ class DataNode {
   loadState: LoadState;
   freshness: Freshness;
   value: any;
+  valueSequence: number;
   valueOptions: any;
-  notify: (DataNode, any) => void;
   dependencies: string[];
+  ownerRefCount: number;
+  dependencyCache: any;
 
-  constructor(public name: string, notify) {
-    this.notify = notify;
+  constructor(public name: string) {
+    this.ownerRefCount = 0;
+    this.value = null;
+    this.valueOptions = null;
     this.loadState = LoadState.Init;
     this.freshness = Freshness.Stale;
     this.dependencies = [];
+    this.valueSequence = 0;
+    this.dependencyCache = {};
   }
 
   pushValue(object: any, options: any) {
+    if (this.ownerRefCount <= 0) {
+      console.log(`DataNode ${this.name} ignoring pushValue because ownerRefCount=${this.ownerRefCount}`);
+      return;
+    }
+
     this.value = object;
     this.valueOptions = options;
-    this.notify(this, this.value);
+    this.valueSequence++;
+    sendEvent(this, 'newValue', [this, this.value]);
   }
 
   addDependency(name: string) {
@@ -50,6 +63,9 @@ class DataNode {
   }
 
   startLoading() {
+    // currently this is only used by FrameNode.
+    // default behavior is to produce a value???
+    this.pushValue({}, {});
   }
 
   ensureInstance(owner) {
@@ -57,7 +73,6 @@ class DataNode {
 
     let dasherizedName = this.name;
     let factory = owner.factoryFor(`route:${dasherizedName}`) || DEFAULT_FACTORY;
-    let camelized = Ember.String.camelize(dasherizedName);
 
     // let scopeData = { params: recog.params, key };
     let scopeData = {
@@ -67,11 +82,49 @@ class DataNode {
     };
     this.instance = factory.class.create({ scopeData });
   }
+
+  stashDependencyData(sourceDataNode: DataNode, value: any) {
+    // console.log(`${this.name} got data from ${sourceDataNode.name}`);
+    this.dependencyCache[sourceDataNode.name] = value;
+  }
+
+  allDependenciesPresent() {
+    return this.dependencies.every(d => d in this.dependencyCache);
+  }
+
+  step() {
+    if (!this.allDependenciesPresent()) {
+      console.log(`${this.name} doesn't have all dependencies present, skipping...`);
+      return;
+    }
+
+    console.log(`${this.name} ALL DEPS PRESENT. startLoading()`);
+    this.startLoading();
+
+
+
+
+    // i should replace startLoading with this.
+
+    // console.log(`${this.name} got data from ${sourceDataNode.name}`);
+    // this.dependencyCache[sourceDataNode.name] = value;
+  }
+
+  own() {
+    this.ownerRefCount++;
+  }
+
+  disown() {
+    this.ownerRefCount--;
+    if (this.ownerRefCount === 0) {
+      console.log(`${this.name} ownerRefCount === 0`);
+    }
+  }
 }
 
 class SimpleDataNode extends DataNode {
-  constructor(name: string, public fixedValue: any, notify) {
-    super(name, notify);
+  constructor(name: string, public fixedValue: any) {
+    super(name);
   }
 
   startLoading() {
@@ -80,8 +133,8 @@ class SimpleDataNode extends DataNode {
 }
 
 class RouteDataNode extends DataNode {
-  constructor(name: string, public params: any, public owner: any, notify) {
-    super(name, notify);
+  constructor(name: string, public params: any, public owner: any) {
+    super(name);
   }
 
   startLoading() {
@@ -103,8 +156,8 @@ class RouteDataNode extends DataNode {
 }
 
 class StateDataNode extends DataNode {
-  constructor(name: string, public owner: any, notify) {
-    super(name, notify);
+  constructor(name: string, public owner: any) {
+    super(name);
   }
 
   startLoading() {
@@ -114,14 +167,8 @@ class StateDataNode extends DataNode {
   }
 }
 
-
-interface FrameState {
-  componentName: string;
-  outletState: any;
-}
-
 interface NavStackListener {
-  onNewFrames: (frames: FrameState[]) => void;
+  onNewFrames: (frames: Frame[]) => void;
 }
 
 interface NavParams {
@@ -131,20 +178,23 @@ interface NavParams {
 }
 
 class FrameScope {
-  registry: { [k: string]: DataNode };
+  registry: { [k: string]: DataNode | null };
   dataNodes: DataNode[];
-  notifyNewData: (DataNode, any) => void;
 
   newData: [DataNode, any][];
 
   constructor(base?: FrameScope) {
     this.registry = {};
     this.dataNodes = [];
-    if (base) {
-      Object.assign(this.registry, base.registry);
-    }
     this.newData = [];
-    this.notifyNewData = this._notifyNewData.bind(this);
+    if (base) {
+      Object.keys(base.registry).forEach(k => {
+        // HACKY AND DUMB
+        if (k !== 'myRouter' && k !== '_frameRoot') {
+          this.register(base.registry[k]!);
+        }
+      });
+    }
   }
 
   _notifyNewData(dataNode: DataNode, value: any) {
@@ -159,6 +209,8 @@ class FrameScope {
     let dependentNodes: { [k: string]: DataNode[] } = {};
     this.dataNodes.forEach(dataNode => {
       dataNode.dependencies.forEach(d => {
+        // TODO: reexamine whether we need to prevent double registers.
+        // TODO: .own()
         if (!dependentNodes[d]) {
           dependentNodes[d] = [];
         }
@@ -166,23 +218,40 @@ class FrameScope {
       })
     });
 
+    let nodesWithNewDependentData: { [k: string]: DataNode } = {};
+
     newData.forEach(([dataNode, value]) => {
       let nodes = dependentNodes[dataNode.name];
       if (!nodes) { return; }
       nodes.forEach(dependentNode => {
-        dependentNode.notify(dataNode, value);
+        nodesWithNewDependentData[dependentNode.name] = dependentNode;
+        dependentNode.stashDependencyData(dataNode, value);
       });
+    });
+
+    Object.keys(nodesWithNewDependentData).forEach(k => {
+      let dataNode = nodesWithNewDependentData[k];
+      dataNode.step();
     });
   }
 
   register(dataNode: DataNode) {
+    if (this.registry[dataNode.name]) {
+      // TODO: use keying rather than name to solve dups.
+      console.log(`${dataNode.name} is already in registry; ignoring`);
+      return;
+    }
+
+    // TODO: reexamine whether we need to prevent double registers.
     this.registry[dataNode.name] = dataNode;
+    addListener(dataNode, 'newValue', this, this._notifyNewData);
+    dataNode.own();
     this.dataNodes.push(dataNode);
   }
 
-  startLoading() {
+  start() {
     this.dataNodes.forEach(dataNode => {
-      dataNode.startLoading();
+      dataNode.step();
     });
   }
 }
@@ -191,8 +260,9 @@ class Frame {
   componentName: string;
   outletState: any;
   value: any;
+  dataNode: DataNode;
 
-  constructor(public frameScope: FrameScope) {
+  constructor(public url: string, public frameScope: FrameScope) {
     this.value = {
       componentName: 'x-loading',
       outletState: {
@@ -200,24 +270,25 @@ class Frame {
       }
     };
 
-    let dataNode = new DataNode('_frameRoot', (dataNode: DataNode, value: any)  => {
-      Ember.set(this, 'value', {
-        componentName: 'sign-in',
-        outletState: {
-          scope: frameScope
-        }
-      });
+    this.dataNode = new DataNode('_frameRoot');
+    addListener(this.dataNode, 'newValue', this, this.handleNewData);
+    this.frameScope.register(this.dataNode);
+  }
+
+  handleNewData(dataNode: DataNode, value: any) {
+    console.log(`frame root got ${dataNode.name}`, value);
+
+    Ember.set(this, 'value', {
+      componentName: 'sign-in',
+      outletState: {
+        scope: this.frameScope
+      }
     });
-
-    // TODO: compute this dynamically!!!!! later!!!!!!
-    dataNode.addDependency('user');
-
-    this.frameScope.register(dataNode);
   }
 }
 
 export class NavStack {
-  frames: FrameState[];
+  frames: Frame[];
   _sequence: number;
   stateString: string;
   recognizer: any;
@@ -259,11 +330,7 @@ export class NavStack {
 
       let key = ms.computeKey(params);
 
-      return {
-        scope: ms,
-        params,
-        key,
-      };
+      return { scope: ms, params, key };
     });
   }
 
@@ -281,7 +348,7 @@ export class NavStack {
     let frames: any[] = [];
     json.forEach((j) => {
       let lastFrame = frames[frames.length - 1];
-      let lastScope = lastFrame ? lastFrame.outletState.scope : {};
+      let lastScope = lastFrame && lastFrame.frameScope;
       frames.push(this.frameFromUrl(j.url, lastScope));
     });
 
@@ -301,13 +368,13 @@ export class NavStack {
     // console.log("REVALIDATING");
   }
 
-  frameFromUrl(url, baseScope: FrameScope) : Frame {
+  frameFromUrl(url, baseScope?: FrameScope) : Frame {
     let frameScope = new FrameScope(baseScope);
-    let frame = new Frame(frameScope);
+    let frame = new Frame(url, frameScope);
     let navParamsArray = this.recognize(url);
 
     navParamsArray.forEach(navParams => {
-      let dataNode = new RouteDataNode(navParams.scope.name, navParams.params, this.owner, frameScope.notifyNewData);
+      let dataNode = new RouteDataNode(navParams.scope.name, navParams.params, this.owner);
       frameScope.register(dataNode);
 
       navParams.scope.childScopes.forEach((cs) => {
@@ -315,15 +382,23 @@ export class NavStack {
       });
     });
 
-    frameScope.register(new SimpleDataNode('myRouter', this.makeRouter(url), frameScope.notifyNewData ));
-    frameScope.startLoading();
+    // TODO: figure out a better way to for the frame node to depend on all child scopes
+    for (let k in frameScope.registry) {
+      if (k[0] !== '_') {
+        frame.dataNode.addDependency(k)
+      }
+    }
+
+    frameScope.register(new SimpleDataNode('myRouter', this.makeRouter(url)));
+    frameScope.start();
     return frame;
   }
 
-  makeStateNode(stateScope: MapScope, frame: Frame) : DataNode {
-    let dasherized = stateScope.name;
+  makeStateNode(scope: MapScope, frame: Frame) : void {
+    if (scope.type !== 'state') { return; }
+    let dasherized = scope.name;
     let camelized = Ember.String.camelize(dasherized);
-    let dataNode = new StateDataNode(dasherized, this.owner, frame.frameScope.notifyNewData);
+    let dataNode = new StateDataNode(dasherized, this.owner);
     frame.frameScope.register(dataNode);
   }
 
@@ -331,7 +406,7 @@ export class NavStack {
     let frames = this.frames.slice();
 
     let lastFrame = frames[frames.length - 1];
-    let lastScope = lastFrame ? lastFrame.outletState.scope : {};
+    let lastScope = lastFrame && lastFrame.frameScope;
 
     frames.push(this.frameFromUrl(url, lastScope));
     this._updateFrames(frames);
