@@ -2,6 +2,7 @@ import { Map, MapScope } from './-dsl';
 import Ember from 'ember';
 import { assert } from '@ember/debug';
 import { sendEvent, addListener } from '@ember/object/events';
+import { guidFor } from '@ember/object/internals';
 
 const RouteRecognizer = Ember.__loader.require('route-recognizer')['default'];
 const RouterJs = Ember.__loader.require("router")['default'];
@@ -30,6 +31,8 @@ class DataNode {
   freshness: Freshness;
   value: any;
   valueSequence: number;
+  loadSequence: number;
+  stalenessSequence: number;
   valueOptions: any;
   dependencies: string[];
   ownerRefCount: number;
@@ -42,6 +45,8 @@ class DataNode {
     this.loadState = LoadState.Init;
     this.freshness = Freshness.Stale;
     this.dependencies = [];
+    this.stalenessSequence = 1;
+    this.loadSequence = 0;
     this.valueSequence = 0;
     this.dependencyCache = {};
   }
@@ -62,10 +67,14 @@ class DataNode {
     this.dependencies.push(name);
   }
 
-  startLoading() {
+  startLoading(loadSequence: number) {
     // currently this is only used by FrameNode.
     // default behavior is to produce a value???
-    this.pushValue({}, {});
+    this.pushValue({ woot: 123 }, {});
+  }
+
+  hasProducedValue() {
+    return this.valueSequence > 0;
   }
 
   ensureInstance(owner) {
@@ -85,29 +94,36 @@ class DataNode {
 
   stashDependencyData(sourceDataNode: DataNode, value: any) {
     // console.log(`${this.name} got data from ${sourceDataNode.name}`);
+    this.stalenessSequence++;
     this.dependencyCache[sourceDataNode.name] = value;
   }
 
   allDependenciesPresent() {
-    return this.dependencies.every(d => d in this.dependencyCache);
+    // return this.dependencies.every(d => d in this.dependencyCache);
+    return this.dependencies.every(d => {
+      let v = d in this.dependencyCache;
+      if (v) {
+        this.log(`${this.name} has value for ${d}`);
+      } else {
+        this.log(`${this.name} STILL NO VALUE for ${d}`);
+      }
+      return v;
+    });
   }
 
   step() {
     if (!this.allDependenciesPresent()) {
-      console.log(`${this.name} doesn't have all dependencies present, skipping...`);
+      // console.log(`${this.name} doesn't have all dependencies present, skipping...`);
       return;
     }
 
-    console.log(`${this.name} ALL DEPS PRESENT. startLoading()`);
-    this.startLoading();
-
-
-
-
-    // i should replace startLoading with this.
-
-    // console.log(`${this.name} got data from ${sourceDataNode.name}`);
-    // this.dependencyCache[sourceDataNode.name] = value;
+    if (this.loadSequence < this.stalenessSequence) {
+      this.log(`${this.name} loading`);
+      this.loadSequence = this.stalenessSequence;
+      this.startLoading(this.loadSequence);
+    } else {
+      // this.log(`${this.name} skipping step because loadSequence == stalenessSequence`);
+    }
   }
 
   own() {
@@ -120,6 +136,10 @@ class DataNode {
       console.log(`${this.name} ownerRefCount === 0`);
     }
   }
+
+  log(message) {
+    console.log(`DataNode ${this.name} (${guidFor(this)}): ${message}`);
+  }
 }
 
 class SimpleDataNode extends DataNode {
@@ -127,7 +147,7 @@ class SimpleDataNode extends DataNode {
     super(name);
   }
 
-  startLoading() {
+  startLoading(loadSequence) {
     this.pushValue(this.fixedValue, {});
   }
 }
@@ -137,11 +157,20 @@ class RouteDataNode extends DataNode {
     super(name);
   }
 
-  startLoading() {
+  startLoading(loadSequence) {
+    // this is going to get called multiple times
+    // because user can exist in multiple nodes.
+    // somewhere this caching has to happen. it has to ignore.
+    // everything should be represented as data.
+    // so maybe we have a staleness counter?
+    // it gets bumped when dependencies get bumped.
+    //
+
     this.ensureInstance(this.owner);
     this.loadState = LoadState.Loading;
 
     if (this.instance.model) {
+      // debugger;
       Ember.RSVP.resolve().then(() => {
         return this.instance.model(this.params);
       }).then((v) => {
@@ -160,7 +189,7 @@ class StateDataNode extends DataNode {
     super(name);
   }
 
-  startLoading() {
+  startLoading(loadSequence) {
     this.ensureInstance(this.owner);
     this.loadState = LoadState.Loading;
     this.pushValue(this.instance, {});
@@ -180,7 +209,6 @@ interface NavParams {
 class FrameScope {
   registry: { [k: string]: DataNode | null };
   dataNodes: DataNode[];
-
   newData: [DataNode, any][];
 
   constructor(base?: FrameScope) {
@@ -189,16 +217,14 @@ class FrameScope {
     this.newData = [];
     if (base) {
       Object.keys(base.registry).forEach(k => {
-        // HACKY AND DUMB
-        if (k !== 'myRouter' && k !== '_frameRoot') {
-          this.register(base.registry[k]!);
-        }
+        this.register(base.registry[k]!);
       });
     }
   }
 
   _notifyNewData(dataNode: DataNode, value: any) {
     this.newData.push([dataNode, value]);
+    console.log(`FrameScope ${guidFor(this)} got data from ${dataNode.name}`);
     Ember.run.scheduleOnce('actions', this, this._flushNewData);
   }
 
@@ -236,17 +262,30 @@ class FrameScope {
   }
 
   register(dataNode: DataNode) {
-    if (this.registry[dataNode.name]) {
-      // TODO: use keying rather than name to solve dups.
-      console.log(`${dataNode.name} is already in registry; ignoring`);
-      return;
-    }
+    let preexistingNode = this.registry[dataNode.name];
 
-    // TODO: reexamine whether we need to prevent double registers.
-    this.registry[dataNode.name] = dataNode;
-    addListener(dataNode, 'newValue', this, this._notifyNewData);
-    dataNode.own();
-    this.dataNodes.push(dataNode);
+    // TODO: SUPER DUMB
+    if (preexistingNode &&
+        preexistingNode.name !== 'myRouter' &&
+        preexistingNode.name !== '_frameRoot') {
+      // TODO: use keying rather than name to solve dups.
+      // also, TODO: this is hacky; it's weird to create an
+      // instance of these DataNodes and then discard them.
+
+      addListener(preexistingNode, 'newValue', this, this._notifyNewData);
+      preexistingNode.own();
+      this.dataNodes.push(preexistingNode);
+
+      if (preexistingNode.hasProducedValue()) {
+        console.log(`SHLORPING UP A VALUE FOR ${preexistingNode.name}`);
+        this._notifyNewData(preexistingNode, preexistingNode.value);
+      }
+    } else {
+      this.registry[dataNode.name] = dataNode;
+      addListener(dataNode, 'newValue', this, this._notifyNewData);
+      dataNode.own();
+      this.dataNodes.push(dataNode);
+    }
   }
 
   start() {
@@ -262,7 +301,7 @@ class Frame {
   value: any;
   dataNode: DataNode;
 
-  constructor(public url: string, public frameScope: FrameScope) {
+  constructor(public url: string, public frameScope: FrameScope, public id: number) {
     this.value = {
       componentName: 'x-loading',
       outletState: {
@@ -276,10 +315,9 @@ class Frame {
   }
 
   handleNewData(dataNode: DataNode, value: any) {
-    console.log(`frame root got ${dataNode.name}`, value);
-
+    console.log(`frame root (${this.id}) got ${dataNode.name}`, value);
     Ember.set(this, 'value', {
-      componentName: 'sign-in',
+      componentName: this.componentName,
       outletState: {
         scope: this.frameScope
       }
@@ -289,9 +327,9 @@ class Frame {
 
 export class NavStack {
   frames: Frame[];
-  _sequence: number;
   stateString: string;
   recognizer: any;
+  frameSequence: number;
 
   constructor(public map: Map, public owner, public listener: NavStackListener) {
     // Hackishly delegate to ember router dsl / router.js to generate
@@ -304,7 +342,7 @@ export class NavStack {
     this.recognizer = recognizer;
 
     this.frames = [];
-    this._sequence = 0;
+    this.frameSequence = 0;
     this.stateString = "";
   }
 
@@ -343,7 +381,6 @@ export class NavStack {
     let json = JSON.parse(this.stateString);
 
     // we need a key serialized into the URL in order to prevent recursion.
-    console.log(`old frames length: ${this.frames.length}`);
 
     let frames: any[] = [];
     json.forEach((j) => {
@@ -370,24 +407,23 @@ export class NavStack {
 
   frameFromUrl(url, baseScope?: FrameScope) : Frame {
     let frameScope = new FrameScope(baseScope);
-    let frame = new Frame(url, frameScope);
+    let frame = new Frame(url, frameScope, this.frameSequence++);
     let navParamsArray = this.recognize(url);
+
+    // TODO: DUMB AND HACKY
+    frame.componentName = navParamsArray[navParamsArray.length-1].scope.name;
 
     navParamsArray.forEach(navParams => {
       let dataNode = new RouteDataNode(navParams.scope.name, navParams.params, this.owner);
       frameScope.register(dataNode);
 
+      // frame by default depends on every node in this frame's route hierarchy.
+      frame.dataNode.addDependency(dataNode.name)
+
       navParams.scope.childScopes.forEach((cs) => {
         return this.makeStateNode(cs, frame);
-      });
+      })
     });
-
-    // TODO: figure out a better way to for the frame node to depend on all child scopes
-    for (let k in frameScope.registry) {
-      if (k[0] !== '_') {
-        frame.dataNode.addDependency(k)
-      }
-    }
 
     frameScope.register(new SimpleDataNode('myRouter', this.makeRouter(url)));
     frameScope.start();

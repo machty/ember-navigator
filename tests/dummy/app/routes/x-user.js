@@ -10,7 +10,7 @@ export default Route.extend({
     return new Promise(r => {
       setTimeout(() => {
         r(value);
-      }, 600);
+      }, 800);
     });
   },
 });
