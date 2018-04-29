@@ -1,8 +1,19 @@
-{{#each frames key="@index" as |f|}}
-  <div style="width: 400px; height: 500px; border: 1px solid black; float: left; position: relative; overflow: scroll;">
+<div>
+  {{input checked=isDebugMode type='checkbox'}} Debug Mode
+</div>
+
+{{#each visibleFrames key="id" as |f|}}
+  <div class="nav-frame">
     {{#-with-dynamic-vars outletState=f.value.outletState}}
+      {{#if isDebugMode}}
+        <div>
+          debug: Frame ID: {{f.id}}
+        </div>
+      {{/if}}
+
       {{component f.value.componentName}}
     {{/-with-dynamic-vars}}
   </div>
 {{/each}}
+
 <div style="clear:both;"></div>

@@ -1,11 +1,23 @@
 import Ember from 'ember';
 import { NavStack, MicroRouter } from 'ember-constraint-router/-nav-stack';
+import { computed } from '@ember/object';
 
 export default Ember.Component.extend({
   _stateString: '_unset_',
   stateString: '',
   frames: null,
   navStack: null,
+  isDebugMode: false,
+
+  visibleFrames: computed('frames', 'isDebugMode', function() {
+    let frames = this.frames;
+    if (this.isDebugMode) {
+      return frames;
+    } else {
+      let lastFrame = frames[frames.length - 1];
+      return [lastFrame];
+    }
+  }),
 
   init(...args) {
     this._super(...args);

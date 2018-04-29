@@ -6,7 +6,6 @@ import { Promise } from 'rsvp';
 export default Route.extend({
   model({ user_id }) {
     let value = { id: user_id, name: 'alex' };
-    // return value;
     return new Promise(r => {
       setTimeout(() => {
         r(value);

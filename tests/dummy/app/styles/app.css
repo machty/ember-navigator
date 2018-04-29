@@ -8,3 +8,12 @@ body {
   height: 570px;
   padding: 10px;
 }
+
+.nav-frame {
+  width: 400px;
+  height: 500px;
+  border: 1px solid black;
+  float: left;
+  position: relative;
+  overflow: scroll;
+}
