@@ -9,6 +9,10 @@
         <div>
           debug: Frame ID: {{f.id}}
         </div>
+        <div>
+          FrameScope:
+          {{#each-in f.frameScope.registry as |k v|}} {{k}} {{/each-in}}
+        </div>
       {{/if}}
 
       {{component f.value.componentName}}

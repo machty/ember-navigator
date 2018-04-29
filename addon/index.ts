@@ -33,8 +33,9 @@ export function initialize() {
   });
 }
 
-export function scopedService() {
-  return Ember.computed(function(key) {
+export function scopedService(customKey) {
+  return Ember.computed(function(computedPropertyKey) {
+    let key = customKey || computedPropertyKey;
     let service = Ember.get(this, `_scope.registry.${key}`)
     if (!service) { debugger; }
     Ember.assert(`scoped service ${key} does not appear to be available on this scope`, service);

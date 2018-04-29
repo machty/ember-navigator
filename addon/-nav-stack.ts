@@ -38,7 +38,7 @@ class DataNode {
   ownerRefCount: number;
   dependencyCache: any;
 
-  constructor(public name: string) {
+  constructor(public name: string, public key: string) {
     this.ownerRefCount = 0;
     this.value = null;
     this.valueOptions = null;
@@ -143,8 +143,8 @@ class DataNode {
 }
 
 class SimpleDataNode extends DataNode {
-  constructor(name: string, public fixedValue: any) {
-    super(name);
+  constructor(name: string, key: string, public fixedValue: any) {
+    super(name, key);
   }
 
   startLoading(loadSequence) {
@@ -153,8 +153,8 @@ class SimpleDataNode extends DataNode {
 }
 
 class RouteDataNode extends DataNode {
-  constructor(name: string, public params: any, public owner: any) {
-    super(name);
+  constructor(name: string, key: string, public params: any, public owner: any) {
+    super(name, key);
   }
 
   startLoading(loadSequence) {
@@ -170,7 +170,6 @@ class RouteDataNode extends DataNode {
     this.loadState = LoadState.Loading;
 
     if (this.instance.model) {
-      // debugger;
       Ember.RSVP.resolve().then(() => {
         return this.instance.model(this.params);
       }).then((v) => {
@@ -185,8 +184,8 @@ class RouteDataNode extends DataNode {
 }
 
 class StateDataNode extends DataNode {
-  constructor(name: string, public owner: any) {
-    super(name);
+  constructor(name: string, key: string, public owner: any) {
+    super(name, key);
   }
 
   startLoading(loadSequence) {
@@ -264,14 +263,7 @@ class FrameScope {
   register(dataNode: DataNode) {
     let preexistingNode = this.registry[dataNode.name];
 
-    // TODO: SUPER DUMB
-    if (preexistingNode &&
-        preexistingNode.name !== 'myRouter' &&
-        preexistingNode.name !== '_frameRoot') {
-      // TODO: use keying rather than name to solve dups.
-      // also, TODO: this is hacky; it's weird to create an
-      // instance of these DataNodes and then discard them.
-
+    if (preexistingNode && preexistingNode.key === dataNode.key) {
       addListener(preexistingNode, 'newValue', this, this._notifyNewData);
       preexistingNode.own();
       this.dataNodes.push(preexistingNode);
@@ -309,7 +301,7 @@ class Frame {
       }
     };
 
-    this.dataNode = new DataNode('_frameRoot');
+    this.dataNode = new DataNode('_frameRoot', `_frameRoot-${this.id}`);
     addListener(this.dataNode, 'newValue', this, this.handleNewData);
     this.frameScope.register(this.dataNode);
   }
@@ -414,7 +406,7 @@ export class NavStack {
     frame.componentName = navParamsArray[navParamsArray.length-1].scope.name;
 
     navParamsArray.forEach(navParams => {
-      let dataNode = new RouteDataNode(navParams.scope.name, navParams.params, this.owner);
+      let dataNode = new RouteDataNode(navParams.scope.name, navParams.key, navParams.params, this.owner);
       frameScope.register(dataNode);
 
       // frame by default depends on every node in this frame's route hierarchy.
@@ -425,7 +417,7 @@ export class NavStack {
       })
     });
 
-    frameScope.register(new SimpleDataNode('myRouter', this.makeRouter(url)));
+    frameScope.register(new SimpleDataNode('myRouter', `my-router-${frame.id}`, this.makeRouter(url)));
     frameScope.start();
     return frame;
   }
@@ -434,7 +426,7 @@ export class NavStack {
     if (scope.type !== 'state') { return; }
     let dasherized = scope.name;
     let camelized = Ember.String.camelize(dasherized);
-    let dataNode = new StateDataNode(dasherized, this.owner);
+    let dataNode = new StateDataNode(dasherized, dasherized, this.owner);
     frame.frameScope.register(dataNode);
   }
 
