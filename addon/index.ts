@@ -22,13 +22,10 @@ export function initialize() {
   });
 
   Ember.Component.reopen({
-    _registerOnConstraintRouter: Ember.on('init', function() {
-      if (!this._scope) {
-        return;
+    _registerOnFrame: Ember.on('init', function() {
+      if (this._navStackFrame) {
+        this._navStackFrame.registerFrameComponent(this);
       }
-
-      // this._scope.registerFrameComponent();
-      // todo: register `this` on frame?
     }),
   });
 }
@@ -36,7 +33,7 @@ export function initialize() {
 export function scopedService(customKey) {
   return Ember.computed(function(computedPropertyKey) {
     let key = customKey || computedPropertyKey;
-    let service = Ember.get(this, `_scope.registry.${key}`)
+    let service = Ember.get(this, `_scope.frameScope.registry.${key}`)
     if (!service) { debugger; }
     Ember.assert(`scoped service ${key} does not appear to be available on this scope`, service);
     return service.value;

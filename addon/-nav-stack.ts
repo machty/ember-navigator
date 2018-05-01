@@ -287,17 +287,28 @@ class FrameScope {
   }
 }
 
+let frameConnections: [Frame, any][] = [];
+
+function connectComponentsToFrames() {
+  frameConnections.forEach(([frame, frameComponent]) => {
+    console.log(`registering component frame id ${frame.id} fc=${guidFor(frameComponent)}`);
+    Ember.set(frame, 'component', frameComponent);
+  });
+  frameConnections = [];
+}
+
 class Frame {
   componentName: string;
   outletState: any;
   value: any;
   dataNode: DataNode;
+  component: any;
 
   constructor(public url: string, public frameScope: FrameScope, public id: number) {
     this.value = {
       componentName: 'x-loading',
       outletState: {
-        scope: frameScope
+        scope: this
       }
     };
 
@@ -311,9 +322,14 @@ class Frame {
     Ember.set(this, 'value', {
       componentName: this.componentName,
       outletState: {
-        scope: this.frameScope
+        scope: this
       }
     });
+  }
+
+  registerFrameComponent(component) {
+    frameConnections.push([this, component]);
+    Ember.run.scheduleOnce('afterRender', null, connectComponentsToFrames);
   }
 }
 
@@ -382,19 +398,6 @@ export class NavStack {
     });
 
     this._updateFrames(frames);
-  }
-
-  _revalidate() {
-    let frames = this.frames;
-    for (let f = 0; f < frames.length; f++) {
-      let frame = frames[f];
-      let scope = frame.outletState.scope;
-      debugger;
-    }
-  }
-
-  _revalidateFrame() {
-    // console.log("REVALIDATING");
   }
 
   frameFromUrl(url, baseScope?: FrameScope) : Frame {

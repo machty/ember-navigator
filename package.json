@@ -50,7 +50,7 @@
     "ember-cli-qunit": "^4.3.2",
     "ember-cli-shims": "^1.1.0",
     "ember-cli-sri": "^2.1.0",
-    "ember-cli-typescript": "typed-ember/ember-cli-typescript#programmatic-compilation",
+    "ember-cli-typescript": "typed-ember/ember-cli-typescript",
     "ember-cli-uglify": "^2.0.0",
     "ember-disable-prototype-extensions": "^1.1.2",
     "ember-export-application-global": "^2.0.0",
@@ -58,7 +58,7 @@
     "ember-native-dom-helpers": "^0.6.2",
     "ember-qunit": "^3.4.0",
     "ember-resolver": "^4.0.0",
-    "ember-source": "~2.16.0",
+    "ember-source": "https://registry.npmjs.org/ember-source-machty/-/ember-source-machty-3.1.0.tgz",
     "loader.js": "^4.2.3",
     "typescript": "^2.7.2"
   },

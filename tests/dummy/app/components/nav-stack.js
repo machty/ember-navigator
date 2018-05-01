@@ -19,6 +19,10 @@ export default Ember.Component.extend({
     }
   }),
 
+  currentFrame: computed('frames.length', function() {
+    return this.frames[this.frames.length - 1];
+  }),
+
   init(...args) {
     this._super(...args);
 

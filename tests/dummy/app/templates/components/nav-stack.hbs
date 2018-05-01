@@ -2,9 +2,19 @@
   {{input checked=isDebugMode type='checkbox'}} Debug Mode
 </div>
 
+{{#unless isDebugMode}}
+  {{#-with-dynamic-vars outletState=currentFrame.value.outletState}}
+    {{app-header frame=currentFrame foo=123}}
+  {{/-with-dynamic-vars}}
+{{/unless}}
+
 {{#each visibleFrames key="id" as |f|}}
   <div class="nav-frame">
     {{#-with-dynamic-vars outletState=f.value.outletState}}
+      {{#if isDebugMode}}
+        {{app-header frame=f foo=999}}
+      {{/if}}
+
       {{#if isDebugMode}}
         <div>
           debug: Frame ID: {{f.id}}
@@ -15,7 +25,7 @@
         </div>
       {{/if}}
 
-      {{component f.value.componentName}}
+      {{component f.value.componentName _navStackFrame=f}}
     {{/-with-dynamic-vars}}
   </div>
 {{/each}}
