@@ -391,16 +391,16 @@ export class NavStack {
     // we need a key serialized into the URL in order to prevent recursion.
 
     let frames: any[] = [];
-    json.forEach((j) => {
+    json.forEach((j, index) => {
       let lastFrame = frames[frames.length - 1];
       let lastScope = lastFrame && lastFrame.frameScope;
-      frames.push(this.frameFromUrl(j.url, lastScope));
+      frames.push(this.frameFromUrl(j.url, lastScope, index));
     });
 
     this._updateFrames(frames);
   }
 
-  frameFromUrl(url, baseScope?: FrameScope) : Frame {
+  frameFromUrl(url, baseScope: FrameScope, index: number) : Frame {
     let frameScope = new FrameScope(baseScope);
     let frame = new Frame(url, frameScope, this.frameSequence++);
     let navParamsArray = this.recognize(url);
@@ -420,7 +420,7 @@ export class NavStack {
       })
     });
 
-    frameScope.register(new SimpleDataNode('myRouter', `my-router-${frame.id}`, this.makeRouter(url)));
+    frameScope.register(new SimpleDataNode('myRouter', `my-router-${frame.id}`, this.makeRouter(url, index)));
     frameScope.start();
     return frame;
   }
@@ -439,7 +439,7 @@ export class NavStack {
     let lastFrame = frames[frames.length - 1];
     let lastScope = lastFrame && lastFrame.frameScope;
 
-    frames.push(this.frameFromUrl(url, lastScope));
+    frames.push(this.frameFromUrl(url, lastScope, frames.length));
     this._updateFrames(frames);
   }
 
@@ -454,19 +454,13 @@ export class NavStack {
     this.listener.onNewFrames(this.frames);
   }
 
-  makeRouter(url) {
-    return new MicroRouter(this, url);
+  makeRouter(url: string, index: number) {
+    return new MicroRouter(this, url, index);
   }
 }
 
 export class MicroRouter {
-  navStack: NavStack;
-  url: string;
-
-  constructor(navStack: NavStack, url: string) {
-    this.navStack = navStack;
-    this.url = url;
-  }
+  constructor(public navStack: NavStack, public url: string, public index: number) { }
 
   transitionTo(o, ...args) {
     this.navStack.push(o);

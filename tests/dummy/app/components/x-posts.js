@@ -6,6 +6,7 @@ export default Ember.Component.extend({
   xUser: scopedService('x-user'),
 
   header: {
-    leftButton: 'wat'
+    leftButton: 'wat',
+    title: "Posts",
   },
 });

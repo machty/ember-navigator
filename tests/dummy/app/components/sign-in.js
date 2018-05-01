@@ -7,6 +7,10 @@ export default Ember.Component.extend({
 
   showStack: false,
 
+  header: {
+    title: "Sign In"
+  },
+
   actions: {
     enableStack() {
       this.set('showStack', true);

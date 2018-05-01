@@ -9,12 +9,42 @@ body {
   padding: 10px;
 }
 
-.nav-frame {
+.nav-stack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ddffee;
+}
+
+.debug-nav-frame {
   width: 400px;
   height: 500px;
   border: 1px solid black;
   float: left;
   position: relative;
   overflow: scroll;
-  font-size: 60%;
+}
+
+.debug-mode-control {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0.5;
+  z-index: 10;
+}
+
+.app-header-left-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+}
+
+.app-header-title {
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  text-align: center;
 }

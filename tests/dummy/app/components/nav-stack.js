@@ -8,6 +8,7 @@ export default Ember.Component.extend({
   frames: null,
   navStack: null,
   isDebugMode: false,
+  classNames: ['nav-stack'],
 
   visibleFrames: computed('frames', 'isDebugMode', function() {
     let frames = this.frames;
