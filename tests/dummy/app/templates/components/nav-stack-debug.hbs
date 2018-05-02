@@ -1,0 +1,19 @@
+<div class="nav-stack-debug-container-shrink">
+  {{#each frames key="id" as |f|}}
+    <div class="debug-nav-frame">
+      {{#-with-dynamic-vars outletState=f.value.outletState}}
+        {{app-header frame=f}}
+
+        <div>
+          debug: Frame ID: {{f.id}}
+        </div>
+        <div>
+          FrameScope:
+          {{#each-in f.frameScope.registry as |k v|}} {{k}} {{/each-in}}
+        </div>
+
+        {{component f.value.componentName _navStackFrame=f}}
+      {{/-with-dynamic-vars}}
+    </div>
+  {{/each}}
+</div>

@@ -1,3 +1,14 @@
-{{nav-stack stateString=nav map=map isDebugMode=debug}}
+{{nav-stack navStack=navStack frames=frames}}
 
-{{outlet}}
+{{#if debug}}
+  <div class="nav-stack-debug-container">
+    {{nav-stack-debug navStack=navStack frames=frames}}
+  </div>
+{{/if}}
+
+
+{{!outlet}}
+
+<div class="debug-mode-control">
+  {{input checked=debug type='checkbox'}} Debug Mode
+</div>
