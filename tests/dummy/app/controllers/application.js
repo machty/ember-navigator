@@ -8,7 +8,6 @@ export default Ember.Controller.extend({
   nav: "",
   _navCache: '_unset_',
   debug: false,
-  map,
   frames: null,
 
   navStack: computed(function() {

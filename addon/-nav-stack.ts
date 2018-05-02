@@ -90,6 +90,7 @@ export class DataNode {
       }
     };
     this.instance = factory.class.create({ scopeData });
+    Ember.setOwner(this.instance, owner);
   }
 
   stashDependencyData(sourceDataNode: DataNode, value: any) {
@@ -171,7 +172,8 @@ class RouteDataNode extends DataNode {
 
     if (this.instance.model) {
       Ember.RSVP.resolve().then(() => {
-        return this.instance.model(this.params);
+        let stubbedHackyTransition = { resolveIndex: 0 };
+        return this.instance.model(this.params, stubbedHackyTransition);
       }).then((v) => {
         this.pushValue(v, {});
       }, (e) => {
@@ -308,7 +310,7 @@ export class Frame {
 
   constructor(public url: string, public frameScope: FrameScope, public id: number) {
     this.value = {
-      componentName: 'x-loading',
+      componentName: this.componentName,
       outletState: {
         scope: this
       }
