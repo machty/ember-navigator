@@ -4,9 +4,9 @@ import { assert } from '@ember/debug';
 import { sendEvent, addListener } from '@ember/object/events';
 import { guidFor } from '@ember/object/internals';
 
-const RouteRecognizer = Ember.__loader.require('route-recognizer')['default'];
-const RouterJs = Ember.__loader.require("router")['default'];
-const EmberRouterDSL = Ember.__loader.require("ember-routing/system/dsl")['default'];
+const RouteRecognizer = (Ember as any).__loader.require('route-recognizer')['default'];
+const RouterJs = (Ember as any).__loader.require("router")['default'];
+const EmberRouterDSL = (Ember as any).__loader.require("ember-routing/system/dsl")['default'];
 
 const EMPTY_ARRAY = [];
 
@@ -14,18 +14,18 @@ const DEFAULT_FACTORY = {
   class: Ember.Object
 };
 
-enum LoadState {
+export enum LoadState {
   Init = 'INIT',
   Loading = 'LOADING',
   Loaded = 'LOADED',
 };
 
-enum Freshness {
+export enum Freshness {
   Stale = 'STALE',
   Fresh = 'FRESH',
 };
 
-class DataNode {
+export class DataNode {
   instance: any;
   loadState: LoadState;
   freshness: Freshness;
@@ -195,17 +195,17 @@ class StateDataNode extends DataNode {
   }
 }
 
-interface NavStackListener {
+export interface NavStackListener {
   onNewFrames: (frames: Frame[]) => void;
 }
 
-interface NavParams {
+export interface NavParams {
   scope: MapScope;
   params: any;
   key: string;
 }
 
-class FrameScope {
+export class FrameScope {
   registry: { [k: string]: DataNode | null };
   dataNodes: DataNode[];
   newData: [DataNode, any][];
@@ -264,6 +264,7 @@ class FrameScope {
     let preexistingNode = this.registry[dataNode.name];
 
     if (preexistingNode && preexistingNode.key === dataNode.key) {
+      // @ts-ignore: Improperly typed addListener
       addListener(preexistingNode, 'newValue', this, this._notifyNewData);
       preexistingNode.own();
       this.dataNodes.push(preexistingNode);
@@ -274,6 +275,7 @@ class FrameScope {
       }
     } else {
       this.registry[dataNode.name] = dataNode;
+      // @ts-ignore: Improperly typed addListener
       addListener(dataNode, 'newValue', this, this._notifyNewData);
       dataNode.own();
       this.dataNodes.push(dataNode);
@@ -297,7 +299,7 @@ function connectComponentsToFrames() {
   frameConnections = [];
 }
 
-class Frame {
+export class Frame {
   componentName: string;
   outletState: any;
   value: any;
@@ -313,6 +315,7 @@ class Frame {
     };
 
     this.dataNode = new DataNode('_frameRoot', `_frameRoot-${this.id}`);
+    // @ts-ignore: Improperly typed addListener
     addListener(this.dataNode, 'newValue', this, this.handleNewData);
     this.frameScope.register(this.dataNode);
   }

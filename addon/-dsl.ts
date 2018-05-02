@@ -1,6 +1,6 @@
 export type ScopeDescriptorType = 'route' | 'state' | 'when';
 
-type DslFn = (this: RouterDsl, arg?: any) => void;
+export type DslFn = (this: RouterDsl, arg?: any) => void;
 export type RouteDescriptorArgs = RouteDescriptorOptions | DslFn;
 
 export interface ScopeDescriptor {
@@ -179,7 +179,7 @@ export class Map {
     let leaf = this.getScope(name);
     if (!leaf) { return []; }
     let path: MapScope[] = [];
-    let scope: MapScope | undefined = leaf;
+    let scope: MapScope | undefined | null = leaf;
     while (scope) {
       path.push(scope);
       scope = scope.parent;
@@ -215,7 +215,7 @@ export class Map {
   }
 }
 
-interface RouterDsl {
+export interface RouterDsl {
   route(name: string, options?: RouteDescriptorArgs, callback?: DslFn) : any;
   state(name: string, options?: RouteDescriptorArgs, callback?: DslFn) : any;
   match(blockParam: any, cond: string, callback: DslFn) : any;

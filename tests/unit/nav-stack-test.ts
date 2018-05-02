@@ -6,6 +6,8 @@ import Ember from 'ember';
 
 module('Unit - NavStack test');
 
+/*
+
 const Factory = Ember.Object.extend();
 
 const map = createMap(function() {
@@ -211,3 +213,4 @@ function buildWorld(map) {
 
   return { owner, scopeTree, frameUpdates, navStack };
 }
+*/

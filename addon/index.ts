@@ -22,7 +22,7 @@ export function initialize() {
   });
 
   Ember.Component.reopen({
-    _registerOnFrame: Ember.on('init', function() {
+    _registerOnFrame: Ember.on('init', function(this: any) {
       if (this._navStackFrame) {
         this._navStackFrame.registerFrameComponent(this);
       }
