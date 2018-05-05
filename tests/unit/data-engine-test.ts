@@ -12,20 +12,30 @@ module('Unit - Data Engine test', function(hooks) {
 
   test('SimpleDataNodes emit values immediately', function(assert) {
     let dataScope = new DataScope();
-    let simpleNode = new SimpleDataNode('foo', 'fookey', 'fooValue');
+    let fooNode = new SimpleDataNode('foo', 'fookey', 'fooValue');
+    let barNode = new SimpleDataNode('bar', 'barkey', 'barValue');
 
     let listenValues: any[] = [];
-    simpleNode.listen(null, (...args) => {
-      listenValues.push(args);
-    });
+    let listener = (...args) => listenValues.push(args);
 
-    dataScope.register('foo', simpleNode);
+    fooNode.listen(null, listener);
+    barNode.listen(null, listener);
+
+    dataScope.register('foo', fooNode);
+    dataScope.register('bar', barNode);
+
     assert.deepEqual(listenValues, []);
     run(() => dataScope.start())
-    assert.equal(listenValues.length, 1);
+    assert.equal(listenValues.length, 2);
+
     let [dataNode, dataName, value] = listenValues[0];
-    assert.equal(dataNode, simpleNode);
+    assert.equal(dataNode, fooNode);
     assert.equal(dataName, 'foo');
     assert.equal(value, 'fooValue');
+
+    [dataNode, dataName, value] = listenValues[1];
+    assert.equal(dataNode, barNode);
+    assert.equal(dataName, 'bar');
+    assert.equal(value, 'barValue');
   });
 });
