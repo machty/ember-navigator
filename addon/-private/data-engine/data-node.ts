@@ -7,7 +7,7 @@ import RSVP from 'rsvp';
 
 const EMPTY_ARRAY = [];
 
-export type DataNodeListener = (dataNode, string, any) => any;
+export type DataNodeListener = (dataNode: DataNode, dataName: string, value: any) => any;
 
 export class DataNode {
   instance: any;
