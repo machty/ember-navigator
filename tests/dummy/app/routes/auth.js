@@ -8,8 +8,6 @@ export default Route.extend({
     return `auth-${guidFor(this)}`;
   }),
 
-  // currently if it's falsy it's bad.
-
   currentUser: null,
   userAbsent: not('currentUser'),
 

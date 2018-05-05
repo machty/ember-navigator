@@ -57,7 +57,7 @@ body {
 }
 
 .nav-stack-debug-container-shrink {
-  transform: scale(0.3);
+  transform: scale(0.5);
   transform-origin: left;
   width: 10000px;
 }

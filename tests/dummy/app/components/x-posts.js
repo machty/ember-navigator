@@ -3,7 +3,7 @@ import { scopedService } from 'ember-constraint-router';
 
 export default Ember.Component.extend({
   myRouter: scopedService(),
-  xUser: scopedService('x-user'),
+  user: scopedService(),
 
   header: {
     leftButton: 'wat',
