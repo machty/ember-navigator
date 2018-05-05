@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import map from '../constraint-router';
 import { computed } from '@ember/object';
-import { NavStack } from 'ember-constraint-router/-nav-stack';
+import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack';
 
 export default Ember.Controller.extend({
   queryParams: ['nav', 'debug'],

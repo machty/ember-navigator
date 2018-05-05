@@ -112,7 +112,7 @@ export class DataNode {
 
   listen(context: any, method: DataNodeListener) {
     // @ts-ignore: Improperly typed addListener
-    addListener(dataNode, 'newValue', context, method);
+    addListener(this, 'newValue', context, method);
   }
 
   log(message) {

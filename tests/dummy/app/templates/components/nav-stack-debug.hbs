@@ -9,7 +9,7 @@
         </div>
         <div>
           FrameScope:
-          {{#each-in f.frameScope.registry as |k v|}} {{k}} {{/each-in}}
+          {{#each-in f.dataScope.registry as |k v|}} {{k}} {{/each-in}}
         </div>
 
         {{component f.value.componentName _navStackFrame=f}}

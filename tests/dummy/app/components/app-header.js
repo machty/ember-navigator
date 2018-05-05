@@ -8,7 +8,7 @@ export default Ember.Component.extend({
   // probably something to do with either scopedService CP not having
   // depkey on the _scope provided to Component, or that _scope is
   // never updated thereafter since it's not a reference?
-  myRouter: alias('frame.frameScope.registry.myRouter.value'),
+  myRouter: alias('frame.dataScope.registry.myRouter.value'),
   frameComponent: alias('frame.component'),
   header: alias('frameComponent.header'),
 

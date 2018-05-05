@@ -1,5 +1,5 @@
 import { test, module } from 'ember-qunit';
-import { NavStack } from 'ember-constraint-router/-nav-stack';
+import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack'
 import { createMap } from 'ember-constraint-router/-dsl';
 import { guidFor } from '@ember/object/internals';
 import Ember from 'ember';

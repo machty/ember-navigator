@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { NavStack } from 'ember-constraint-router/-nav-stack';
+import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack';
 import { computed } from '@ember/object';
 
 export default Ember.Component.extend({
