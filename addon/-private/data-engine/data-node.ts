@@ -10,7 +10,7 @@ const EMPTY_ARRAY = [];
 
 export type DataNodeListener = (dataNode: DataNode, dataName: string, value: any) => any;
 
-class Value {
+export class Value {
   value: any;
   valueSequence: number;
 
@@ -189,12 +189,13 @@ export class RouteDataNode extends DataNode {
       return;
     }
 
-    let loadPojo = this.route.load(this.params);
-    this.provides.forEach(p => {
-      assert(`expected the object returned from ${this.name}'s load() method to provide a key for provided value ${p}`, p in loadPojo);
-      RSVP.resolve(loadPojo[p]).then(v => {
-        // debugger;
-        this.pushValue(p, v);
+    RSVP.resolve(this.route.load(this.params)).then(loadPojo => {
+      this.provides.forEach(p => {
+        assert(`expected the object returned from ${this.name}'s load() method to provide a key for provided value ${p}`, p in loadPojo);
+        RSVP.resolve(loadPojo[p]).then(v => {
+          // debugger;
+          this.pushValue(p, v);
+        });
       });
     });
   }

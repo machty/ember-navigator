@@ -103,6 +103,10 @@ export class NavStack {
   }
 
   frameFromUrl(url, baseScope: DataScope, index: number) : Frame {
+    // we need to prevent the stuff that's invalidated / different about 
+    // the next route from being merged in. Or we can merge it in but
+    // we need to consider the keys.
+
     let dataScope = new DataScope(baseScope);
     let navParamsArray = this.recognize(url);
     let componentName = navParamsArray[navParamsArray.length-1].scope.name;
