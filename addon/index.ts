@@ -1,6 +1,7 @@
+import Ember from 'ember';
 import Component from '@ember/component';
 import { assert } from '@ember/debug';
-import { get, computed } from '@ember/object';
+import { get } from '@ember/object';
 import { on } from '@ember/object/evented';
 import { DataScope } from 'ember-constraint-router/-private/data-engine/data-scope';
 
@@ -19,7 +20,7 @@ export function initialize() {
 }
 
 export function scopedService(customKey) {
-  return computed(function(this: any, computedPropertyKey) {
+  return Ember.computed(function(this: any, computedPropertyKey) {
     let key = customKey || computedPropertyKey;
     let dataScope = get(this, `_scope.dataScope`) as DataScope;
     return dataScope.serviceFor(key);
