@@ -4,18 +4,18 @@ import { computed } from '@ember/object';
 import { Promise } from 'rsvp';
 
 export default class extends Route {
-  static provides() { return ['user', 'thing']; }
+  static provides() { return ['user', 'fun']; }
+  // static provides() { return ['user']; }
 
-  user({ user_id }) {
+  load({ user_id }) {
     let user = { id: user_id, name: 'alex' };
-    return new Promise(r => {
-      setTimeout(() => {
-        r(user);
-      }, 800);
-    });
-  }
-
-  thing() {
-    return { foo: 12345 };
+    return {
+      user: new Promise(r => {
+        setTimeout(() => {
+          r(user);
+        }, 800);
+      }),
+      fun: Math.floor(300 * Math.random()),
+    };
   }
 }

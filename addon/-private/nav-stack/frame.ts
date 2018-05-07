@@ -1,4 +1,4 @@
-import { DataNode, DataNodeObserver } from 'ember-constraint-router/-private/data-engine/data-node';
+import { DataNode, SimpleDataNode } from 'ember-constraint-router/-private/data-engine/data-node';
 import { DataNodeResolver } from 'ember-constraint-router/-private/data-engine/data-node-resolver';
 import { DataScope } from '../data-engine/data-scope';
 import { set } from '@ember/object';
@@ -6,21 +6,20 @@ import { run } from '@ember/runloop';
 import { guidFor } from '../utils';
 
 export class Frame {
-  componentName: string;
   outletState: any;
   value: any;
   dataNode: DataNode;
   component: any;
 
-  constructor(public url: string, public dataScope: DataScope, public id: number) {
+  constructor(public url: string, public dataScope: DataScope, public componentName: string, public id: number) {
     this.value = {
-      componentName: this.componentName,
+      componentName: null, // this.componentName,
       outletState: {
         scope: this
       }
     };
 
-    this.dataNode = new DataNodeObserver('_frameRoot', `_frameRoot-${this.id}`);
+    this.dataNode = new SimpleDataNode('_frameRoot', `_frameRoot-${this.id}`, {});
     this.dataNode.listen(this, this.handleNewData);
     this.dataScope.register('_frameRoot', this.dataNode);
   }

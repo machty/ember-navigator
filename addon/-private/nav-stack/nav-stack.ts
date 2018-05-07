@@ -104,11 +104,9 @@ export class NavStack {
 
   frameFromUrl(url, baseScope: DataScope, index: number) : Frame {
     let dataScope = new DataScope(baseScope);
-    let frame = new Frame(url, dataScope, this.frameSequence++);
     let navParamsArray = this.recognize(url);
-
-    // TODO: DUMB AND HACKY
-    frame.componentName = navParamsArray[navParamsArray.length-1].scope.name;
+    let componentName = navParamsArray[navParamsArray.length-1].scope.name;
+    let frame = new Frame(url, dataScope, componentName, this.frameSequence++);
 
     navParamsArray.forEach(navParams => {
       let dasherizedName = navParams.scope.name;
@@ -118,17 +116,10 @@ export class NavStack {
       let dataNode = dataScope.lookup(dasherizedName, navParams.key) ||
         new RouteDataNode(navParams.scope.name, navParams.key, dataNodeResolver, navParams.params);
 
-      dataNodeResolver.provides.forEach(p => {
-        // for now, assume that:
-        // 1. every DataNode has a single route
-        // 2. a DataNode/Route with multiple provides
-        //    is registered multiple times on the same frame scope
-        //    as the same DataNode.
+      dataScope.register(dasherizedName, dataNode);
 
-        dataScope.register(p, dataNode);
-
-        // frame by default depends on every node in this frame's route hierarchy.
-        frame.dataNode.addDependency(dataNode.name)
+      dataNode.provides.forEach(p => {
+        frame.dataNode.addDependency(p)
       });
 
       navParams.scope.childScopes.forEach((cs) => {

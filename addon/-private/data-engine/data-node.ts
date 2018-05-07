@@ -4,16 +4,49 @@ import { guidFor } from '../utils';
 import { DataNodeResolver } from 'ember-constraint-router/-private/data-engine/data-node-resolver';
 import { addListener } from '@ember/object/events';
 import RSVP from 'rsvp';
+import { assert } from '@ember/debug';
 
 const EMPTY_ARRAY = [];
 
 export type DataNodeListener = (dataNode: DataNode, dataName: string, value: any) => any;
 
+class Value {
+  value: any;
+  valueSequence: number;
+
+  constructor(public dataName: string) {
+    this.valueSequence = 0;
+  }
+
+  listen(context: any, method: DataNodeListener) {
+    // @ts-ignore: Improperly typed addListener
+    addListener(this, 'newValue', context, method);
+    if (this.hasProducedValue()) {
+      let args = this._listenerArgs();
+      method.apply(context, args);
+    }
+  }
+
+  update(value) {
+    this.valueSequence++;
+    this.value = value;
+    sendEvent(this, 'newValue', this._listenerArgs());
+  }
+
+  _listenerArgs() {
+    return [this, this.dataName, this.value];
+  }
+
+  hasProducedValue() {
+    return this.valueSequence > 0;
+  }
+}
+
 export class DataNode {
   instance: any;
   loadState: LoadState;
   freshness: Freshness;
-  value: any;
+  values: { [k: string]: Value };
   valueSequence: number;
   loadSequence: number;
   stalenessSequence: number;
@@ -23,7 +56,10 @@ export class DataNode {
 
   constructor(public name: string, public key: string, public provides: string[]) {
     this.ownerRefCount = 0;
-    this.value = null;
+    this.values = {};
+    provides.forEach(p => {
+      this.values[p] = new Value(p);
+    });
     this.loadState = LoadState.Init;
     this.freshness = Freshness.Stale;
     this.dependencies = [];
@@ -39,9 +75,12 @@ export class DataNode {
       return;
     }
 
-    this.value = object;
-    this.valueSequence++;
-    sendEvent(this, 'newValue', [this, dataName, this.value]);
+    let value = this.values[dataName];
+    if (value) {
+      value.update(object);
+    } else {
+      console.error(`pushValue but no value for ${dataName}`);
+    }
   }
 
   addDependency(name: string) {
@@ -50,26 +89,22 @@ export class DataNode {
 
   startLoading(loadSequence: number) {
     this.provides.forEach(p => {
-      this.load(p);
+      this.load(p, loadSequence);
     });
   }
 
-  load(dataName: string) {
+  load(dataName: string, loadSequence: number) {
     // override me
-  }
-
-  hasProducedValue() {
-    return this.valueSequence > 0;
   }
 
   getProviders() : string[] {
     return EMPTY_ARRAY;
   }
 
-  stashDependencyData(sourceDataNode: DataNode, value: any) {
+  stashDependencyData(dataName: string, value: any) {
     // console.log(`${this.name} got data from ${sourceDataNode.name}`);
     this.stalenessSequence++;
-    this.dependencyCache[sourceDataNode.name] = value;
+    this.dependencyCache[dataName] = value;
   }
 
   allDependenciesPresent() {
@@ -113,6 +148,10 @@ export class DataNode {
   listen(context: any, method: DataNodeListener) {
     // @ts-ignore: Improperly typed addListener
     addListener(this, 'newValue', context, method);
+
+    this.provides.forEach(p => {
+      this.values[p].listen(context, method);
+    });
   }
 
   log(message) {
@@ -122,30 +161,41 @@ export class DataNode {
 
 export class RouteDataNode extends DataNode {
   route: any;
+  wat: boolean;
 
   constructor(name: string, key: string, public dataNodeResolver: DataNodeResolver, public params: any) {
     super(name, key, dataNodeResolver.provides); 
+    this.wat = false;
+
   }
 
-  load(dataName: string) {
+  load(dataName: string, loadSequence: number) {
+    // if (dataName === 'root') {
+    //   debugger;
+    // }
     if (!this.route) {
       this.route = this.dataNodeResolver.instantiate({});
     }
 
-    let method = this.route[dataName];
-    if (typeof method !== 'function') {
+    if (this.wat) {
+      return;
+    }
+    this.wat = true;
+
+
+    if (typeof this.route.load !== 'function') {
       // TODO: assert? default to model()?
       this.pushValue(dataName, { empty: 'lol' });
       return;
     }
 
-    RSVP.resolve().then(() => {
-      let stubbedHackyTransition = { resolveIndex: 0 };
-      return method.call(this.route, this.params, stubbedHackyTransition);
-    }).then((v) => {
-      this.pushValue(dataName, v);
-    }, (e) => {
-      alert(`error not implemented: ${e.message}`)
+    let loadPojo = this.route.load(this.params);
+    this.provides.forEach(p => {
+      assert(`expected the object returned from ${this.name}'s load() method to provide a key for provided value ${p}`, p in loadPojo);
+      RSVP.resolve(loadPojo[p]).then(v => {
+        // debugger;
+        this.pushValue(p, v);
+      });
     });
   }
 }
@@ -157,7 +207,7 @@ export class StateDataNode extends DataNode {
     super(name, key, dataNodeResolver.provides); 
   }
 
-  load(dataName: string) {
+  load(dataName: string, loadSequence: number) {
     if (!this.service) {
       this.service = this.dataNodeResolver.instantiate({});
     }
@@ -172,24 +222,8 @@ export class SimpleDataNode extends DataNode {
     super(name, key, [name]); 
   }
 
-  load(dataName: string) {
+  load(dataName: string, loadSequence: number) {
     this.loadState = LoadState.Loading;
     this.pushValue(dataName, this.value);
-  }
-}
-
-// a DataNodeObserver doesn't logically provide anything...
-// it just forwards data? This is only used by the _frameRoot
-// to detect when all dependencies are loaded and then broadcast
-// a new outletState.
-export class DataNodeObserver extends DataNode {
-  constructor(name: string, key: string) {
-    super(name, key, ['observer']); 
-  }
-
-  startLoading(loadSequence: number) {
-    // currently this is only used by FrameNode.
-    // default behavior is to produce a value???
-    this.pushValue(this.name, {});
   }
 }

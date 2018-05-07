@@ -1,17 +1,21 @@
 import { DataNode } from "ember-constraint-router/-private/data-engine/data-node";
 import { run } from '@ember/runloop';
 import { guidFor } from '../utils';
+import { assert } from "@ember/debug";
 
 export class DataScope {
   registry: { [k: string]: DataNode | null };
+  serviceMappings: { [k: string]: string };
   dataNodes: DataNode[];
   newData: [string, DataNode, any][];
 
   constructor(base?: DataScope) {
     this.registry = {};
+    this.serviceMappings = {};
     this.dataNodes = [];
     this.newData = [];
     if (base) {
+      Object.assign(this.serviceMappings, base.serviceMappings);
       Object.keys(base.registry).forEach(k => {
         this.register(k, base.registry[k]!);
       });
@@ -31,8 +35,6 @@ export class DataScope {
     let dependentNodes: { [k: string]: DataNode[] } = {};
     this.dataNodes.forEach(dataNode => {
       dataNode.dependencies.forEach(d => {
-        // TODO: reexamine whether we need to prevent double registers.
-        // TODO: .own()
         if (!dependentNodes[d]) {
           dependentNodes[d] = [];
         }
@@ -47,7 +49,7 @@ export class DataScope {
       if (!nodes) { return; }
       nodes.forEach(dependentNode => {
         nodesWithNewDependentData[dependentNode.name] = dependentNode;
-        dependentNode.stashDependencyData(dataNode, value);
+        dependentNode.stashDependencyData(dataName, value);
       });
     });
 
@@ -73,9 +75,16 @@ export class DataScope {
     dataNode.own();
     this.dataNodes.push(dataNode);
 
-    if (dataNode.hasProducedValue()) {
-      this._notifyNewData(dataNode, name, dataNode.value);
-    }
+    dataNode.provides.forEach(p => {
+      this.serviceMappings[p] = dataNode.name;
+    });
+  }
+
+  serviceFor(name: string) : any {
+    let nodeName = this.serviceMappings[name];
+    let dataNode = this.registry[nodeName];
+    assert(`scoped service ${name} does not appear to be available on this scope`, !!dataNode);
+    return dataNode!.values[name].value;
   }
 
   start() {
