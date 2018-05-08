@@ -34,18 +34,26 @@ export class Frame {
     });
   }
 
-  registerFrameComponent(component) {
-    frameConnections.push([this, component]);
+  registerFrameComponent(component, doConnect: boolean) {
+    frameConnections.push([this, component, doConnect]);
     run.scheduleOnce('afterRender', null, connectComponentsToFrames);
   }
 }
 
-let frameConnections: [Frame, any][] = [];
+let frameConnections: [Frame, any, boolean][] = [];
 
 function connectComponentsToFrames() {
-  frameConnections.forEach(([frame, frameComponent]) => {
-    console.log(`registering component frame id ${frame.id} fc=${guidFor(frameComponent)}`);
-    set(frame, 'component', frameComponent);
+  frameConnections.forEach(([frame, frameComponent, doConnect]) => {
+    if (doConnect) {
+      console.log(`registering component frame id ${frame.id} fc=${guidFor(frameComponent)}`);
+      set(frame, 'component', frameComponent);
+    } else {
+      console.log(`unregistering component frame id ${frame.id} fc=${guidFor(frameComponent)}`);
+      if (frame.component === frameComponent) {
+        // Don't clobber if another frame has already set.
+        set(frame, 'component', null);
+      }
+    }
   });
   frameConnections = [];
 }

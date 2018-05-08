@@ -13,7 +13,13 @@ export function initialize() {
   Component.reopen({
     _registerOnFrame: on('init', function(this: any) {
       if (this._navStackFrame) {
-        this._navStackFrame.registerFrameComponent(this);
+        this._navStackFrame.registerFrameComponent(this, true);
+      }
+    }),
+
+    _unregisterOnFrame: on('willDestroyElement', function(this: any) {
+      if (this._navStackFrame) {
+        this._navStackFrame.registerFrameComponent(this, false);
       }
     }),
   });
