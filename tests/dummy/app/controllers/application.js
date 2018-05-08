@@ -2,24 +2,18 @@ import Ember from 'ember';
 import map from '../constraint-router';
 import { computed } from '@ember/object';
 import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack';
+import { alias } from '@ember/object/computed';
 
 export default Ember.Controller.extend({
   queryParams: ['nav', 'debug'],
   nav: "",
   _navCache: '_unset_',
   debug: false,
-  frames: null,
+  frames: alias('navStack.frames'),
 
   navStack: computed(function() {
     let owner = Ember.getOwner(this);
-
-    return new NavStack(map, owner, {
-      onNewFrames: (frames) => {
-        this.set('frames', frames);
-        this._nav = JSON.stringify(frames.map(f => ({ url: f.url })));
-        this.set('nav', this._nav);
-      }
-    });
+    return new NavStack(map, owner);
   }),
 
   didUpdateStateString: Ember.on('init', Ember.observer('nav', function() {

@@ -1,7 +1,7 @@
-import { DataNode } from "ember-constraint-router/-private/data-engine/data-node";
+import { DataNode } from 'ember-constraint-router/-private/data-engine/data-node';
 import { run } from '@ember/runloop';
 import { guidFor } from '../utils';
-import { assert } from "@ember/debug";
+import { assert } from '@ember/debug';
 
 export class DataScope {
   registry: { [k: string]: DataNode | null };

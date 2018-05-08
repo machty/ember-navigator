@@ -5,6 +5,8 @@ import { RouteDataNode, StateDataNode, SimpleDataNode } from '../data-engine/dat
 import { Frame } from './frame';
 import { Map, MapScope } from '../../-dsl';
 import { assert } from '@ember/debug';
+import { set } from '@ember/object';
+
 
 const RouteRecognizer = (Ember as any).__loader.require('route-recognizer')['default'];
 const RouterJs = (Ember as any).__loader.require("router")['default'];
@@ -18,10 +20,6 @@ export interface NavParams {
   key: string;
 }
 
-export interface NavStackListener {
-  onNewFrames: (frames: any[]) => void;
-}
-
 export class NavStack {
   frames: Frame[];
   stateString: string;
@@ -29,7 +27,7 @@ export class NavStack {
   frameSequence: number;
   dataNodeResolverCache: { [k: string]: DataNodeResolver };
 
-  constructor(public map: Map, public owner, public listener: NavStackListener) {
+  constructor(public map: Map, public owner) {
     // Hackishly delegate to ember router dsl / router.js to generate
     // the same kind of Route Recognizer that would be generated internally.
     let edsl = new EmberRouterDSL(null, {});
@@ -164,8 +162,7 @@ export class NavStack {
   }
 
   _updateFrames(frames) {
-    this.frames = frames;
-    this.listener.onNewFrames(this.frames);
+    set(this, 'frames', frames);
   }
 
   makeRouter(url: string, index: number) {
