@@ -116,7 +116,7 @@ export class NavStack {
       let dataNodeResolver = this.resolverFor('route', dasherizedName);
 
       let dataNode = dataScope.lookup(dasherizedName, navParams.key) ||
-        new RouteDataNode(navParams.scope.name, navParams.key, dataNodeResolver, navParams.params);
+        new RouteDataNode(navParams.scope.name, navParams.key, dataNodeResolver, dataScope, navParams.params);
 
       dataScope.register(dasherizedName, dataNode);
 

@@ -5,6 +5,7 @@ import { DataNodeResolver } from 'ember-constraint-router/-private/data-engine/d
 import { addListener } from '@ember/object/events';
 import RSVP from 'rsvp';
 import { assert } from '@ember/debug';
+import { DataScope } from 'ember-constraint-router/-private/data-engine/data-scope';
 
 const EMPTY_ARRAY = [];
 
@@ -161,26 +162,29 @@ export class DataNode {
 
 export class RouteDataNode extends DataNode {
   route: any;
-  wat: boolean;
+  hasStartedLoading: boolean;
 
-  constructor(name: string, key: string, public dataNodeResolver: DataNodeResolver, public params: any) {
+  constructor(name: string, key: string, public dataNodeResolver: DataNodeResolver, public dataScope: DataScope, public params: any) {
     super(name, key, dataNodeResolver.provides); 
-    this.wat = false;
-
+    this.hasStartedLoading = false;
   }
 
   load(dataName: string, loadSequence: number) {
-    // if (dataName === 'root') {
-    //   debugger;
-    // }
     if (!this.route) {
-      this.route = this.dataNodeResolver.instantiate({});
+      this.route = this.dataNodeResolver.instantiate({
+        _scope: {
+          dataScope: this.dataScope
+        }
+      });
     }
 
-    if (this.wat) {
+    // TODO: this is hacky; this prevents the case where a data node
+    // provides multiple things, which causes startLoading to be called multiple
+    // times. Need a better system for this.
+    if (this.hasStartedLoading) {
       return;
     }
-    this.wat = true;
+    this.hasStartedLoading = true;
 
 
     if (typeof this.route.load !== 'function') {
