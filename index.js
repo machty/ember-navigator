@@ -9,9 +9,7 @@ module.exports = {
     registry.add('htmlbars-ast-plugin', {
       name: 'add-dynamic-scope-attrs',
       plugin: require('./add-dynamic-scope-attrs'),
-      // plugin: { name: "shitz" },
-      // baseDir() { return __dirname; },
-      // cacheKey() { return 'add-dynamic-scope-attrs'; },
+      baseDir() { return __dirname; },
     });
 
     // if (type === 'parent') {
