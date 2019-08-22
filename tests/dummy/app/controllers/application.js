@@ -26,9 +26,7 @@ export default Ember.Controller.extend({
 
   didUpdateStateString: Ember.on('init', Ember.observer('nav', function() {
     let nav = this.get('nav') || 
-      JSON.stringify([ { url: 'demo/sign-in' } ]);
-      // JSON.stringify([ { url: 'demo/users/amatchneer/x-posts' } ]);
-      // JSON.stringify([ { url: 'demo/sign-in' } ]);
+      JSON.stringify([ { url: 'root' } ]);
 
     if (nav !== this._nav) {
       this._nav = nav;

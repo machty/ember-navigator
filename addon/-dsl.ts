@@ -23,7 +23,7 @@ export class RouteDescriptor implements ScopeDescriptor {
   path: string;
   paramNames: string[];
 
-  constructor(name, options, childrenDesc) {
+  constructor(name, options) {
     this.name = name;
     this.options = options;
     this.type = 'route';
@@ -39,60 +39,6 @@ export class RouteDescriptor implements ScopeDescriptor {
     return `${this.name}_${this.paramNames.map(p => params[p]).join('_')}`;
   }
 }
-
-export interface StateDescriptorOptions {
-  key?: string;
-}
-
-export class StateDescriptor implements ScopeDescriptor {
-  name: string;
-  options: StateDescriptorOptions;
-  type: ScopeDescriptorType;
-
-  constructor(name, options) {
-    this.name = name;
-    this.options = options;
-    this.type = 'state';
-  }
-
-  buildBlockParam(scope: MapScope, index: number) {
-    return {
-      match: (conditionObj: any, fn: MapChildrenFn) => {
-        return new WhenDescriptor(conditionObj, scope, fn);
-      }
-    };
-  }
-
-  computeKey(params: any) : string {
-    return 'route-key'
-  }
-}
-
-export class WhenDescriptor implements ScopeDescriptor {
-  name: string;
-  childrenDesc: MapChildrenFn;
-  type: ScopeDescriptorType;
-  condition: any;
-  source: MapScope;
-
-  constructor(condition: any, source: MapScope, childrenDesc) {
-    this.name = 'when';
-    this.childrenDesc = childrenDesc;
-    this.type = 'when';
-    this.source = source;
-    this.condition = condition;
-  }
-
-  buildBlockParam(scope: MapScope, index: number) {
-    return { scope };
-  }
-
-  computeKey(params: any) : string {
-    return 'route-key'
-  }
-}
-
-const nullChildrenFn = () => [];
 
 export interface HandlerInfo {
   handler: any;
@@ -143,31 +89,11 @@ export class MapScope {
   }
 }
 
-interface RouteReduction {
-  scope: MapScope;
-  children: RouteReduction[];
-}
-
-function makeRouterDslFn(rr: RouteReduction) {
-  if (rr.children.length) {
-    return function(this: any) {
-      let emberRouterDsl = this;
-      rr.children.forEach((childRr, index) => {
-        let rdesc = childRr.scope.desc as RouteDescriptor;
-
-        // TODO: provide default path for non resetNamespace fully qualified route names
-        let options = Object.assign({ resetNamespace: true }, rdesc.options);
-        emberRouterDsl.route(rdesc.name, options, makeRouterDslFn(childRr));
-      });
-    }
-  }
-}
-
 export class Map {
   root: MapScope;
 
   constructor() {
-    let rootDesc = new RouteDescriptor('root', { path: '/' }, null);
+    let rootDesc = new RouteDescriptor('root', { path: '/' });
     this.root = new MapScope(rootDesc, null, 0);
   }
 
@@ -186,33 +112,6 @@ export class Map {
     }
     return path.reverse();
   }
-
-  mount(emberRouterDsl) {
-    let rootRoutes: any[] = [];
-    this._reduceToRouteTree(rootRoutes, this.root);
-    makeRouterDslFn({ scope: this.root, children: rootRoutes })!.call(emberRouterDsl);
-  }
-
-  _reduceToRouteTree(routes: any[], scope: MapScope) {
-    scope.childScopes.forEach((cs) => {
-      if (cs.type === 'route') {
-        let childRoutes = [];
-        this._reduceToRouteTree(childRoutes, cs);
-        routes.push({ scope: cs, children: childRoutes });
-      } else {
-        this._reduceToRouteTree(routes, cs);
-      }
-    });
-  }
-
-  forEach(callback: (MapScope) => any) {
-    this._forEach(this.root, callback);
-  }
-
-  _forEach(mapScope: MapScope, callback: (MapScope) => any) {
-    callback(mapScope);
-    mapScope.childScopes.forEach(ms => this._forEach(ms, callback));
-  }
 }
 
 export interface RouterDsl {
@@ -226,21 +125,11 @@ class RouterDslScope implements RouterDsl {
     this.scope = scope;
   }
 
-  route(name: string, options: RouteDescriptorArgs = {}, callback?: DslFn): any {
-    if (arguments.length === 2 && typeof options === 'function') {
-      callback = options;
-      options = {}
-    }
-
-    let desc = new RouteDescriptor(name, options, callback);
+  route(name: string, options: RouteDescriptorArgs = {}): any {
+    let desc = new RouteDescriptor(name, options);
     let index = this.scope.childScopes.length;
     let childScope = new MapScope(desc, this.scope, index);
     this.scope._registerScope(childScope);
-
-    if (callback) {
-      let childDslScope = new RouterDslScope(childScope);
-      callback.call(childDslScope);
-    }
 
     this.scope.childScopes.push(childScope);
   }

@@ -24,6 +24,10 @@ export class NavStack {
     const RouteRecognizer = (Ember as any).__loader.require('route-recognizer')['default']
     this.recognizer = new RouteRecognizer();
 
+    map.root.childScopes.forEach(r => {
+      debugger;
+    })
+
     this.frames = [];
     this.frameSequence = 0;
     this.stateString = "";
@@ -32,6 +36,7 @@ export class NavStack {
 
   recognize(url) : NavParams[] {
     let results = this.recognizer.recognize(url);
+    debugger;
     assert(`failed to parse/recognize url ${url}`, results);
 
     let name = results[results.length - 1].handler;
@@ -88,10 +93,6 @@ export class NavStack {
   }
 
   frameFromUrl(url, baseScope: DataScope, index: number) : Frame {
-    // we need to prevent the stuff that's invalidated / different about 
-    // the next route from being merged in. Or we can merge it in but
-    // we need to consider the keys.
-
     let dataScope = new DataScope(baseScope);
     let navParamsArray = this.recognize(url);
     let componentName = navParamsArray[navParamsArray.length-1].scope.name;
@@ -110,10 +111,6 @@ export class NavStack {
       dataNode.provides.forEach(p => {
         frame.dataNode.addDependency(p)
       });
-
-      navParams.scope.childScopes.forEach((cs) => {
-        return this.makeStateNode(cs, frame);
-      })
     });
 
     let dataNode = new SimpleDataNode('myRouter', `my-router-${frame.id}`, this.makeRouter(url, index));
@@ -122,14 +119,8 @@ export class NavStack {
     return frame;
   }
 
-  makeStateNode(scope: MapScope, frame: Frame) : void {
-    if (scope.type !== 'state') { return; }
-    let dasherized = scope.name;
-    let camelized = Ember.String.camelize(dasherized);
-
-    let dataNodeResolver = this.resolverFor('service', dasherized);
-    let dataNode = new StateDataNode(dasherized, dasherized, dataNodeResolver);
-    frame.dataScope.register(camelized, dataNode);
+  navigate() {
+    // TODO
   }
 
   push(url) {
