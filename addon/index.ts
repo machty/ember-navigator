@@ -28,7 +28,7 @@ export function initialize() {
 export function scopedService(customKey) {
   return Ember.computed(function(this: any, computedPropertyKey) {
     let key = customKey || computedPropertyKey;
-    let dataScope = get(this, `_scope.dataScope`) as DataScope;
+    let dataScope = get(this, `_scope.scope.dataScope`) as DataScope;
     return dataScope.serviceFor(key);
   });
 }

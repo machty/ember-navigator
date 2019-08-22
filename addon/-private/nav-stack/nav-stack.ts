@@ -7,12 +7,12 @@ import { Map, MapScope } from '../../-dsl';
 import { assert } from '@ember/debug';
 import { set } from '@ember/object';
 
-
-const RouteRecognizer = (Ember as any).__loader.require('route-recognizer')['default'];
 const RouterJs = (Ember as any).__loader.require("router")['default'];
-const EmberRouterDSL = (Ember as any).__loader.require("ember-routing/system/dsl")['default'];
-
-const EMPTY_ARRAY = [];
+const registry = (Ember as any).__loader.registry;
+const DSL_PATH_OLD = "ember-routing/system/dsl";
+const DSL_PATH_NEW = "ember-routing/lib/system/dsl";
+const DSL_PATH = registry[DSL_PATH_NEW] ? DSL_PATH_NEW : DSL_PATH_OLD;
+const EmberRouterDSL = (Ember as any).__loader.require(DSL_PATH)['default'];
 
 export interface NavParams {
   scope: MapScope;
