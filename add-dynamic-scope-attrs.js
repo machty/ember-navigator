@@ -36,8 +36,6 @@ function AddDynamicScopeAttrs(env) {
   }
 
   return {
-    // name: 'ast-transform',
-
     visitor: {
       MustacheStatement: addOutletState,
       BlockStatement: addOutletState,
@@ -49,13 +47,5 @@ function AddDynamicScopeAttrs(env) {
     }
   };
 }
-
-AddDynamicScopeAttrs.baseDir = function() {
-  return __dirname;
-};
-
-// AddDynamicScopeAttrs.cacheKey = function() {
-//   return 'add-dynamic-scope-attrs.add-dynamic-scope-attrs-properties';
-// };
 
 module.exports = AddDynamicScopeAttrs;
