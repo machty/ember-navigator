@@ -19,6 +19,7 @@ function AddDynamicScopeAttrs(env) {
 
   function addOutletState(node) {
     if (BLACKLIST.indexOf(node.path.original) > -1) return;
+    console.log(`addOutletState to ${node.path.original} with ${node.hash.pairs.length} ${node.params.length}`)
     let path = node.path && node.path.original || "";
     if (path.indexOf('-') === -1 && node.hash.pairs.length === 0 && node.params.length === 0) {
       return;

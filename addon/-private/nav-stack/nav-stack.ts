@@ -7,13 +7,6 @@ import { Map, MapScope } from '../../-dsl';
 import { assert } from '@ember/debug';
 import { set } from '@ember/object';
 
-const RouterJs = (Ember as any).__loader.require("router")['default'];
-const registry = (Ember as any).__loader.registry;
-const DSL_PATH_OLD = "ember-routing/system/dsl";
-const DSL_PATH_NEW = "ember-routing/lib/system/dsl";
-const DSL_PATH = registry[DSL_PATH_NEW] ? DSL_PATH_NEW : DSL_PATH_OLD;
-const EmberRouterDSL = (Ember as any).__loader.require(DSL_PATH)['default'];
-
 export interface NavParams {
   scope: MapScope;
   params: any;
@@ -28,14 +21,8 @@ export class NavStack {
   dataNodeResolverCache: { [k: string]: DataNodeResolver };
 
   constructor(public map: Map, public owner) {
-    // Hackishly delegate to ember router dsl / router.js to generate
-    // the same kind of Route Recognizer that would be generated internally.
-    let edsl = new EmberRouterDSL(null, {});
-    this.map.mount(edsl);
-    let routerjs = new RouterJs();
-    routerjs.map(edsl.generate());
-    let recognizer = routerjs.recognizer;
-    this.recognizer = recognizer;
+    const RouteRecognizer = (Ember as any).__loader.require('route-recognizer')['default']
+    this.recognizer = new RouteRecognizer();
 
     this.frames = [];
     this.frameSequence = 0;

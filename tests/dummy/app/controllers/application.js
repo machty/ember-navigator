@@ -1,8 +1,16 @@
 import Ember from 'ember';
-import map from '../constraint-router';
 import { computed } from '@ember/object';
 import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack';
 import { alias } from '@ember/object/computed';
+
+import { map } from 'ember-constraint-router';
+
+let routerMap = map(function() {
+  this.route('root');
+  this.route('a');
+  this.route('b');
+  this.route('c');
+});
 
 export default Ember.Controller.extend({
   queryParams: ['nav', 'debug'],
@@ -13,7 +21,7 @@ export default Ember.Controller.extend({
 
   navStack: computed(function() {
     let owner = Ember.getOwner(this);
-    return new NavStack(map, owner);
+    return new NavStack(routerMap, owner);
   }),
 
   didUpdateStateString: Ember.on('init', Ember.observer('nav', function() {

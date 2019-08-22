@@ -217,8 +217,6 @@ export class Map {
 
 export interface RouterDsl {
   route(name: string, options?: RouteDescriptorArgs, callback?: DslFn) : any;
-  state(name: string, options?: RouteDescriptorArgs, callback?: DslFn) : any;
-  match(blockParam: any, cond: string, callback: DslFn) : any;
 }
 
 class RouterDslScope implements RouterDsl {
@@ -238,29 +236,6 @@ class RouterDslScope implements RouterDsl {
     let index = this.scope.childScopes.length;
     let childScope = new MapScope(desc, this.scope, index);
     this.scope._registerScope(childScope);
-
-    if (callback) {
-      let childDslScope = new RouterDslScope(childScope);
-      callback.call(childDslScope);
-    }
-
-    this.scope.childScopes.push(childScope);
-  }
-
-  state(name: string, options: RouteDescriptorArgs = {}): MapScope {
-    let desc = new StateDescriptor(name, options);
-    let index = this.scope.childScopes.length;
-    let childScope = new MapScope(desc, this.scope, index);
-    this.scope._registerScope(childScope);
-    this.scope.childScopes.push(childScope);
-    return childScope;
-  }
-
-  match(blockParam: MapScope, cond: string, callback: DslFn) {
-    let desc = new WhenDescriptor(cond, blockParam, callback);
-
-    let index = this.scope.childScopes.length;
-    let childScope = new MapScope(desc, this.scope, index);
 
     if (callback) {
       let childDslScope = new RouterDslScope(childScope);
