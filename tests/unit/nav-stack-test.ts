@@ -17,8 +17,11 @@ test('loading from url', function (assert) {
   compareArray(assert, routes, [{ name: "route:normal" }])
 });
 
-test('navigate works', function (assert) {
-  let { navStack, registry, routes } = buildWorld(map);
+module('Unit - NavStack.navigate()');
+
+test('basics', function (assert) {
+  let { navStack, routes } = buildWorld(map);
+  navStack.navigate("normal");
   navStack.navigate("normal");
   compareArray(assert, routes, [{ name: "route:normal" }])
 });

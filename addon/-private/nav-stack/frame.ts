@@ -10,10 +10,15 @@ export class Frame {
   providedValues: object;
   value: object;
 
-  constructor(public info: RouteRecognizerInfo, public routeResolver: DataNodeResolver, public componentName: String, inheritedProvides: object) {
+  constructor(public info: RouteRecognizerInfo,
+              public routeResolver: DataNodeResolver,
+              public componentName: String,
+              inheritedProvides: object,
+              public key: string | null) {
     this.route = routeResolver.instantiate()
     this.providedValues = Object.assign({}, inheritedProvides);
     this.load();
+    // this.key = routeR
   }
 
   load() {

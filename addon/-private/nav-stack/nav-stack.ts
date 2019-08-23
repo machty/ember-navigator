@@ -8,7 +8,7 @@ import { DataNodeResolver } from '../data-node-resolver';
 type NavigateOptions = {
   routeName: string;
   params?: object;
-  key?: object;
+  key?: string;
 }
 
 export class NavStack {
@@ -67,7 +67,7 @@ export class NavStack {
     let dasherizedName = result.handler;
     let routeResolver = this.resolverFor('route', dasherizedName);
     let inheritedProvides = lastFrame ? lastFrame.providedValues : {};
-    let frame = new Frame(result, routeResolver, dasherizedName, inheritedProvides);
+    let frame = new Frame(result, routeResolver, dasherizedName, inheritedProvides, null);
     return frame;
   }
 
@@ -83,19 +83,39 @@ export class NavStack {
   _navigate(options : NavigateOptions) {
     let routeName = options.routeName;
     let params = options.params || {};
-    let key = options.key;
+    let key = options.key || null;
+
+    let foundFrame, foundIndex;
+    for(foundIndex = 0; foundIndex < this.frames.length; ++foundIndex) {
+      let frame = this.frames[foundIndex];
+      if (frame.componentName === routeName) {
+        if (!key || key === frame.key) {
+          foundFrame = frame;
+          break;
+        }
+      }
+    }
+
+    if (foundFrame) {
+      // TODO: pop to frame
+      return;
+    }
+
     let info = this.recognizer.handlersFor(routeName)[0]
     let routeResolver = this.resolverFor('route', routeName);
     let lastFrame = this.frames[this.frames.length - 1];
     let inheritedProvides = lastFrame ? lastFrame.providedValues : {};
-    let frame = new Frame({ handler: info.handler, params }, routeResolver, routeName, inheritedProvides);
-    return frame;
+    let frame = new Frame({ handler: info.handler, params }, routeResolver, routeName, inheritedProvides, key);
+    this._pushFrame(frame);
   }
 
   push(url) {
-    let frames = this.frames.slice();
-    let newFrame = this.frameFromUrl(url, frames[frames.length - 1], frames.length);
-    frames.push(newFrame);
+    let newFrame = this.frameFromUrl(url, this.frames[this.frames.length - 1], this.frames.length);
+    this._pushFrame(newFrame);
+  }
+
+  _pushFrame(frame) {
+    let frames = [...this.frames, frame]
     this._updateFrames(frames);
   }
 
