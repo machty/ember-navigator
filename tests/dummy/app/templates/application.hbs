@@ -1,3 +1,7 @@
+{{#each navStacks as |stack idx|}}
+  {{nav-stack navStack=stack idx=idx}}
+{{/each}}
+
 {{nav-stack navStack=navStack frames=frames}}
 
 {{#if debug}}

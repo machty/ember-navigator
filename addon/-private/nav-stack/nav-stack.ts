@@ -1,7 +1,4 @@
 import Ember from 'ember';
-import { DataNodeResolver } from '../data-engine/data-node-resolver';
-import { DataScope } from '../data-engine/data-scope';
-import { RouteDataNode, StateDataNode, SimpleDataNode } from '../data-engine/data-node';
 import { Frame } from './frame';
 import { Map, MapScope } from '../../-dsl';
 import { assert } from '@ember/debug';
@@ -18,20 +15,20 @@ export class NavStack {
   stateString: string;
   recognizer: any;
   frameSequence: number;
-  dataNodeResolverCache: { [k: string]: DataNodeResolver };
+  // dataNodeResolverCache: { [k: string]: DataNodeResolver };
 
   constructor(public map: Map, public owner) {
     const RouteRecognizer = (Ember as any).__loader.require('route-recognizer')['default']
     this.recognizer = new RouteRecognizer();
 
     map.root.childScopes.forEach(r => {
-      debugger;
+      // debugger;
     })
 
     this.frames = [];
     this.frameSequence = 0;
     this.stateString = "";
-    this.dataNodeResolverCache = {};
+    // this.dataNodeResolverCache = {};
   }
 
   recognize(url) : NavParams[] {
@@ -62,45 +59,45 @@ export class NavStack {
   }
 
   didUpdateStateString(stateString: string) {
-    this.stateString = stateString;
-    this.buildInitialStack();
+    // This is a poorly named method that's used for initializing
+    // the nav stack to a particular URL
+    this.buildInitialStack(stateString);
   }
 
-  buildInitialStack() {
+  buildInitialStack(stateString: string) {
     let json = JSON.parse(this.stateString);
-
-    // we need a key serialized into the URL in order to prevent recursion.
 
     let frames: any[] = [];
     json.forEach((j, index) => {
-      let lastFrame = frames[frames.length - 1];
-      let lastScope = lastFrame && lastFrame.dataScope;
-      frames.push(this.frameFromUrl(j.url, lastScope, index));
+      frames.push(this.frameFromUrl(j.url, index));
     });
 
     this._updateFrames(frames);
   }
 
-  resolverFor(type: string, dasherizedName: string) : DataNodeResolver {
-    let fullName = `${type}:${dasherizedName}`;
-    if (fullName in this.dataNodeResolverCache) {
-      return this.dataNodeResolverCache[fullName];
-    }
+  // resolverFor(type: string, dasherizedName: string) : DataNodeResolver {
+  //   let fullName = `${type}:${dasherizedName}`;
+  //   if (fullName in this.dataNodeResolverCache) {
+  //     return this.dataNodeResolverCache[fullName];
+  //   }
 
-    let dataNodeResolver = new DataNodeResolver(this.owner, type, dasherizedName);
-    this.dataNodeResolverCache[fullName] = dataNodeResolver;
-    return dataNodeResolver;
-  }
+  //   let dataNodeResolver = new DataNodeResolver(this.owner, type, dasherizedName);
+  //   this.dataNodeResolverCache[fullName] = dataNodeResolver;
+  //   return dataNodeResolver;
+  // }
 
-  frameFromUrl(url, baseScope: DataScope, index: number) : Frame {
-    let dataScope = new DataScope(baseScope);
+  frameFromUrl(url, index: number) : Frame {
     let navParamsArray = this.recognize(url);
+
+    /*
+    let dataScope = new DataScope(baseScope);
     let componentName = navParamsArray[navParamsArray.length-1].scope.name;
     let frame = new Frame(url, dataScope, componentName, this.frameSequence++);
 
     navParamsArray.forEach(navParams => {
       let dasherizedName = navParams.scope.name;
 
+      // 
       let dataNodeResolver = this.resolverFor('route', dasherizedName);
 
       let dataNode = dataScope.lookup(dasherizedName, navParams.key) ||
@@ -117,6 +114,9 @@ export class NavStack {
     dataScope.register(dataNode.name, dataNode);
     dataScope.start();
     return frame;
+    */
+
+    return new Frame(url, "wat", 123)
   }
 
   navigate() {
@@ -127,9 +127,9 @@ export class NavStack {
     let frames = this.frames.slice();
 
     let lastFrame = frames[frames.length - 1];
-    let lastScope = lastFrame && lastFrame.dataScope;
+    // let lastScope = lastFrame && lastFrame.dataScope;
 
-    frames.push(this.frameFromUrl(url, lastScope, frames.length));
+    frames.push(this.frameFromUrl(url, frames.length));
     this._updateFrames(frames);
   }
 

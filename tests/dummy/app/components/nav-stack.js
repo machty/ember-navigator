@@ -1,19 +1,21 @@
-import Ember from 'ember';
-import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack';
+import Component from '@ember/component'
 import { computed } from '@ember/object';
+import { readOnly, not } from '@ember/object/computed'
+import layout from "./template"
 
-export default Ember.Component.extend({
-  frames: null,
+export default Component.extend({
+  layout,
+  classNames: 'block block--main nav-stack animated'.w(),
+  // classNameBindings: [`slideInUp`, `slideOutDown`],
+  slideInUp: not(`idx`, 0),
   navStack: null,
-  classNames: ['nav-stack'],
-
-  visibleFrames: computed('frames', 'isDebugMode', function() {
-    let frames = this.frames;
-    let lastFrame = frames[frames.length - 1];
-    return [lastFrame];
+  frames: readOnly(`navStack.frames`),
+  visibleFrames: computed('frames', function() {
+    return [this.frames.lastObject].compact()
   }),
+  header: readOnly(`frames.lastObject.component.header`),
+  willDestroyElement() {
+    this.set(`slideOutDown`, true)
+  },
+})
 
-  currentFrame: computed('frames.length', function() {
-    return this.frames[this.frames.length - 1];
-  }),
-});

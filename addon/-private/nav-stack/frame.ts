@@ -5,41 +5,26 @@ import { guidFor } from '../utils';
 export class Frame {
   outletState: any;
   value: any;
-  dataNode: DataNode;
   component: any;
 
-  // What is a frame.
-  // Is it a route?
-
-  constructor(public url: string, public dataScope: DataScope, public componentName: string, public id: number) {
+  constructor(public url: string, public componentName: string, public id: number) {
     this.value = {
       componentName: null, // this.componentName,
       outletState: {
         scope: this
       }
     };
-
-    this.dataScope.register('_frameRoot', this.dataNode);
-  }
-
-  handleNewData(dataNode: DataNode, dataName: string, value: any) {
-    console.log(`frame root (${this.id}) got ${dataName} from ${dataNode.name}`, value);
-    set(this, 'value', {
-      componentName: this.componentName,
-      outletState: {
-        scope: this
-      }
-    });
   }
 
   registerFrameComponent(component, doConnect: boolean) {
-    frameConnections.push([this, component, doConnect]);
-    run.scheduleOnce('afterRender', null, connectComponentsToFrames);
+    // frameConnections.push([this, component, doConnect]);
+    // run.scheduleOnce('afterRender', null, connectComponentsToFrames);
   }
 }
 
 let frameConnections: [Frame, any, boolean][] = [];
 
+/*
 function connectComponentsToFrames() {
   frameConnections.forEach(([frame, frameComponent, doConnect]) => {
     if (doConnect) {
@@ -55,3 +40,4 @@ function connectComponentsToFrames() {
   });
   frameConnections = [];
 }
+*/
