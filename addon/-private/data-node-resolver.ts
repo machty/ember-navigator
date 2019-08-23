@@ -15,7 +15,7 @@ export class DataNodeResolver {
     if (typeof provides === 'function') {
       this.provides = provides();
     } else {
-      this.provides = [];
+      this.provides = provides || [];
     }
   }
   instantiate(attrs?: any) {

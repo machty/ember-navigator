@@ -5,6 +5,7 @@ export type RouteRecognizerInfo = {
   params: object;
 }
 
+let SEQ = 0;
 export class Frame {
   route: any;
   providedValues: object;
@@ -18,7 +19,7 @@ export class Frame {
     this.route = routeResolver.instantiate()
     this.providedValues = Object.assign({}, inheritedProvides);
     this.load();
-    // this.key = routeR
+    this.id = SEQ++;
   }
 
   load() {

@@ -1,7 +1,41 @@
-<p>before</p>
+<div class="outer-container">
+  <div class="app-container">
+    {{#each navStacks as |stack idx|}}
+      {{nav-stack navStack=stack idx=idx}}
+    {{/each}}
+  </div>
+  <div>
+    <h4>Stack</h4>
+    {{#each navStacks as |stack idx|}}
+      <ul>
+        {{#each stack.frames as |f|}}
+          <li>{{f.componentName}}</li>
+          <ul>
+            <li>key = {{f.key}}</li>
+          </ul>
+        {{/each}}
+      </ul>
+    {{/each}}
+  </div>
+</div>
 
-{{#each navStacks as |stack idx|}}
-  {{nav-stack navStack=stack idx=idx}}
-{{/each}}
+<footer>
+  <h3>navigate()</h3>
+  <p>Note: GENERATE_UUID will be replaced with a random UUID at the time of navigation</p>
+  <ul>
+    {{#each this.links as |l|}}
+      <li>{{l.routeName}}</li>
+      <ul>
+        {{#each l.variations as |v|}}
+          <li>
+            <a href="#" onclick={{action navigate (hash routeName=l.routeName key=v.key params=v.params)}}>
+              navigate() to {{l.routeName}}: 
+              <code>{{json-stringify v}}</code>
+            </a>
+          </li>
+        {{/each}}
+      </ul>
+    {{/each}}
+  </ul>
+</footer>
 
-<p>after</p>

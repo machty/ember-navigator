@@ -126,6 +126,9 @@ export class NavStack {
   }
 
   pop() {
+    if (this.frames.length <= 1) {
+      return;
+    }
     let frames = this.frames.slice();
     frames.pop();
     this._updateFrames(frames);
@@ -133,6 +136,10 @@ export class NavStack {
 
   _updateFrames(frames) {
     set(this, 'frames', frames);
+  }
+
+  goBack() {
+    this.pop();
   }
 
   makeRouter(url: string, index: number) {

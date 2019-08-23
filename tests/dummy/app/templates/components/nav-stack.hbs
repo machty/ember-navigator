@@ -1,5 +1,6 @@
-{{#each visibleFrames key="id" as |f|}}
-  <div class="nav-frame">
-    {{component f.componentName route=f.route provided=f.providedValues}}
-  </div>
-{{/each}}
+<div class="nav-stack">
+  {{#each visibleFrames key="id" as |f|}}
+    <a href="#" onclick={{action 'goBack'}}>Back / Pop {{f.id}}</a>
+    {{component f.componentName route=f.route value=f.value provided=f.providedValues}}
+  {{/each}}
+</div>

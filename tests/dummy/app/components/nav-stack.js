@@ -10,5 +10,10 @@ export default Component.extend({
     return frame ? [frame] : [];
   }),
   // header: readOnly(`frames.lastObject.component.header`),
+  actions: {
+    goBack() {
+      this.navStack.goBack();
+    }
+  }
 })
 
