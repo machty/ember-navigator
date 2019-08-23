@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import { computed } from '@ember/object';
 import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack';
-import { alias } from '@ember/object/computed';
+import { readOnly } from '@ember/object/computed';
 
 import { map } from 'ember-constraint-router';
 
@@ -13,24 +13,14 @@ let routerMap = map(function() {
 });
 
 export default Ember.Controller.extend({
-  queryParams: ['nav', 'debug'],
-  nav: "",
-  _navCache: '_unset_',
-  debug: false,
-  frames: alias('navStack.frames'),
+  frames: readOnly('navStack.frames'),
+  navStack: readOnly(`navStacks.lastObject`),
+  currentFrame: readOnly(`navStack.frames.lastObject`),
 
-  navStack: computed(function() {
+  navStacks: computed(function() {
     let owner = Ember.getOwner(this);
-    return new NavStack(routerMap, owner);
+    let navStack = new NavStack(routerMap, owner);
+    navStack.didUpdateStateString(JSON.stringify([ { url: 'root' } ]))
+    return [ navStack ];
   }),
-
-  didUpdateStateString: Ember.on('init', Ember.observer('nav', function() {
-    let nav = this.get('nav') || 
-      JSON.stringify([ { url: 'root' } ]);
-
-    if (nav !== this._nav) {
-      this._nav = nav;
-      this.get('navStack').didUpdateStateString(nav);
-    }
-  })),
 });

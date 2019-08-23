@@ -32,7 +32,6 @@ export class NavStack {
 
   recognize(url) : NavParams[] {
     let results = this.recognizer.recognize(url);
-    debugger;
     assert(`failed to parse/recognize url ${url}`, results);
     let name = results[results.length - 1].handler;
 
