@@ -116,7 +116,7 @@ export class NavStack {
     return frame;
     */
 
-    return new Frame(url, "wat", 123)
+    return new Frame("root", 123)
   }
 
   navigate() {

@@ -6,10 +6,10 @@ import { readOnly } from '@ember/object/computed';
 import { map } from 'ember-constraint-router';
 
 let routerMap = map(function() {
-  this.route('root');
-  this.route('a');
-  this.route('b');
-  this.route('c');
+  this.route('frame-root');
+  this.route('frame-a');
+  this.route('frame-b');
+  this.route('frame-c');
 });
 
 export default Ember.Controller.extend({
