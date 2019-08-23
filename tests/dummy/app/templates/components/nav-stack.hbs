@@ -1,5 +1,5 @@
 {{#each visibleFrames key="id" as |f|}}
   <div class="nav-frame">
-    {{component f.componentName route=f.route _navStackFrame=f}}
+    {{component f.componentName route=f.route provided=f.providedValues}}
   </div>
 {{/each}}
