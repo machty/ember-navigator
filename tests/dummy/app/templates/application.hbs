@@ -1,18 +1,7 @@
+<p>before</p>
+
 {{#each navStacks as |stack idx|}}
   {{nav-stack navStack=stack idx=idx}}
 {{/each}}
 
-{{nav-stack navStack=navStack frames=frames}}
-
-{{#if debug}}
-  <div class="nav-stack-debug-container">
-    {{nav-stack-debug navStack=navStack frames=frames}}
-  </div>
-{{/if}}
-
-
-{{!outlet}}
-
-<div class="debug-mode-control">
-  {{input checked=debug type='checkbox'}} Debug Mode
-</div>
+<p>after</p>
