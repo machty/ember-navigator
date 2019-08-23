@@ -10,6 +10,7 @@ export class Frame {
   route: any;
   providedValues: object;
   value: object;
+  id: number;
 
   constructor(public info: RouteRecognizerInfo,
               public routeResolver: DataNodeResolver,

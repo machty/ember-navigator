@@ -5,7 +5,7 @@ import { assert } from '@ember/debug';
 import { set } from '@ember/object';
 import { DataNodeResolver } from '../data-node-resolver';
 
-type NavigateOptions = {
+export type NavigateOptions = {
   routeName: string;
   params?: object;
   key?: string;
