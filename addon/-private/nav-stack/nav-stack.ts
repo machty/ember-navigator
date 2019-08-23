@@ -5,6 +5,12 @@ import { assert } from '@ember/debug';
 import { set } from '@ember/object';
 import { DataNodeResolver } from '../data-node-resolver';
 
+type NavigateOptions = {
+  routeName: string;
+  params?: object;
+  key?: object;
+}
+
 export class NavStack {
   frames: Frame[];
   recognizer: any;
@@ -17,7 +23,7 @@ export class NavStack {
 
     map.forEach(r => {
       let path = r.options.path || r.name;
-      this.recognizer.add([{ path, handler: r.name }]);
+      this.recognizer.add([{ path, handler: r.name }], { as: r.name });
     });
 
     this.frames = [];
@@ -65,8 +71,25 @@ export class NavStack {
     return frame;
   }
 
-  navigate() {
-    // TODO
+  // https://reactnavigation.org/docs/en/navigation-prop.html#navigate-link-to-other-screens
+  navigate(maybeRouteName, params?: any) {
+    if (arguments.length == 1 && typeof maybeRouteName === 'object') {
+      return this._navigate(maybeRouteName);
+    } else {
+      return this._navigate({ routeName: maybeRouteName, params: params });
+    }
+  }
+
+  _navigate(options : NavigateOptions) {
+    let routeName = options.routeName;
+    let params = options.params || {};
+    let key = options.key;
+    let info = this.recognizer.handlersFor(routeName)[0]
+    let routeResolver = this.resolverFor('route', routeName);
+    let lastFrame = this.frames[this.frames.length - 1];
+    let inheritedProvides = lastFrame ? lastFrame.providedValues : {};
+    let frame = new Frame({ handler: info.handler, params }, routeResolver, routeName, inheritedProvides);
+    return frame;
   }
 
   push(url) {

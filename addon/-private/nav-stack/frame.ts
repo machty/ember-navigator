@@ -3,7 +3,6 @@ import { DataNodeResolver } from '../data-node-resolver';
 export type RouteRecognizerInfo = {
   handler: string;
   params: object;
-  isDynamic: boolean;
 }
 
 export class Frame {

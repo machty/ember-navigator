@@ -11,11 +11,16 @@ let routerMap = map(function() {
 
 module('Unit - NavStack test');
 
-test('works', function (assert) {
+test('loading from url', function (assert) {
   let { navStack, registry, routes } = buildWorld(map);
   navStack.didUpdateStateString(JSON.stringify([ { url: 'normal' } ]));
-  assert.equal(routes.length, 1);
-  assert.equal(routes[0].name, "route:normal");
+  compareArray(assert, routes, [{ name: "route:normal" }])
+});
+
+test('navigate works', function (assert) {
+  let { navStack, registry, routes } = buildWorld(map);
+  navStack.navigate("normal");
+  compareArray(assert, routes, [{ name: "route:normal" }])
 });
 
 function buildWorld(map) {
@@ -40,4 +45,15 @@ function buildWorld(map) {
   let navStack = new NavStack(routerMap, owner);
 
   return { owner, navStack, registry, routes };
+}
+
+function compareArray(assert, actual, expected) {
+  let len = Math.max(actual.length, expected.length); 
+  let keys;
+  for (let i = 0; i < len; ++i) {
+    let a = actual[i] || {};
+    let b = expected[i] || {};
+    keys = keys || Object.keys(b);
+    keys.forEach(k => assert.deepEqual(a[k], b[k]));
+  }
 }
