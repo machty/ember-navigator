@@ -12,7 +12,6 @@ export interface NavParams {
 
 export class NavStack {
   frames: Frame[];
-  stateString: string;
   recognizer: any;
   frameSequence: number;
   // dataNodeResolverCache: { [k: string]: DataNodeResolver };
@@ -21,13 +20,13 @@ export class NavStack {
     const RouteRecognizer = (Ember as any).__loader.require('route-recognizer')['default']
     this.recognizer = new RouteRecognizer();
 
-    map.root.childScopes.forEach(r => {
-      // debugger;
-    })
+    map.forEach(r => {
+      let path = r.options.path || r.name;
+      this.recognizer.add([{ path, handler: r.name }]);
+    });
 
     this.frames = [];
     this.frameSequence = 0;
-    this.stateString = "";
     // this.dataNodeResolverCache = {};
   }
 
@@ -35,8 +34,9 @@ export class NavStack {
     let results = this.recognizer.recognize(url);
     debugger;
     assert(`failed to parse/recognize url ${url}`, results);
-
     let name = results[results.length - 1].handler;
+
+    /*
     let mapScopes = this.map.getScopePath(name);
 
     assert(`unexpected empty map scopes for url ${url}`, mapScopes.length > 0);
@@ -56,6 +56,7 @@ export class NavStack {
 
       return { scope: ms, params, key };
     });
+    */
   }
 
   didUpdateStateString(stateString: string) {
@@ -65,7 +66,7 @@ export class NavStack {
   }
 
   buildInitialStack(stateString: string) {
-    let json = JSON.parse(this.stateString);
+    let json = JSON.parse(stateString);
 
     let frames: any[] = [];
     json.forEach((j, index) => {
