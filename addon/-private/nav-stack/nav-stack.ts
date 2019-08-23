@@ -97,7 +97,13 @@ export class NavStack {
     }
 
     if (foundFrame) {
-      // TODO: pop to frame
+      for (let i = this.frames.length - 1; i > foundIndex; --i) {
+        let frame = this.frames[i];
+
+        // TODO: other teardown
+        frame.route.destroy();
+      }
+      this._updateFrames(this.frames.slice(0, foundIndex + 1));
       return;
     }
 

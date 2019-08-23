@@ -19,11 +19,34 @@ test('loading from url', function (assert) {
 
 module('Unit - NavStack.navigate()');
 
-test('basics', function (assert) {
+test('navigate by default prevents double pushes', function (assert) {
   let { navStack, routes } = buildWorld(map);
   navStack.navigate("normal");
   navStack.navigate("normal");
   compareArray(assert, routes, [{ name: "route:normal" }])
+});
+
+test('navigate will double push if you provide a key', function (assert) {
+  let { navStack, routes } = buildWorld(map);
+  navStack.navigate("normal");
+  navStack.navigate({ routeName: "normal", key: "foo" });
+  navStack.navigate({ routeName: "normal", key: "foo" });
+  navStack.navigate({ routeName: "normal", key: "lol" });
+  compareArray(assert, routes, [{ name: "route:normal" }, { name: "route:normal" }, { name: "route:normal" }])
+});
+
+test('navigate will pop to the matching route', function (assert) {
+  let { navStack, routes } = buildWorld(map);
+  navStack.navigate("normal");
+  navStack.navigate({ routeName: "normal", key: "foo" });
+  navStack.navigate({ routeName: "normal", key: "lol" });
+  navStack.navigate("normal");
+  compareArray(assert, routes, [
+    { name: "route:normal", isDestroying: false },
+    { name: "route:normal", isDestroying: true },
+    { name: "route:normal", isDestroying: true },
+  ]);
+  assert.equal(navStack.frames.length, 1);
 });
 
 function buildWorld(map) {
