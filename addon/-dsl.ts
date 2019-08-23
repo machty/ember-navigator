@@ -8,8 +8,7 @@ export type MapRoute = {
 }
 
 export type Dsl = {
-  name: String;
-  options: any;
+  route: (name: String, options?: MapRouteOptions) => {};
 }
 
 export type Map = MapRoute[];

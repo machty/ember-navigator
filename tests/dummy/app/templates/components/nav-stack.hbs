@@ -1,7 +1,5 @@
 {{#each visibleFrames key="id" as |f|}}
   <div class="nav-frame">
-    {{#-with-dynamic-vars outletState=f.value.outletState}}
-      {{component f.value.componentName _navStackFrame=f}}
-    {{/-with-dynamic-vars}}
+    {{component f.value.componentName _navStackFrame=f}}
   </div>
 {{/each}}

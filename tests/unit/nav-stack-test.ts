@@ -1,7 +1,6 @@
 import { test, module } from 'ember-qunit';
 import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack'
 import Ember from 'ember';
-
 import { map } from 'ember-constraint-router';
 
 let routerMap = map(function() {
