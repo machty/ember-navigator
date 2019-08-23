@@ -1,6 +1,3 @@
-import { DataNode, SimpleDataNode } from 'ember-constraint-router/-private/data-engine/data-node';
-import { DataNodeResolver } from 'ember-constraint-router/-private/data-engine/data-node-resolver';
-import { DataScope } from '../data-engine/data-scope';
 import { set } from '@ember/object';
 import { run } from '@ember/runloop';
 import { guidFor } from '../utils';
@@ -11,6 +8,9 @@ export class Frame {
   dataNode: DataNode;
   component: any;
 
+  // What is a frame.
+  // Is it a route?
+
   constructor(public url: string, public dataScope: DataScope, public componentName: string, public id: number) {
     this.value = {
       componentName: null, // this.componentName,
@@ -19,8 +19,6 @@ export class Frame {
       }
     };
 
-    this.dataNode = new SimpleDataNode('_frameRoot', `_frameRoot-${this.id}`, {});
-    this.dataNode.listen(this, this.handleNewData);
     this.dataScope.register('_frameRoot', this.dataNode);
   }
 
