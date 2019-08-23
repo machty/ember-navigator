@@ -36,7 +36,7 @@ export class NavStack {
 
     let frames: any[] = [];
     json.forEach((j, index) => {
-      frames.push(this.frameFromUrl(j.url, index));
+      frames.push(this.frameFromUrl(j.url, frames[frames.length - 1], index));
     });
 
     this._updateFrames(frames);
@@ -54,14 +54,15 @@ export class NavStack {
   }
 
   // TODO: get rid of index?
-  frameFromUrl(url: String, index: number) : Frame {
+  frameFromUrl(url: String, lastFrame: Frame, index: number) : Frame {
     let results = this.recognizer.recognize(url);
     assert(`failed to parse/recognize url ${url}`, results);
     let result = results[0];
     let dasherizedName = result.handler;
     let routeResolver = this.resolverFor('route', dasherizedName);
-    let route = routeResolver.instantiate()
-    return new Frame(route, dasherizedName);
+    let inheritedProvides = lastFrame ? lastFrame.providedValues : {};
+    let frame = new Frame(result, routeResolver, dasherizedName, inheritedProvides);
+    return frame;
   }
 
   navigate() {
@@ -70,11 +71,8 @@ export class NavStack {
 
   push(url) {
     let frames = this.frames.slice();
-
-    let lastFrame = frames[frames.length - 1];
-    // let lastScope = lastFrame && lastFrame.dataScope;
-
-    frames.push(this.frameFromUrl(url, frames.length));
+    let newFrame = this.frameFromUrl(url, frames[frames.length - 1], frames.length);
+    frames.push(newFrame);
     this._updateFrames(frames);
   }
 
