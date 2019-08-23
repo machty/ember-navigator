@@ -12,38 +12,32 @@ let routerMap = map(function() {
 module('Unit - NavStack test');
 
 test('works', function (assert) {
-  let { navStack } = buildWorld(map);
-
-  debugger;
-
-  // navStack.didUpdateStateString(JSON.stringify([
-  //   { url: "welcome" },
-  //   { url: "welcome" },
-  // ]));
-
-  // assert.deepEqual(scopeTree(frameUpdates.pop()), [
-  //   { "auth": 1, "myRouter": 1, "root": 1, "welcome": 1 },
-  //   { "auth": 1, "myRouter": 2, "root": 1, "welcome": 1 },
-  // ]);
-
-  // assert.equal(frameUpdates.length, 0);
+  let { navStack, registry, routes } = buildWorld(map);
+  navStack.didUpdateStateString(JSON.stringify([ { url: 'normal' } ]));
+  assert.equal(routes.length, 1);
+  assert.equal(routes[0].name, "route:normal");
 });
 
 function buildWorld(map) {
   let registry = {};
+  let routes: any[] = [];
 
   let owner = {
     factoryFor(name) {
       if (!registry[name]) {
-        registry[name] = Ember.Object.extend({ name });
+        registry[name] = Ember.Object.extend({
+          init(...args) {
+            this._super(...args);
+            routes.push(this);
+          },
+          name
+        });
       }
       return { class: registry[name] };
     }
   };
 
-  let frameUpdates: any[] = [];
+  let navStack = new NavStack(routerMap, owner);
 
-  let navStack = new NavStack(map, owner);
-
-  return { owner, navStack };
+  return { owner, navStack, registry, routes };
 }

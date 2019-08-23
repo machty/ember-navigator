@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import { alias } from '@ember/object/computed';
-import { scopedService } from 'ember-constraint-router';
 import { computed } from '@ember/object';
 
 export default Ember.Component.extend({
