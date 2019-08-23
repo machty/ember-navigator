@@ -101,7 +101,10 @@ export class NavStack {
         let frame = this.frames[i];
 
         // TODO: other teardown
-        frame.route.destroy();
+        if (typeof frame.route.destroy === 'function') {
+          // TODO: test this for ES6 route
+          frame.route.destroy();
+        }
       }
       this._updateFrames(this.frames.slice(0, foundIndex + 1));
       return;
