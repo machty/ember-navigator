@@ -20,7 +20,7 @@ export default Ember.Controller.extend({
   navStacks: computed(function() {
     let owner = Ember.getOwner(this);
     let navStack = new NavStack(routerMap, owner);
-    navStack.didUpdateStateString(JSON.stringify([ { url: 'root' } ]))
+    navStack.didUpdateStateString(JSON.stringify([ { url: 'frame-root' } ]))
     return [ navStack ];
   }),
 });
