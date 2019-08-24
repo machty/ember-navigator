@@ -17,16 +17,41 @@ module('Unit - StackRouter test', function(hooks) {
   test("it provides a default state", function (assert) {
     let children = [ route('foo') ];
     let stackRouter = stackNavigator('root', children);
-    let state = stackRouter.getStateForAction(init(), {})
+    let state = stackRouter.getStateForAction(init(), null)
     assert.deepEqual(state, {
       "index": 0,
       "isTransitioning": false,
       "key": "StackRouterRoot",
+      "params": {},
+      "routeName": "root",
       "routes": [
         {
           "key": "id-0",
-          "params": undefined,
-          "routeName": undefined
+          "params": {},
+          "routeName": "foo"
+        }
+      ]
+    });
+  });
+
+  test("it supports nesting", function (assert) {
+    let stackRouter = stackNavigator('root', [
+      stackNavigator('nested', [
+        route('foo')
+      ]),
+    ]);
+    let state = stackRouter.getStateForAction(init(), null)
+    assert.deepEqual(state, {
+      "index": 0,
+      "isTransitioning": false,
+      "key": "StackRouterRoot",
+      "params": {},
+      "routeName": "root",
+      "routes": [
+        {
+          "key": "id-0",
+          "params": {},
+          "routeName": "nested"
         }
       ]
     });

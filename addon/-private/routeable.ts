@@ -1,21 +1,29 @@
 import { Action } from './action';
 
-export type RouteState = {
-  params: object;
+export interface RouteableState {
   key: string;
   routeName: string;
+  params: object;
+};
+
+export interface RouteState extends RouteableState {
+  key: string;
 }
 
-export type RouterState = {
-  key: string;
+export interface RouterState extends RouteableState {
   isTransitioning: boolean;
   index: number;
   routes: RouteState[];
 };
 
-export type Routeable = {
+export interface Routeable {
   name: string;
   children: Routeable[];
   componentName: string;
-  getStateForAction: (action: Action, state: any) => RouterState;
+  isRouter: boolean;
 };
+
+export interface Router extends Routeable {
+  isRouter: true;
+  getStateForAction: (action: Action, state?: any) => RouteableState;
+}
