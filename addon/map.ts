@@ -1,42 +1,11 @@
-export type MapNode = {
-  name: string;
-  children: MapNode[];
-};
+import { Routeable } from './-private/routeable'
+import { StackRouter, StackOptions } from './-private/routers/stack-router'
+import { Route, RouteOptions } from './-private/route'
 
-export type RouteOptions = {
+export function route(name: string, options: RouteOptions = {}) : Routeable {
+  return new Route(name, options);
 }
 
-class RouteNode implements MapNode {
-  name: string;
-  children: MapNode[];
-  options: RouteOptions;
-
-  constructor(name: string, options: RouteOptions) {
-    this.name = name;
-    this.children = [];
-    this.options = options;
-  }
-}
-
-export function route(name: string, options: RouteOptions = {}) : MapNode {
-  return new RouteNode(name, options);
-}
-
-export type StackOptions = {
-}
-
-class StackNode implements MapNode {
-  name: string;
-  children: MapNode[];
-  options: StackOptions;
-
-  constructor(name: string, children: MapNode[], options: StackOptions) {
-    this.name = name;
-    this.children = children;
-    this.options = options;
-  }
-}
-
-export function stackNavigator(name: string, nodes: MapNode[], options: StackOptions = {}) : MapNode {
-  return new StackNode(name, nodes, options)
+export function stackNavigator(name: string, children: Routeable[], options: StackOptions = {}) : Routeable {
+  return new StackRouter(name, children, options);
 }

@@ -1,27 +1,56 @@
-import { MapNode } from "../map"
+import { Routeable } from "../map"
 
 class StatefulNode {
-  mapNode: MapNode;
+  Routeable: Routeable;
 
-  constructor(mapNode: MapNode) {
-    this.mapNode = mapNode;
+  constructor(Routeable: Routeable) {
+    this.Routeable = Routeable;
+  }
+}
+
+
+// let routerMap = stackNavigator('root', [
+//   route('normal'),
+//   route('diff_path', { path: 'custom_path' }),
+//   route('dynamic_route', { path: 'foo/:fun_id' }),
+// ]);
+
+
+let o = {
+  root: {
   }
 }
 
 export class Router {
   routes: { [k: string]: StatefulNode };
 
-  constructor(rootNode: MapNode) {
+  constructor(rootNode: Routeable) {
     this.routes = {};
     this.buildRoutes(rootNode);
   }
 
-  buildRoutes(node: MapNode) {
+  buildRoutes(node: Routeable) {
     node.children.forEach(n => this.buildRoutes(n))
-    debugger;
     if (this.routes[node.name]) {
       throw new Error(`Encountered duplicate route named ${node.name}. Non-unique route names are not supported at this time`);
     }
     this.routes[node.name] = new StatefulNode(node);
   }
+
+  buildInitialState() {
+    return { activeNode: null };
+  }
+
+  navigate() {
+    let state = { activeNode: null };
+
+
+
+
+
+  }
+
+  // navigate() {
+
+  // }
 }

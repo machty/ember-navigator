@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { Frame } from './frame';
-import { MapNode } from '../../map';
+import { Routeable } from '../../map';
 import { assert } from '@ember/debug';
 import { set } from '@ember/object';
 import { DataNodeResolver } from '../data-node-resolver';
@@ -17,11 +17,13 @@ export class NavStack {
   frameSequence: number;
   dataNodeResolverCache: { [k: string]: DataNodeResolver };
 
-  constructor(public rootNode: MapNode, public owner) {
+  constructor(public rootNode: Routeable, public owner) {
     // we actually need to build the structure.
     // we need to loop through the tree and convert it into state
 
+    debugger;
     map.forEach(r => {
+
       let path = r.options.path || r.name;
       this.recognizer.add([{ path, handler: r.name }], { as: r.name });
     });

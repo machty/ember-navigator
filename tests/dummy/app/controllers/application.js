@@ -1,36 +1,29 @@
 import Ember from 'ember';
 import { computed } from '@ember/object';
-import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack';
 import { readOnly } from '@ember/object/computed';
 
-import { map } from 'ember-constraint-router';
+import { stackNavigator, route } from 'ember-constraint-router/map';
+import { Router } from 'ember-constraint-router/-private/router';
 
-let routerMap = map(function() {
-  this.route('frame-root');
-  this.route('frame-a');
-  this.route('frame-b');
-  this.route('frame-c');
-  this.route('frame-tweet', { path: "tweet/:tweet_id" });
-});
+let routerMap = stackNavigator('root', [
+  route('frame-root'),
+  route('frame-tweet'),
+]);
 
 export default Ember.Controller.extend({
   frames: readOnly('navStack.frames'),
   navStack: readOnly(`navStacks.lastObject`),
 
-  navStacks: computed(function() {
-    let owner = Ember.getOwner(this);
-    let navStack = new NavStack(routerMap, owner);
-    navStack.didUpdateStateString(JSON.stringify([ { url: 'frame-root' } ]))
-    return [ navStack ];
+  customRouter: computed(function() {
+    return new Router(routerMap);
   }),
 
   navigate(options) {
-    let navStacks = this.navStacks;
     let normalizedOptions = Object.assign({}, options);
     if (options.key === "GENERATE_UUID") {
       normalizedOptions.key = `uuid-${Math.floor(Math.random() * 10000000)}`;
     }
-    navStacks[navStacks.length - 1].navigate(normalizedOptions);
+    this.customRouter.navigate(options);
   },
 
   links: [

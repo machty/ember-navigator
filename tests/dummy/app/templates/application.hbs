@@ -1,22 +1,5 @@
 <div class="outer-container">
-  <div class="app-container">
-    {{#each navStacks as |stack idx|}}
-      {{nav-stack navStack=stack idx=idx}}
-    {{/each}}
-  </div>
-  <div>
-    <h4>Stack</h4>
-    {{#each navStacks as |stack idx|}}
-      <ul>
-        {{#each stack.frames as |f|}}
-          <li>{{f.componentName}}</li>
-          <ul>
-            <li>key = {{f.key}}</li>
-          </ul>
-        {{/each}}
-      </ul>
-    {{/each}}
-  </div>
+  {{app-container router=customRouter}}
 </div>
 
 <footer>
