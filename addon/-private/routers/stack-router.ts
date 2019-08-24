@@ -68,7 +68,7 @@ export class StackRouter implements Router {
     // const initialChildRouter = childRouters[initialRouteName];
 
     // TODO: make this configurable via config.initialRouteName
-    let initialChildRouter = this.childRouters[0];
+    let initialChildRouter = this.childRouters[initialRouteName];
     let route = {} as RouteState;
 
     if (initialChildRouter) {

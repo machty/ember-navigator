@@ -52,12 +52,22 @@ module('Unit - StackRouter test', function(hooks) {
       "routeName": "root",
       "routes": [
         {
-          "key": "id-0",
+          "componentName": "nested",
+          "index": 0,
+          "isTransitioning": false,
+          "key": "id-1",
           "params": {},
           "routeName": "nested",
-          "componentName": "nested",
+          "routes": [
+            {
+              "componentName": "foo",
+              "key": "id-0",
+              "params": {},
+              "routeName": "foo"
+            }
+          ]
         }
       ]
-    });
+    })
   });
 });
