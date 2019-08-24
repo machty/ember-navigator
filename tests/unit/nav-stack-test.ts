@@ -1,18 +1,18 @@
 import { test, module } from 'ember-qunit';
 import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack'
 import Ember from 'ember';
-import { map } from 'ember-constraint-router';
+import { route, stackNavigator } from 'ember-constraint-router/map';
 
-let routerMap = map(function() {
-  this.route('normal');
-  this.route('diff_path', { path: 'custom_path' });
-  this.route('dynamic_route', { path: 'foo/:fun_id' });
-});
+let routerMap = stackNavigator('root', [
+  route('normal'),
+  route('diff_path', { path: 'custom_path' }),
+  route('dynamic_route', { path: 'foo/:fun_id' }),
+]);
 
 module('Unit - NavStack test');
 
 test('loading from url', function (assert) {
-  let { navStack, registry, routes } = buildWorld(map);
+  let { navStack, registry, routes } = buildWorld();
   navStack.didUpdateStateString(JSON.stringify([ { url: 'normal' } ]));
   compareArray(assert, routes, [{ name: "route:normal" }])
 });
@@ -20,14 +20,14 @@ test('loading from url', function (assert) {
 module('Unit - NavStack.navigate()');
 
 test('navigate by default prevents double pushes', function (assert) {
-  let { navStack, routes } = buildWorld(map);
+  let { navStack, routes } = buildWorld();
   navStack.navigate("normal");
   navStack.navigate("normal");
   compareArray(assert, routes, [{ name: "route:normal" }])
 });
 
 test('navigate will double push if you provide a key', function (assert) {
-  let { navStack, routes } = buildWorld(map);
+  let { navStack, routes } = buildWorld();
   navStack.navigate("normal");
   navStack.navigate({ routeName: "normal", key: "foo" });
   navStack.navigate({ routeName: "normal", key: "foo" });
@@ -36,7 +36,7 @@ test('navigate will double push if you provide a key', function (assert) {
 });
 
 test('navigate will pop to the matching route', function (assert) {
-  let { navStack, routes } = buildWorld(map);
+  let { navStack, routes } = buildWorld();
   navStack.navigate("normal");
   navStack.navigate({ routeName: "normal", key: "foo" });
   navStack.navigate({ routeName: "normal", key: "lol" });
@@ -49,7 +49,7 @@ test('navigate will pop to the matching route', function (assert) {
   assert.equal(navStack.frames.length, 1);
 });
 
-function buildWorld(map) {
+function buildWorld() {
   let registry = {};
   let routes: any[] = [];
 
