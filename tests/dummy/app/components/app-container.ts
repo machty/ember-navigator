@@ -7,7 +7,6 @@ export default class AppContainer extends Component.extend({
 
   init(...args) {
     this._super(...args);
-    debugger;
   }
 }) {
   layout = layout;
