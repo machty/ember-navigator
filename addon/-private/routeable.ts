@@ -4,6 +4,7 @@ export interface RouteableState {
   key: string;
   routeName: string;
   params: object;
+  componentName: string;
 };
 
 export interface RouteState extends RouteableState {
@@ -19,11 +20,11 @@ export interface RouterState extends RouteableState {
 export interface Routeable {
   name: string;
   children: Routeable[];
-  componentName: string;
+  componentName: string; // TODO: remove?
   isRouter: boolean;
 };
 
 export interface Router extends Routeable {
   isRouter: true;
-  getStateForAction: (action: Action, state?: any) => RouteableState;
+  getStateForAction: (action: Action, state?: any) => RouterState;
 }

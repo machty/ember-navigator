@@ -3,19 +3,16 @@ import { computed } from '@ember/object';
 import { readOnly } from '@ember/object/computed';
 
 import { stackNavigator, route } from 'ember-constraint-router/map';
-import { Router } from 'ember-constraint-router/-private/router';
-
-let routerMap = stackNavigator('root', [
-  route('frame-root'),
-  route('frame-tweet'),
-]);
 
 export default Ember.Controller.extend({
   frames: readOnly('navStack.frames'),
   navStack: readOnly(`navStacks.lastObject`),
 
-  customRouter: computed(function() {
-    return new Router(routerMap);
+  routerMap: computed(function() {
+    return stackNavigator('root', [
+      route('frame-root'),
+      route('frame-tweet'),
+    ]);
   }),
 
   navigate(options) {

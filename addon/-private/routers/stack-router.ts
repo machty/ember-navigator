@@ -37,8 +37,10 @@ export class StackRouter implements Router {
   }
 
   getStateForAction(action: Action, state: any) {
+    return this.getInitialState(action);
+
+    /*
     if (!state) {
-      return this.getInitialState(action);
     }
 
     return {
@@ -46,6 +48,7 @@ export class StackRouter implements Router {
       routeName: this.name,
       params: action.params,
       isTransitioning: false,
+      componentName: this.componentName,
       index: 0,
       routes: [
         {
@@ -57,6 +60,7 @@ export class StackRouter implements Router {
         },
       ],
     };
+    */
   }
 
   getInitialState(action: Action) : RouterState {
@@ -85,6 +89,9 @@ export class StackRouter implements Router {
       params,
       routeName: initialRouteName,
       key: action.key || generateKey(),
+
+      // TODO: shouldn't we check the route config for this? RN doesn't because it doesn't have route config
+      componentName: initialRouteName,
     };
 
     // QUESTION
@@ -93,6 +100,7 @@ export class StackRouter implements Router {
       isTransitioning: false,
       index: 0,
       routes: [ route ],
+      componentName: this.componentName,
 
       // TODO: in RN, the root stack navigator doesn't have params/routeName; are we doing it wrong?
       params: {},

@@ -19,16 +19,18 @@ module('Unit - StackRouter test', function(hooks) {
     let stackRouter = stackNavigator('root', children);
     let state = stackRouter.getStateForAction(init(), null)
     assert.deepEqual(state, {
-      "index": 0,
+      "componentName": "ecr-stack",
       "isTransitioning": false,
       "key": "StackRouterRoot",
       "params": {},
       "routeName": "root",
+      "index": 0,
       "routes": [
         {
           "key": "id-0",
           "params": {},
-          "routeName": "foo"
+          "routeName": "foo",
+          "componentName": "foo",
         }
       ]
     });
@@ -42,6 +44,7 @@ module('Unit - StackRouter test', function(hooks) {
     ]);
     let state = stackRouter.getStateForAction(init(), null)
     assert.deepEqual(state, {
+      "componentName": "ecr-stack",
       "index": 0,
       "isTransitioning": false,
       "key": "StackRouterRoot",
@@ -51,7 +54,8 @@ module('Unit - StackRouter test', function(hooks) {
         {
           "key": "id-0",
           "params": {},
-          "routeName": "nested"
+          "routeName": "nested",
+          "componentName": "nested",
         }
       ]
     });

@@ -1,0 +1,7 @@
+<div class="nav-stack">
+  {{#each visibleFrames key="id" as |f|}}
+    <a href="#" >Back / Pop {{f.id}}</a>
+    {{component f.componentName}}
+    {{!component f.componentName route=f.route value=f.value provided=f.providedValues}}
+  {{/each}}
+</div>
