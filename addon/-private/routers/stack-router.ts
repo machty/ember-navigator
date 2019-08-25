@@ -208,11 +208,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
   }
 
   getInitialState(options: InitialStateOptions = {}): RouterState {
-    // this is overloaded
-
     const initialRouteName = this.routeNames[0];
-
-    //
     let childRouteableState = this.childRouteables[
       initialRouteName
     ].getInitialState({

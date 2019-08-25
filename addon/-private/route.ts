@@ -29,7 +29,6 @@ export class Route implements RouteReducer {
   }
 
   getInitialState(options: InitialStateOptions = {}): RouteState {
-    debugger;
     let routeName = this.name;
     return {
       params: options.params,

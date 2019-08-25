@@ -40,6 +40,37 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual(state, DEFAULT_STATE);
   });
 
+  test("it supports navigating to deeply nested inactive routes", function (assert) {
+    let router = stackRouter('root', [
+      route('a'),
+      stackRouter('deeply', [
+        stackRouter('nested', [
+          route('b'),
+        ]),
+      ]),
+    ]);
+    let initialState = router.getInitialState();
+    let state = navigate(router, initialState, 'b');
+    assert.deepEqual((state.routes[1] as RouterState).routes, [
+      {
+        "componentName": "ecr-stack",
+        "index": 0,
+        "isTransitioning": false,
+        "key": "StackRouterRoot",
+        "params": {},
+        "routeName": "nested",
+        "routes": [
+          {
+            "componentName": "b",
+            "key": "id-2",
+            "params": null,
+            "routeName": "b"
+          }
+        ]
+      }
+    ]);
+  });
+
   test("it supports nesting", function (assert) {
     let router = stackRouter('root', [
       stackRouter('nested', [
@@ -75,7 +106,6 @@ module('Unit - StackRouter test', function(hooks) {
       ]
     })
 
-    // let state2 = handle(router, NavigationActions.navigate({ routeName: 'foo', key: 'other' }), initialState);
     let state2 = navigate(router, initialState, { routeName: 'foo', key: 'other' });
     assert.deepEqual((state2.routes[0] as RouterState).routes, [
       {
@@ -90,37 +120,6 @@ module('Unit - StackRouter test', function(hooks) {
         "params": undefined,
         "routeName": "foo"
       },
-    ]);
-  });
-
-  test("it supports navigating to deeply nested inactive routes", function (assert) {
-    let router = stackRouter('root', [
-      route('a'),
-      stackRouter('deeply', [
-        stackRouter('nested', [
-          route('b'),
-        ]),
-      ]),
-    ]);
-    let initialState = router.getInitialState();
-    let state = navigate(router, initialState, 'b');
-    assert.deepEqual((state.routes[1] as RouterState).routes, [
-      {
-        "componentName": "ecr-stack",
-        "index": 0,
-        "isTransitioning": false,
-        "key": "StackRouterRoot",
-        "params": {},
-        "routeName": "nested",
-        "routes": [
-          {
-            "componentName": "b",
-            "key": "id-2",
-            "params": undefined,
-            "routeName": "b"
-          }
-        ]
-      }
     ]);
   });
 
@@ -142,14 +141,13 @@ module('Unit - StackRouter test', function(hooks) {
         {
           "componentName": "foo",
           "key": "id-0",
-          "params": undefined,
+          "params": null,
           "routeName": "foo"
         },
         {
           "key": "id-2",
           "params": undefined,
           "routeName": "bar",
-
           "componentName": "bar",
         }
       ]
@@ -160,9 +158,9 @@ module('Unit - StackRouter test', function(hooks) {
     assert.equal(state, state2);
 
     // providing a key causes a push
-    // let state3 = handle(router, NavigationActions.navigate({ routeName: 'bar', key: "lol" }), state2);
     let state3 = navigate(router, state2, { routeName: 'bar', key: "lol" });
     assert.equal(state3.index, 2);
+    assert.equal(state3.routes[2].key, "lol");
   });
 
   test("it supports popping the stack", function (assert) {

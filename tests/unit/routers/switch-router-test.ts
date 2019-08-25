@@ -2,6 +2,7 @@ import { test, module } from 'ember-qunit';
 import { route, switchRouter, stackRouter } from 'ember-constraint-router';
 import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
 import { navigate } from './helpers';
+import { RouterState } from 'ember-constraint-router/-private/routeable';
 
 module('Unit - SwitchRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
@@ -36,12 +37,32 @@ module('Unit - SwitchRouter test', function(hooks) {
     });
   });
 
-  test("navigating between routes causes old routes to be reset", function() {
+  test("navigating between routes causes old routes to be reset", function(assert) {
     let router = buildExampleRouter();
     let initialState = router.getInitialState();
     let state2 = navigate(router, initialState, 'b1');
-    debugger;
-  })
+    assert.equal(state2.index, 1);
+    assert.deepEqual(state2.routes[1], {
+      "componentName": "ecr-stack",
+      "index": 0,
+      "isTransitioning": false,
+      "key": "StackRouterRoot",
+      "params": {},
+      "routeName": "b",
+      "routes": [
+        {
+          "componentName": "b1",
+          "key": "id-8",
+          "params": null,
+          "routeName": "b1"
+        }
+      ]
+    });
+    let state3 = navigate(router, initialState, 'b2');
+    let innerRoute = state3.routes[1] as RouterState;
+    assert.equal(innerRoute.index, 1);
+    assert.deepEqual(innerRoute.routes.map(r => r.routeName), ["b1", "b2"]);
+  });
 });
 
 function buildExampleRouter() {
