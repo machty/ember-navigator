@@ -1,6 +1,7 @@
 body {
   padding: 0;
   margin: 0;
+  font-family: Arial, sans-serif;
 }
 
 .outer-container {
@@ -14,6 +15,13 @@ body {
 
 .app-container {
   background-color: #ccffee;
+}
+
+.app-header {
+  background-color: #5555ff;
+  color: white;
+  font-size: 1.5rem;
+  height: 3rem;
 }
 
 .app-header-title {

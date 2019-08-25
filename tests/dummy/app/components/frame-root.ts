@@ -6,7 +6,9 @@ import layout from '../templates/components/frame-root';
 export default class FrameRoot extends Component {
   layout = layout;
 
-  static Config = class Config {
-    foo = 123;
+  static Config = {
+    header: {
+      title: "Root Header Title"
+    }
   }
 }

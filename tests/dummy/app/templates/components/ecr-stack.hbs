@@ -1,6 +1,7 @@
 <div class="nav-stack">
+  {{ecr-header state=currentState}}
+
   {{#each currentStates key="key" as |s|}}
-    <a href="#" >Back / Pop {{f.id}}</a>
     {{component s.componentName config=s.config}}
   {{/each}}
 </div>

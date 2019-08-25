@@ -3,7 +3,7 @@ import Component from '@ember/component';
 import layout from '../templates/components/ecr-stack';
 import { computed } from '@ember/object';
 import { Router, RouterState, RouteState } from 'ember-constraint-router/-private/routeable';
-import { getOwner } from '@ember/application';
+import { setOwner, getOwner } from '@ember/application';
 
 class RenderedRouteState {
   config: any;
@@ -17,10 +17,17 @@ class RenderedRouteState {
     let Config = factory && factory.class.Config;
 
     if (Config) {
-      this.config = new Config();
+      if (typeof Config === 'object') {
+        this.config = { ...Config };
+      } else {
+        if (typeof Config.create === 'function') {
+          this.config = Config.create();
+        } else {
+          this.config = new Config();
+        }
+        setOwner(this.config, owner);
+      }
     }
-
-    debugger;
   }
 
   destroy() {
