@@ -1,10 +1,17 @@
-import { RouteReducer, RouteableReducer, RouteState } from './routeable';
-import { Action } from './action';
-import { generateKey } from './key-generator';
+import {
+  RouteReducer,
+  RouteableReducer,
+  RouteState,
+  RouterState,
+  UnhandledReducerResult,
+  InitialStateOptions
+} from "./routeable";
+import { generateKey } from "./key-generator";
+import { RouterActions } from "./actions/types";
 
 export type RouteOptions = {
   componentName?: string;
-}
+};
 
 export class Route implements RouteReducer {
   name: string;
@@ -21,14 +28,18 @@ export class Route implements RouteReducer {
     this.componentName = options.componentName || name;
   }
 
-  getInitialState(action: Action) : RouteState {
-    // TODO: the typing is weird/flimsy here; all fields except type are optional on Action
+  getInitialState(options: InitialStateOptions = {}): RouteState {
+    debugger;
     let routeName = this.name;
     return {
-      params: action.params,
+      params: options.params,
       routeName,
-      key: action.key || generateKey(),
-      componentName: routeName,
+      key: options.key || generateKey(),
+      componentName: routeName
     };
+  }
+
+  dispatch(action: RouterActions, state: RouterState): UnhandledReducerResult {
+    return { handled: false };
   }
 }

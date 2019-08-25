@@ -1,38 +1,54 @@
-import * as NavigationActions from '../navigation-actions';
-import * as StackActions from '../stack-actions';
-import { RouteableReducer, RouterReducer, RouterState, RouteState, ReducerResult, RouteableState } from '../routeable';
-import { Action } from '../action';
-import { generateKey } from '../key-generator';
-import StateUtils from '../utils/state';
-import invariant from '../utils/invariant';
-import { BaseRouter, BaseOptions, handledAction } from './base-router';
+import {
+  NAVIGATE,
+  NavigateAction,
+  BACK,
+  RouterActions,
+  POP,
+  PopAction,
+  BackAction
+} from "../actions/types"
+import {
+  RouteableReducer,
+  RouterReducer,
+  RouterState,
+  ReducerResult,
+  InitialStateOptions
+} from "../routeable";
+import StateUtils from "../utils/state";
+import {
+  BaseRouter,
+  BaseOptions,
+  handledAction,
+  unhandledAction
+} from "./base-router";
 
-export interface StackOptions extends BaseOptions { }
-
-function behavesLikePushAction(action) {
-  return (
-    action.type === NavigationActions.NAVIGATE ||
-    action.type === StackActions.PUSH
-  );
-}
+export interface StackOptions extends BaseOptions {}
 
 export class StackRouter extends BaseRouter implements RouterReducer {
   options: StackOptions;
 
-  constructor(name: string, children: RouteableReducer[], options: StackOptions) {
+  constructor(
+    name: string,
+    children: RouteableReducer[],
+    options: StackOptions
+  ) {
     super(name, children, options);
   }
 
-  navigateToPreexisting(action: Action, state: RouterState) : ReducerResult | void {
-    if (!this.childRouteables[action.routeName]) {
+  navigateToPreexisting(
+    action: NavigateAction,
+    state: RouterState
+  ): ReducerResult | void {
+    let navParams = action.payload;
+    if (!this.childRouteables[navParams.routeName]) {
       return;
     }
 
     const lastRouteIndex = state.routes.findIndex(r => {
-      if (action.key) {
-        return r.key === action.key;
+      if (navParams.key) {
+        return r.key === navParams.key;
       } else {
-        return r.routeName === action.routeName;
+        return r.routeName === navParams.routeName;
       }
     });
 
@@ -41,7 +57,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     }
 
     // If index is unchanged and params are not being set, leave state identity intact
-    if (state.index === lastRouteIndex && !action.params) {
+    if (state.index === lastRouteIndex && !navParams.params) {
       return handledAction(state);
     }
 
@@ -49,65 +65,54 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     const routes = state.routes.slice(0, lastRouteIndex + 1);
 
     // Apply params if provided, otherwise leave route identity intact
-    if (action.params) {
+    if (navParams.params) {
       const route = state.routes[lastRouteIndex];
       routes[lastRouteIndex] = {
         ...route,
         params: {
           ...route.params,
-          ...action.params,
-        },
+          ...navParams.params
+        }
       };
     }
     // Return state with new index. Change isTransitioning only if index has changed
     return handledAction({
       ...state,
       isTransitioning:
-        state.index !== lastRouteIndex
-          ? action.immediate !== true
-          : state.isTransitioning,
+        state.index !== lastRouteIndex ? true : state.isTransitioning,
       index: lastRouteIndex,
-      routes,
+      routes
     });
   }
 
-  navigateToNew(action: Action, state: RouterState) : ReducerResult | void {
-    // let childRouter = this.childRouterNamed(action.routeName)
-    let routeable = this.childRouteables[action.routeName]
-
-    let route;
-    if (routeable.isRouter) {
-      // Delegate to the child router with the given action, or init it
-      let childRouter = routeable as RouterReducer;
-
-      const childAction =
-        action.action ||
-        NavigationActions.init({
-          params: this.getParamsForRouteAndAction(action.routeName, action),
+  navigateToNew(action: NavigateAction, state: RouterState): ReducerResult | void {
+    let navParams = action.payload;
+    // TODO: it seems wasteful to deeply recurse on every unknown route.
+    // consider adding a cache, or building one at the beginning?
+    for (let i = 0; i < this.children.length; ++i) {
+      let routeable = this.children[i];
+      if (routeable.name === navParams.routeName) {
+        let initialState = routeable.getInitialState({
+          key: navParams.key
         });
-      route = {
-        params: this.getParamsForRouteAndAction(action.routeName, action),
-        // note(brentvatne): does it make sense to wipe out the params
-        // here? or even to add params at all? need more info about what
-        // this solves
-        ...childRouter.dispatch(childAction),
-        routeName: action.routeName,
-        key: action.key || generateKey(),
-      };
-    } else {
-      // Create the route from scratch
-      route = {
-        params: this.getParamsForRouteAndAction(action.routeName, action),
-        routeName: action.routeName,
-        componentName: action.routeName, // TODO: this seems wrong; also how come no type errors when commented out?
-        key: action.key || generateKey(),
-      };
-    }
+        return handledAction({
+          ...StateUtils.push(state, initialState),
+          isTransitioning: true
+        });
+      } else {
+        let initialState = routeable.getInitialState();
+        // not a match, recurse
 
-    return handledAction({
-      ...StateUtils.push(state, route),
-      isTransitioning: action.immediate !== true,
-    });
+        let navigationResult = routeable.dispatch(action, initialState);
+        if (navigationResult.handled) {
+          let childRouteState = navigationResult.state;
+          return handledAction({
+            ...StateUtils.push(state, childRouteState),
+            isTransitioning: true
+          });
+        }
+      }
+    }
   }
 
   getParamsForRouteAndAction(routeName, action) {
@@ -119,119 +124,117 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     }
   }
 
-  dispatch(action: Action, state: RouterState) {
-    if (action.type === NavigationActions.NAVIGATE) {
-      let nextRouteState = this.delegateNavigationToActiveChildRouters(action, state) ||
-                           this.navigateToPreexisting(action, state) ||
-                           this.navigateToNew(action, state);
-
-      if (nextRouteState) {
-        return nextRouteState;
-      }
+  dispatch(action: RouterActions, state: RouterState) {
+    switch(action.type) {
+      case NAVIGATE:
+        return this.navigate(action, state);
+      case BACK:
+        return this.goBack(action, state);
+      case POP:
+        return this.popStack(action, state);
     }
 
-    if (action.type === StackActions.PUSH) {
-      invariant(action.key == null, 'StackRouter does not support key on the push action');
-    }
-
-    if (
-      action.type === NavigationActions.BACK ||
-      action.type === StackActions.POP
-    ) {
-      let nextRouteState = this.popStack(action, state);
-      if (nextRouteState) {
-        return nextRouteState;
-      }
-    }
-
-    return handledAction(this.getInitialState(action))
+    return unhandledAction();
   }
 
-  popStack(action: Action, state: RouterState) : ReducerResult | void {
-    const { key, n, immediate } = action;
-    let backRouteIndex = state.index;
-    if (action.type === StackActions.POP && n != null) {
-      // determine the index to go back *from*. In this case, n=1 means to go
-      // back from state.index, as if it were a normal "BACK" action
-      backRouteIndex = Math.max(1, state.index - n + 1);
-    } else if (key) {
-      const backRoute = state.routes.find(route => route.key === key);
-      backRouteIndex = backRoute ? state.routes.indexOf(backRoute) : -1;
+  navigate(action: NavigateAction, state: RouterState): ReducerResult {
+    let nextRouteState =
+      this.delegateNavigationToActiveChildRouters(action, state) ||
+      this.navigateToPreexisting(action, state) ||
+      this.navigateToNew(action, state);
+
+    if (nextRouteState) {
+      return nextRouteState;
     }
 
-    if (backRouteIndex > 0) {
-      return handledAction({
+    return unhandledAction();
+  }
+  
+  goBack(action: BackAction, state: RouterState): ReducerResult {
+    let key = action.payload.key;
+    if (key) {
+      // If set, navigation will go back from the given key
+      // const backRoute = state.routes.find(route => route.key === key);
+      // backRouteIndex = backRoute ? state.routes.indexOf(backRoute) : -1;
+      return notImplemented("goBack with key");
+    } else if (key === null) {
+      // navigation will go back anywhere.
+      return notImplemented("goBack with null key");
+    } else {
+      // TODO: what happens here?
+      return notImplemented("goBack with missing key");
+    }
+  }
+
+  popStack(action: PopAction, state: RouterState): ReducerResult {
+    // determine the index to go back *from*. In this case, n=1 means to go
+    // back from state.index, as if it were a normal "BACK" action
+    const n = action.payload.n || 1;
+    const backRouteIndex = Math.max(1, state.index - n + 1);
+
+    return (backRouteIndex > 0) ?
+      handledAction({
         ...state,
         routes: state.routes.slice(0, backRouteIndex),
         index: backRouteIndex - 1,
-        isTransitioning: immediate !== true,
-      });
-    }
+        isTransitioning: true,
+      }) :
+      unhandledAction();
   }
 
-  delegateNavigationToActiveChildRouters(action: Action, state: RouterState) : ReducerResult | void {
+  delegateNavigationToActiveChildRouters(
+    action: NavigateAction,
+    state: RouterState
+  ): ReducerResult | void {
     // Traverse routes from the top of the stack to the bottom, so the
     // active route has the first opportunity, then the one before it, etc.
-    for (let childRoute of state.routes.slice().reverse()) {
-      let childRouter = this.childRouterNamed(childRoute.routeName);
-      if (!childRouter) {
-        continue;
-      }
-
-      let childAction =
-        action.routeName === childRoute.routeName && action.action
-          ? action.action
-          : action;
-
-      const result = childRouter.dispatch(
-        childAction,
-        childRoute
-      );
-
-      if (!result.handled) {
-        continue;
-      }
-
-      let nextRouteState = result.state;
-
-      const newState = StateUtils.replaceAndPrune(
-        state,
-        nextRouteState.key,
-        nextRouteState
-      );
-
-      return handledAction({
-        ...newState,
-        isTransitioning:
-          state.index !== newState.index
-            ? action.immediate !== true
-            : state.isTransitioning,
-      });
+    let reversedStates = state.routes.slice().reverse();
+    let nextRouteState = this.dispatchTo(reversedStates, action);
+    if (!nextRouteState) {
+      return;
     }
-  }
 
-  getInitialState(action: Action) : RouterState {
-    const initialRouteName = this.routeNames[0];
-
-    // TODO: missing default params logic
-
-    let childRouteableState = this.childRouteables[initialRouteName].getInitialState(
-      NavigationActions.navigate({
-        routeName: initialRouteName,
-        params: null
-      })
+    const newState = StateUtils.replaceAndPrune(
+      state,
+      nextRouteState.key,
+      nextRouteState
     );
 
+    return handledAction({
+      ...newState,
+      isTransitioning:
+        state.index !== newState.index ? true : state.isTransitioning
+    });
+  }
+
+  getInitialState(options: InitialStateOptions = {}): RouterState {
+    // this is overloaded
+
+    const initialRouteName = this.routeNames[0];
+
+    //
+    let childRouteableState = this.childRouteables[
+      initialRouteName
+    ].getInitialState({
+      // routeName: initialRouteName,
+      params: null
+    });
+
     return {
-      key: action.key || 'StackRouterRoot',
+      key: options.key || "StackRouterRoot",
       isTransitioning: false,
       index: 0,
-      routes: [ childRouteableState ],
+      routes: [childRouteableState],
       componentName: this.componentName,
 
       // TODO: in RN, the root stack navigator doesn't have params/routeName; are we doing it wrong?
       params: {},
-      routeName: this.name,
+      routeName: this.name
     };
   }
+}
+
+function notImplemented(message) {
+  console.error(`NOT IMPLEMENTED: ${message}`);
+  return unhandledAction();
 }

@@ -1,11 +1,7 @@
 import { test, module } from 'ember-qunit';
-import { route, switchRouter } from 'ember-constraint-router';
+import { route, switchRouter, stackRouter } from 'ember-constraint-router';
 import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
-import * as NavigationActions from 'ember-constraint-router/-private/navigation-actions';
-import * as StackActions from 'ember-constraint-router/-private/stack-actions';
-import { StackRouter } from 'ember-constraint-router/-private/routers/stack-router';
-import { Action } from 'ember-constraint-router/-private/action';
-import { RouterState } from 'ember-constraint-router/-private/routeable';
+import { navigate } from './helpers';
 
 module('Unit - SwitchRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
@@ -15,7 +11,7 @@ module('Unit - SwitchRouter test', function(hooks) {
       route('foo'),
       route('bar'),
     ]);
-    let state = router.getInitialState(NavigationActions.init());
+    let state = router.getInitialState();
     assert.deepEqual(state, {
       "componentName": "ecr-switch",
       "index": 0,
@@ -39,14 +35,28 @@ module('Unit - SwitchRouter test', function(hooks) {
       ]
     });
   });
+
+  test("navigating between routes causes old routes to be reset", function() {
+    let router = buildExampleRouter();
+    let initialState = router.getInitialState();
+    let state2 = navigate(router, initialState, 'b1');
+    debugger;
+  })
 });
 
-function handle(stackRouter: StackRouter, action: Action, state: RouterState) : RouterState {
-  let result = stackRouter.dispatch(action, state);
-
-  if (!result.handled) {
-    throw new Error("expected handled action");
-  }
-
-  return result.state;
+function buildExampleRouter() {
+  return switchRouter('root', [
+    stackRouter('a', [
+      route('a1'),
+      route('a2'),
+    ]),
+    stackRouter('b', [
+      route('b1'),
+      route('b2'),
+    ]),
+    stackRouter('c', [
+      route('c1'),
+      route('c2'),
+    ]),
+  ]);
 }

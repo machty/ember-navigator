@@ -1,18 +1,17 @@
-import EmberObject, { set } from "@ember/object";
+import { set } from "@ember/object";
 import { RouterReducer, RouterState } from "./routeable";
-import { init, navigate } from 'ember-constraint-router/-private/navigation-actions';
-import { pop } from 'ember-constraint-router/-private/stack-actions';
-import { Action } from "./action";
+import { RouterActions } from "./actions/types";
+import { navigate, pop } from "./actions/actions";
 
 export default class MountedRouter {
   router: RouterReducer;
   state: RouterState;
   constructor(router: RouterReducer) {
     this.router = router;
-    this.state = router.getInitialState(init());
+    this.state = router.getInitialState();
   }
 
-  dispatch(action: Action) {
+  dispatch(action: RouterActions) {
     let result = this.router.dispatch(action, this.state);
     if (result.handled) {
       // TODO: dispatch events?

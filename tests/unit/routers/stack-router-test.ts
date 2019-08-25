@@ -1,11 +1,9 @@
 import { test, module } from 'ember-qunit';
 import { route, stackRouter } from 'ember-constraint-router';
 import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
-import * as NavigationActions from 'ember-constraint-router/-private/navigation-actions';
-import * as StackActions from 'ember-constraint-router/-private/stack-actions';
-import { StackRouter } from 'ember-constraint-router/-private/routers/stack-router';
-import { Action } from 'ember-constraint-router/-private/action';
 import { RouterState } from 'ember-constraint-router/-private/routeable';
+import { handle, navigate } from './helpers';
+import { pop } from 'ember-constraint-router/-private/actions/actions';
 
 module('Unit - StackRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
@@ -28,7 +26,7 @@ module('Unit - StackRouter test', function(hooks) {
     "routes": [
       {
         "key": "id-0",
-        "params": undefined,
+        "params": null,
         "routeName": "foo",
         "componentName": "foo",
       }
@@ -38,7 +36,7 @@ module('Unit - StackRouter test', function(hooks) {
   test("it provides a default state", function (assert) {
     let children = [ route('foo') ];
     let router = stackRouter('root', children);
-    let state = router.getInitialState(NavigationActions.init());
+    let state = router.getInitialState();
     assert.deepEqual(state, DEFAULT_STATE);
   });
 
@@ -49,7 +47,7 @@ module('Unit - StackRouter test', function(hooks) {
       ]),
     ]);
 
-    let initialState= router.getInitialState(NavigationActions.init());
+    let initialState= router.getInitialState();
     assert.deepEqual(initialState, {
       "componentName": "ecr-stack",
       "index": 0,
@@ -69,7 +67,7 @@ module('Unit - StackRouter test', function(hooks) {
             {
               "componentName": "foo",
               "key": "id-0",
-              "params": undefined,
+              "params": null,
               "routeName": "foo"
             }
           ]
@@ -77,12 +75,13 @@ module('Unit - StackRouter test', function(hooks) {
       ]
     })
 
-    let state2 = handle(router, NavigationActions.navigate({ routeName: 'foo', key: 'other' }), initialState);
+    // let state2 = handle(router, NavigationActions.navigate({ routeName: 'foo', key: 'other' }), initialState);
+    let state2 = navigate(router, initialState, { routeName: 'foo', key: 'other' });
     assert.deepEqual((state2.routes[0] as RouterState).routes, [
       {
         "componentName": "foo",
         "key": "id-0",
-        "params": undefined,
+        "params": null,
         "routeName": "foo"
       },
       {
@@ -94,13 +93,44 @@ module('Unit - StackRouter test', function(hooks) {
     ]);
   });
 
+  test("it supports navigating to deeply nested inactive routes", function (assert) {
+    let router = stackRouter('root', [
+      route('a'),
+      stackRouter('deeply', [
+        stackRouter('nested', [
+          route('b'),
+        ]),
+      ]),
+    ]);
+    let initialState = router.getInitialState();
+    let state = navigate(router, initialState, 'b');
+    assert.deepEqual((state.routes[1] as RouterState).routes, [
+      {
+        "componentName": "ecr-stack",
+        "index": 0,
+        "isTransitioning": false,
+        "key": "StackRouterRoot",
+        "params": {},
+        "routeName": "nested",
+        "routes": [
+          {
+            "componentName": "b",
+            "key": "id-2",
+            "params": undefined,
+            "routeName": "b"
+          }
+        ]
+      }
+    ]);
+  });
+
   test("it supports navigation", function (assert) {
     let router = stackRouter('root', [
       route('foo'),
       route('bar'),
     ]);
-    let initialState = router.getInitialState(NavigationActions.init());
-    let state = handle(router, NavigationActions.navigate({ routeName: 'bar' }), initialState);
+    let initialState = router.getInitialState();
+    let state = navigate(router, initialState, { routeName: 'bar' });
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
       "index": 1,
@@ -116,7 +146,7 @@ module('Unit - StackRouter test', function(hooks) {
           "routeName": "foo"
         },
         {
-          "key": "id-1",
+          "key": "id-2",
           "params": undefined,
           "routeName": "bar",
 
@@ -126,31 +156,23 @@ module('Unit - StackRouter test', function(hooks) {
     });
 
     // key-less navigation to a route that's already on the stack is a no-op
-    let state2 = handle(router, NavigationActions.navigate({ routeName: 'bar' }), state);
+    let state2 = navigate(router, state, { routeName: 'bar' });
     assert.equal(state, state2);
 
     // providing a key causes a push
-    let state3 = handle(router, NavigationActions.navigate({ routeName: 'bar', key: "lol" }), state2);
+    // let state3 = handle(router, NavigationActions.navigate({ routeName: 'bar', key: "lol" }), state2);
+    let state3 = navigate(router, state2, { routeName: 'bar', key: "lol" });
     assert.equal(state3.index, 2);
   });
 
   test("it supports popping the stack", function (assert) {
     let children = [ route('foo'), route('bar') ];
     let router = stackRouter('root', children);
-    let initialState = router.getInitialState(NavigationActions.init());
+    let initialState = router.getInitialState();
     assert.deepEqual(initialState, DEFAULT_STATE);
-    let state2 = handle(router, NavigationActions.navigate({ routeName: 'bar' }), initialState);
-    let state3 = handle(router, StackActions.pop(), state2);
+    let state2 = navigate(router, initialState, { routeName: 'bar' });
+
+    let state3 = handle(router, pop(), state2);
     assert.deepEqual(state3.routes, DEFAULT_STATE.routes);
   });
 });
-
-function handle(stackRouter: StackRouter, action: Action, state: RouterState) : RouterState {
-  let result = stackRouter.dispatch(action, state);
-
-  if (!result.handled) {
-    throw new Error("expected handled action");
-  }
-
-  return result.state;
-}
