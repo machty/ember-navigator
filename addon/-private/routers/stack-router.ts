@@ -233,7 +233,6 @@ export class StackRouter implements Router {
         nextRouteState
       );
 
-      throw new Error("testme");
       return handledAction({
         ...newState,
         isTransitioning:

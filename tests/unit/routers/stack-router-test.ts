@@ -48,8 +48,8 @@ module('Unit - StackRouter test', function(hooks) {
         route('foo')
       ]),
     ]);
-    let state = router.getInitialState(NavigationActions.init());
-    assert.deepEqual(state, {
+    let initialState= router.getInitialState(NavigationActions.init());
+    assert.deepEqual(initialState, {
       "componentName": "ecr-stack",
       "index": 0,
       "isTransitioning": false,
@@ -75,6 +75,23 @@ module('Unit - StackRouter test', function(hooks) {
         }
       ]
     })
+
+    let state2 = handle(router, NavigationActions.navigate({ routeName: 'foo', key: 'other' }), initialState);
+
+    assert.deepEqual((state2.routes[0] as RouterState).routes, [
+      {
+        "componentName": "foo",
+        "key": "id-0",
+        "params": {},
+        "routeName": "foo"
+      },
+      {
+        "componentName": "foo",
+        "key": "other",
+        "params": undefined,
+        "routeName": "foo"
+      },
+    ]);
   });
 
   test("it supports navigation", function (assert) {
