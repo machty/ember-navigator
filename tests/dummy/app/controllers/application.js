@@ -2,15 +2,21 @@ import Ember from 'ember';
 import { computed } from '@ember/object';
 
 import { mount } from 'ember-constraint-router';
-import { stackRouter, route } from 'ember-constraint-router';
+import { stackRouter, switchRouter, route } from 'ember-constraint-router';
 
 export default Ember.Controller.extend({
   mountedRouter: computed(function() {
     return mount(
-      stackRouter('root', [
-        route('frame-root'),
-        route('frame-tweet'),
-      ]),
+      switchRouter('auth', [
+        stackRouter('login', [
+          route('enter-email'),
+          route('terms-of-service'),
+        ]),
+        stackRouter('root', [
+          route('frame-root'),
+          route('frame-tweet'),
+        ]),
+      ])
     );
   }),
 

@@ -117,6 +117,6 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
   }
 
   resetChildRoute(routeable: RouteableReducer): RouteableState {
-    return routeable.getInitialState();
+    return routeable.getInitialState({ key: routeable.name });
   }
 }

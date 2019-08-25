@@ -23,13 +23,13 @@ module('Unit - SwitchRouter test', function(hooks) {
       "routes": [
         {
           "componentName": "foo",
-          "key": "id-0",
+          "key": "foo",
           "params": undefined,
           "routeName": "foo" ,
         },
         {
           "componentName": "bar",
-          "key": "id-1",
+          "key": "bar",
           "params": undefined,
           "routeName": "bar",
         }
