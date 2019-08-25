@@ -1,13 +1,13 @@
 import EmberObject, { set } from "@ember/object";
-import { Router, RouterState } from "./routeable";
+import { RouterReducer, RouterState } from "./routeable";
 import { init, navigate } from 'ember-constraint-router/-private/navigation-actions';
 import { pop } from 'ember-constraint-router/-private/stack-actions';
 import { Action } from "./action";
 
 export default class MountedRouter {
-  router: Router;
+  router: RouterReducer;
   state: RouterState;
-  constructor(router: Router) {
+  constructor(router: RouterReducer) {
     this.router = router;
     this.state = router.getInitialState(init());
   }

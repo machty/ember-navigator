@@ -1,9 +1,9 @@
 import MountedRouter from "./-private/mounted-router";
-import { Router, RouteState, Routeable } from "./-private/routeable";
+import { RouterReducer, RouteState, RouteableReducer } from "./-private/routeable";
 import { RouteOptions, Route } from "./-private/route";
 import { StackOptions, StackRouter } from "./-private/routers/stack-router";
 
-export function mount(routerMap: Router) : MountedRouter {
+export function mount(routerMap: RouterReducer) : MountedRouter {
   return new MountedRouter(routerMap);
 }
 
@@ -11,7 +11,7 @@ export function route(name: string, options: RouteOptions = {}) {
   return new Route(name, options);
 }
 
-export function stackRouter(name: string, children: Routeable[], options: StackOptions = {}) {
+export function stackRouter(name: string, children: RouteableReducer[], options: StackOptions = {}) {
   return new StackRouter(name, children, options);
 }
 

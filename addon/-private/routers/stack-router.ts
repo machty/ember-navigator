@@ -1,14 +1,13 @@
 import * as NavigationActions from '../navigation-actions';
 import * as StackActions from '../stack-actions';
-import { Routeable, Router, RouterState, RouteState, ReducerResult } from '../routeable';
+import { RouteableReducer, RouterReducer, RouterState, RouteState, ReducerResult, RouteableState } from '../routeable';
 import { Action } from '../action';
 import { generateKey } from '../key-generator';
 import StateUtils from '../utils/state';
 import invariant from '../utils/invariant';
+import { BaseRouter, BaseOptions, handledAction } from './base-router';
 
-export type StackOptions = {
-  componentName?: string;
-}
+export interface StackOptions extends BaseOptions { }
 
 function behavesLikePushAction(action) {
   return (
@@ -17,38 +16,11 @@ function behavesLikePushAction(action) {
   );
 }
 
-function handledAction(state) : ReducerResult {
-  return { handled: true, state };
-}
-
-function unhandledAction(state) : ReducerResult {
-  return { handled: false };
-}
-
-export class StackRouter implements Router {
-  name: string;
-  children: Routeable[];
+export class StackRouter extends BaseRouter implements RouterReducer {
   options: StackOptions;
-  componentName: string;
-  isRouter: true;
-  childRouteables: { [k: string]: Routeable };
-  routeNames: string[];
 
-  constructor(name: string, children: Routeable[], options: StackOptions) {
-    this.isRouter = true;
-    this.name = name;
-    this.children = children;
-    this.options = options;
-    this.routeNames = [];
-    this.childRouteables = {};
-
-
-    children.forEach(c => {
-      this.childRouteables[c.name] = c;
-      this.routeNames.push(c.name);
-    });
-
-    this.componentName = this.options.componentName || "ecr-stack";
+  constructor(name: string, children: RouteableReducer[], options: StackOptions) {
+    super(name, children, options);
   }
 
   navigateToPreexisting(action: Action, state: RouterState) : ReducerResult | void {
@@ -106,7 +78,7 @@ export class StackRouter implements Router {
     let route;
     if (routeable.isRouter) {
       // Delegate to the child router with the given action, or init it
-      let childRouter = routeable as Router;
+      let childRouter = routeable as RouterReducer;
 
       const childAction =
         action.action ||
@@ -197,11 +169,6 @@ export class StackRouter implements Router {
     }
   }
 
-  childRouterNamed(name: string) : Router | null {
-    let child = this.childRouteables[name];
-    return child.isRouter ? child as Router : null;
-  }
-
   delegateNavigationToActiveChildRouters(action: Action, state: RouterState) : ReducerResult | void {
     // Traverse routes from the top of the stack to the bottom, so the
     // active route has the first opportunity, then the one before it, etc.
@@ -246,38 +213,20 @@ export class StackRouter implements Router {
   getInitialState(action: Action) : RouterState {
     const initialRouteName = this.routeNames[0];
 
-    // TODO: make this configurable via config.initialRouteName
-    let initialChildRouter = this.childRouterNamed(initialRouteName);
-    let route = {} as RouteState;
+    // TODO: missing default params logic
 
-    if (initialChildRouter) {
-      route = initialChildRouter.getInitialState(
-        NavigationActions.navigate({
-          routeName: initialRouteName,
-          // TODO: initialRouteParams
-          params: null
-        })
-      )
-    }
-
-    // TODO: flesh out all the ways to merge params.
-    const params = {};
-
-    route = {
-      ...route,
-      params,
-      routeName: initialRouteName,
-      key: action.key || generateKey(),
-
-      // TODO: shouldn't we check the route config for this? RN doesn't because it doesn't have route config
-      componentName: initialRouteName,
-    };
+    let childRouteableState = this.childRouteables[initialRouteName].getInitialState(
+      NavigationActions.navigate({
+        routeName: initialRouteName,
+        params: null
+      })
+    );
 
     return {
-      key: 'StackRouterRoot',
+      key: action.key || 'StackRouterRoot',
       isTransitioning: false,
       index: 0,
-      routes: [ route ],
+      routes: [ childRouteableState ],
       componentName: this.componentName,
 
       // TODO: in RN, the root stack navigator doesn't have params/routeName; are we doing it wrong?

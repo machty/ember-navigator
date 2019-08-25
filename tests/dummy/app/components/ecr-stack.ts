@@ -2,7 +2,7 @@ import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-stack';
 import { computed, set } from '@ember/object';
-import { Router, RouterState, RouteState } from 'ember-constraint-router/-private/routeable';
+import { RouterReducer, RouterState, RouteState } from 'ember-constraint-router/-private/routeable';
 import { setOwner, getOwner } from '@ember/application';
 
 class RenderedRouteState {
@@ -94,6 +94,6 @@ export default class EcrStack extends Component.extend({
   }
 }) {
   layout = layout;
-  routerMap: Router;
+  routerMap: RouterReducer;
   state: RouterState;
 };

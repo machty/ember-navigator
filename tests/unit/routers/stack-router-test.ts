@@ -28,7 +28,7 @@ module('Unit - StackRouter test', function(hooks) {
     "routes": [
       {
         "key": "id-0",
-        "params": {},
+        "params": undefined,
         "routeName": "foo",
         "componentName": "foo",
       }
@@ -48,6 +48,7 @@ module('Unit - StackRouter test', function(hooks) {
         route('foo')
       ]),
     ]);
+
     let initialState= router.getInitialState(NavigationActions.init());
     assert.deepEqual(initialState, {
       "componentName": "ecr-stack",
@@ -58,17 +59,17 @@ module('Unit - StackRouter test', function(hooks) {
       "routeName": "root",
       "routes": [
         {
-          "componentName": "nested",
+          "componentName": "ecr-stack",
           "index": 0,
           "isTransitioning": false,
-          "key": "id-1",
+          "key": "StackRouterRoot",
           "params": {},
           "routeName": "nested",
           "routes": [
             {
               "componentName": "foo",
               "key": "id-0",
-              "params": {},
+              "params": undefined,
               "routeName": "foo"
             }
           ]
@@ -77,12 +78,11 @@ module('Unit - StackRouter test', function(hooks) {
     })
 
     let state2 = handle(router, NavigationActions.navigate({ routeName: 'foo', key: 'other' }), initialState);
-
     assert.deepEqual((state2.routes[0] as RouterState).routes, [
       {
         "componentName": "foo",
         "key": "id-0",
-        "params": {},
+        "params": undefined,
         "routeName": "foo"
       },
       {
@@ -112,7 +112,7 @@ module('Unit - StackRouter test', function(hooks) {
         {
           "componentName": "foo",
           "key": "id-0",
-          "params": {},
+          "params": undefined,
           "routeName": "foo"
         },
         {
@@ -141,6 +141,7 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual(initialState, DEFAULT_STATE);
     let state2 = handle(router, NavigationActions.navigate({ routeName: 'bar' }), initialState);
     let state3 = handle(router, StackActions.pop(), state2);
+    assert.deepEqual(state3.routes, DEFAULT_STATE.routes);
   });
 });
 

@@ -7,22 +7,12 @@ export interface RouteableState {
   componentName: string;
 };
 
-export interface RouteState extends RouteableState {
-  key: string;
-}
+export interface RouteState extends RouteableState { }
 
 export interface RouterState extends RouteableState {
   isTransitioning: boolean;
   index: number;
   routes: RouteState[];
-};
-
-export interface Routeable {
-  name: string;
-  children: Routeable[];
-  componentName: string; // TODO: remove?
-  isRouter: boolean;
-  params?: any;
 };
 
 export type HandledReducerResult = {
@@ -36,7 +26,20 @@ export type UnhandledReducerResult = {
 
 export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 
-export interface Router extends Routeable {
+export interface RouteableReducer {
+  name: string;
+  children: RouteableReducer[];
+  isRouter: boolean;
+  params?: any;
+  getInitialState: (action: Action) => RouteableState;
+};
+
+export interface RouteReducer extends RouteableReducer {
+  isRouter: false;
+  getInitialState: (action: Action) => RouteState;
+}
+
+export interface RouterReducer extends RouteableReducer {
   isRouter: true;
   dispatch: (action: Action, state?: any) => ReducerResult;
   getInitialState: (action: Action) => RouterState;
