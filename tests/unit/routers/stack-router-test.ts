@@ -2,6 +2,7 @@ import { test, module } from 'ember-qunit';
 import { route, stackRouter } from 'ember-constraint-router/map';
 import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
 import * as NavigationActions from 'ember-constraint-router/-private/navigation-actions';
+import * as StackActions from 'ember-constraint-router/-private/stack-actions';
 import { StackRouter } from 'ember-constraint-router/-private/routers/stack-router';
 import { Action } from 'ember-constraint-router/-private/action';
 import { RouterState } from 'ember-constraint-router/-private/routeable';
@@ -17,26 +18,28 @@ module('Unit - StackRouter test', function(hooks) {
     assert.equal(stackRouter2.componentName, "x-foo");
   });
 
+  const DEFAULT_STATE = {
+    "componentName": "ecr-stack",
+    "isTransitioning": false,
+    "key": "StackRouterRoot",
+    "params": {},
+    "routeName": "root",
+    "index": 0,
+    "routes": [
+      {
+        "key": "id-0",
+        "params": {},
+        "routeName": "foo",
+        "componentName": "foo",
+      }
+    ]
+  }
+
   test("it provides a default state", function (assert) {
     let children = [ route('foo') ];
     let router = stackRouter('root', children);
     let state = router.getInitialState(NavigationActions.init());
-    assert.deepEqual(state, {
-      "componentName": "ecr-stack",
-      "isTransitioning": false,
-      "key": "StackRouterRoot",
-      "params": {},
-      "routeName": "root",
-      "index": 0,
-      "routes": [
-        {
-          "key": "id-0",
-          "params": {},
-          "routeName": "foo",
-          "componentName": "foo",
-        }
-      ]
-    });
+    assert.deepEqual(state, DEFAULT_STATE);
   });
 
   test("it supports nesting", function (assert) {
@@ -112,6 +115,15 @@ module('Unit - StackRouter test', function(hooks) {
     // providing a key causes a push
     let state3 = handle(router, NavigationActions.navigate({ routeName: 'bar', key: "lol" }), state2);
     assert.equal(state3.index, 2);
+  });
+
+  test("it supports popping the stack", function (assert) {
+    let children = [ route('foo'), route('bar') ];
+    let router = stackRouter('root', children);
+    let initialState = router.getInitialState(NavigationActions.init());
+    assert.deepEqual(initialState, DEFAULT_STATE);
+    let state2 = handle(router, NavigationActions.navigate({ routeName: 'bar' }), initialState);
+    let state3 = handle(router, StackActions.pop(), state2);
   });
 });
 

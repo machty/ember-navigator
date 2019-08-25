@@ -1,7 +1,12 @@
 <div class="nav-stack">
-  {{ecr-header state=currentState}}
+  {{ecr-header
+      state=currentState
+      mountedRouter=this.mountedRouter}}
 
   {{#each currentStates key="key" as |s|}}
-    {{component s.componentName config=s.config state=s.routeState}}
+    {{component s.componentName
+        config=s.config
+        state=s.routeState
+        mountedRouter=this.mountedRouter}}
   {{/each}}
 </div>

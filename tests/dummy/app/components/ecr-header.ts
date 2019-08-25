@@ -5,10 +5,12 @@ import { readOnly } from '@ember/object/computed';
 
 export default class EcrHeader extends Component.extend({
   headerConfig: readOnly('state.config.header'),
+  mountedRouter: null,
 
   actions: {
     leftButton() {
-      alert('leftButton')
+      // TODO: omg how do I type this
+      this.mountedRouter.pop();
     }
   }
 }) {

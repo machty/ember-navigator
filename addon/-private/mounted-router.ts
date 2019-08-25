@@ -1,6 +1,7 @@
 import EmberObject, { set } from "@ember/object";
 import { Router, RouterState } from "./routeable";
 import { init, navigate } from 'ember-constraint-router/-private/navigation-actions';
+import { pop } from 'ember-constraint-router/-private/stack-actions';
 import { Action } from "./action";
 
 export default class MountedRouter {
@@ -21,5 +22,9 @@ export default class MountedRouter {
 
   navigate(options) {
     this.dispatch(navigate(options));
+  }
+
+  pop(options?) {
+    this.dispatch(pop(options));
   }
 }

@@ -162,7 +162,41 @@ export class StackRouter implements Router {
       invariant(action.key == null, 'StackRouter does not support key on the push action');
     }
 
+    if (
+      action.type === NavigationActions.BACK ||
+      action.type === StackActions.POP
+    ) {
+      let nextRouteState = this.popStack(action, state);
+      if (nextRouteState) {
+        return nextRouteState;
+      }
+    }
+
     return handledAction(this.getInitialState(action))
+  }
+
+  popStack(action: Action, state: RouterState) : ReducerResult | void {
+    // TODO: test me
+
+    const { key, n, immediate } = action;
+    let backRouteIndex = state.index;
+    if (action.type === StackActions.POP && n != null) {
+      // determine the index to go back *from*. In this case, n=1 means to go
+      // back from state.index, as if it were a normal "BACK" action
+      backRouteIndex = Math.max(1, state.index - n + 1);
+    } else if (key) {
+      const backRoute = state.routes.find(route => route.key === key);
+      backRouteIndex = backRoute ? state.routes.indexOf(backRoute) : -1;
+    }
+
+    if (backRouteIndex > 0) {
+      return handledAction({
+        ...state,
+        routes: state.routes.slice(0, backRouteIndex),
+        index: backRouteIndex - 1,
+        isTransitioning: immediate !== true,
+      });
+    }
   }
 
   childRouterNamed(name: string) : Router | null {

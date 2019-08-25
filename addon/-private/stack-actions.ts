@@ -5,7 +5,7 @@ export const RESET = 'Navigation/RESET';
 export const REPLACE = 'Navigation/REPLACE';
 export const COMPLETE_TRANSITION = 'Navigation/COMPLETE_TRANSITION';
 
-export const pop = payload => ({
+export const pop = (payload?) => ({
   type: POP,
   ...payload,
 });
