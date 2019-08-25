@@ -22,9 +22,21 @@ export interface Routeable {
   children: Routeable[];
   componentName: string; // TODO: remove?
   isRouter: boolean;
+  params?: object;
 };
+
+export type HandledReducerResult = {
+  handled: true;
+  state: RouterState;
+}
+
+export type UnhandledReducerResult = {
+  handled: false;
+}
+
+export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 
 export interface Router extends Routeable {
   isRouter: true;
-  getStateForAction: (action: Action, state?: any) => RouterState;
+  getStateForAction: (action: Action, state?: any) => ReducerResult;
 }

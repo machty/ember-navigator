@@ -23,7 +23,14 @@ export const init = (payload: any = {}) => {
   return action;
 };
 
-export const navigate = payload => {
+export type NavigateParams = {
+  routeName: string;
+  params?: any;
+  action?: Action;
+  key?: string;
+}
+
+export const navigate = (payload: NavigateParams) => {
   const action: Action = {
     type: NAVIGATE,
     routeName: payload.routeName,
