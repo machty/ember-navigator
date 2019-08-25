@@ -1,17 +1,16 @@
 import Ember from 'ember';
 import { computed } from '@ember/object';
-import { readOnly } from '@ember/object/computed';
 
-import { stackNavigator, route } from 'ember-constraint-router/map';
+import { mount } from 'ember-constraint-router';
+import { stackRouter, route } from 'ember-constraint-router/map';
 
 export default Ember.Controller.extend({
-  frames: readOnly('navStack.frames'),
-  navStack: readOnly(`navStacks.lastObject`),
-
-  routerMap: computed(function() {
-    return stackNavigator('root', [
-      route('frame-root'),
-      route('frame-tweet'),
+  mountedRouter: computed(function() {
+    return mount([
+      stackRouter('root', [
+        route('frame-root'),
+        route('frame-tweet'),
+      ]),
     ]);
   }),
 
@@ -20,7 +19,7 @@ export default Ember.Controller.extend({
     if (options.key === "GENERATE_UUID") {
       normalizedOptions.key = `uuid-${Math.floor(Math.random() * 10000000)}`;
     }
-    this.customRouter.navigate(options);
+    this.mountedRouter.navigate(options);
   },
 
   links: [

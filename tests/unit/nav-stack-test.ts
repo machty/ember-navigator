@@ -2,9 +2,9 @@
 import { test, module } from 'ember-qunit';
 import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack'
 import Ember from 'ember';
-import { route, stackNavigator } from 'ember-constraint-router/map';
+import { route, stackRouter } from 'ember-constraint-router/map';
 
-let routerMap = stackNavigator('root', [
+let routerMap = stackRouter('root', [
   route('normal'),
   route('diff_path', { path: 'custom_path' }),
   route('dynamic_route', { path: 'foo/:fun_id' }),

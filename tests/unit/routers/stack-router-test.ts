@@ -1,5 +1,5 @@
 import { test, module } from 'ember-qunit';
-import { route, stackNavigator } from 'ember-constraint-router/map';
+import { route, stackRouter } from 'ember-constraint-router/map';
 import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
 import * as NavigationActions from 'ember-constraint-router/-private/navigation-actions';
 import { StackRouter } from 'ember-constraint-router/-private/routers/stack-router';
@@ -11,16 +11,16 @@ module('Unit - StackRouter test', function(hooks) {
 
   test("it provides an overridable componentName", function (assert) {
     let children = [ route('foo') ];
-    let stackRouter1 = stackNavigator('root', children);
-    let stackRouter2 = stackNavigator('root', children, { componentName: "x-foo" });
+    let stackRouter1 = stackRouter('root', children);
+    let stackRouter2 = stackRouter('root', children, { componentName: "x-foo" });
     assert.equal(stackRouter1.componentName, "ecr-stack");
     assert.equal(stackRouter2.componentName, "x-foo");
   });
 
   test("it provides a default state", function (assert) {
     let children = [ route('foo') ];
-    let stackRouter = stackNavigator('root', children);
-    let state = stackRouter.getInitialState(NavigationActions.init());
+    let router = stackRouter('root', children);
+    let state = router.getInitialState(NavigationActions.init());
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
       "isTransitioning": false,
@@ -40,12 +40,12 @@ module('Unit - StackRouter test', function(hooks) {
   });
 
   test("it supports nesting", function (assert) {
-    let stackRouter = stackNavigator('root', [
-      stackNavigator('nested', [
+    let router = stackRouter('root', [
+      stackRouter('nested', [
         route('foo')
       ]),
     ]);
-    let state = stackRouter.getInitialState(NavigationActions.init());
+    let state = router.getInitialState(NavigationActions.init());
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
       "index": 0,
@@ -75,12 +75,12 @@ module('Unit - StackRouter test', function(hooks) {
   });
 
   test("it supports navigation", function (assert) {
-    let stackRouter = stackNavigator('root', [
+    let router = stackRouter('root', [
       route('foo'),
       route('bar'),
     ]);
-    let initialState = stackRouter.getInitialState(NavigationActions.init());
-    let state = handle(stackRouter, NavigationActions.navigate({ routeName: 'bar' }), initialState);
+    let initialState = router.getInitialState(NavigationActions.init());
+    let state = handle(router, NavigationActions.navigate({ routeName: 'bar' }), initialState);
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
       "index": 1,
@@ -106,11 +106,11 @@ module('Unit - StackRouter test', function(hooks) {
     });
 
     // key-less navigation to a route that's already on the stack is a no-op
-    let state2 = handle(stackRouter, NavigationActions.navigate({ routeName: 'bar' }), state);
+    let state2 = handle(router, NavigationActions.navigate({ routeName: 'bar' }), state);
     assert.equal(state, state2);
 
     // providing a key causes a push
-    let state3 = handle(stackRouter, NavigationActions.navigate({ routeName: 'bar', key: "lol" }), state2);
+    let state3 = handle(router, NavigationActions.navigate({ routeName: 'bar', key: "lol" }), state2);
     assert.equal(state3.index, 2);
   });
 });

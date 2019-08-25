@@ -6,6 +6,6 @@ export function route(name: string, options: RouteOptions = {}) {
   return new Route(name, options);
 }
 
-export function stackNavigator(name: string, children: Routeable[], options: StackOptions = {}) {
+export function stackRouter(name: string, children: Routeable[], options: StackOptions = {}) {
   return new StackRouter(name, children, options);
 }

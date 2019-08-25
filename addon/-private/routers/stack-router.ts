@@ -5,7 +5,6 @@ import { Action } from '../action';
 import { generateKey } from '../key-generator';
 import StateUtils from '../utils/state';
 import invariant from '../utils/invariant';
-import Route from '@ember/routing/route';
 
 export type StackOptions = {
   componentName?: string;
