@@ -6,12 +6,12 @@ import { stackRouter, route } from 'ember-constraint-router/map';
 
 export default Ember.Controller.extend({
   mountedRouter: computed(function() {
-    return mount([
+    return mount(
       stackRouter('root', [
         route('frame-root'),
         route('frame-tweet'),
       ]),
-    ]);
+    );
   }),
 
   navigate(options) {
@@ -19,7 +19,7 @@ export default Ember.Controller.extend({
     if (options.key === "GENERATE_UUID") {
       normalizedOptions.key = `uuid-${Math.floor(Math.random() * 10000000)}`;
     }
-    this.mountedRouter.navigate(options);
+    this.mountedRouter.navigate(normalizedOptions);
   },
 
   links: [
@@ -30,6 +30,7 @@ export default Ember.Controller.extend({
         { key: "a" },
         { key: "b" },
         { key: "c" },
+        { key: "GENERATE_UUID" },
       ]
     },
     {
