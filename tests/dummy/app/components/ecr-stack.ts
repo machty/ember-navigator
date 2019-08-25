@@ -1,7 +1,7 @@
 import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-stack';
-import { computed } from '@ember/object';
+import { computed, set } from '@ember/object';
 import { Router, RouterState, RouteState } from 'ember-constraint-router/-private/routeable';
 import { setOwner, getOwner } from '@ember/application';
 
@@ -9,6 +9,8 @@ class RenderedRouteState {
   config: any;
   routeState: RouteState;
   componentName: string;
+  updateConfig: boolean;
+  setState(_state: RouteState) : void { }
 
   constructor(routeState: RouteState, owner: any) {
     this.routeState = routeState;
@@ -19,13 +21,16 @@ class RenderedRouteState {
     if (Config) {
       if (typeof Config === 'object') {
         this.config = { ...Config };
+        this.updateConfig = false;
       } else {
         if (typeof Config.create === 'function') {
-          this.config = Config.create();
+          this.config = Config.create({ state: routeState });
         } else {
-          this.config = new Config();
+          this.config = new Config(routeState);
         }
+        this.setState = (state: RouteState) => set(this.config, 'state', state);
         setOwner(this.config, owner);
+        this.updateConfig = true;
       }
     }
   }
@@ -42,25 +47,27 @@ export default class EcrStack extends Component.extend({
     return [this.currentState];
   }),
 
-  currentState: computed('routerState', function() {
-    let routerState = this.routerState as RouterState;
-    let currentRouteState = routerState.routes[routerState.index];
+  currentState: computed('state', function() {
+    let state = this.state as RouterState;
+    let currentRouteState = state.routes[state.index];
     return this.activeRouteStates[currentRouteState.key];
   }),
 
   _previousRouteStates: null,
-  activeRouteStates: computed('routerState', function() {
-    let routerState = this.routerState as RouterState;
+  activeRouteStates: computed('state', function() {
+    let state = this.state as RouterState;
 
     let previousRouteStates: { [k: string] : RenderedRouteState } = this._previousRouteStates || {};
     let nextRouteStates: { [k: string] : RenderedRouteState } = {};
 
     // TODO: do this in reverse?
-    routerState.routes.map(route => {
+    state.routes.map(route => {
       let key = route.key;
       let routeState = previousRouteStates[key];
 
-      if (!routeState) {
+      if (routeState) {
+        routeState.setState(route);
+      } else {
         routeState = new RenderedRouteState(route, getOwner(this));
       }
 
@@ -88,5 +95,5 @@ export default class EcrStack extends Component.extend({
 }) {
   layout = layout;
   routerMap: Router;
-  routerState: RouterState;
+  state: RouterState;
 };

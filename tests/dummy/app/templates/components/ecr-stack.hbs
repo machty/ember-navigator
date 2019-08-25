@@ -2,6 +2,6 @@
   {{ecr-header state=currentState}}
 
   {{#each currentStates key="key" as |s|}}
-    {{component s.componentName config=s.config}}
+    {{component s.componentName config=s.config state=s.routeState}}
   {{/each}}
 </div>

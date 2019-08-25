@@ -3,7 +3,7 @@ import { Action } from './action';
 export interface RouteableState {
   key: string;
   routeName: string;
-  params: object;
+  params: any;
   componentName: string;
 };
 
@@ -22,7 +22,7 @@ export interface Routeable {
   children: Routeable[];
   componentName: string; // TODO: remove?
   isRouter: boolean;
-  params?: object;
+  params?: any;
 };
 
 export type HandledReducerResult = {
