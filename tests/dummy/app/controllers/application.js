@@ -2,7 +2,7 @@ import Ember from 'ember';
 import { computed } from '@ember/object';
 
 import { mount } from 'ember-constraint-router';
-import { stackRouter, route } from 'ember-constraint-router/map';
+import { stackRouter, route } from 'ember-constraint-router';
 
 export default Ember.Controller.extend({
   mountedRouter: computed(function() {

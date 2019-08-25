@@ -1,5 +1,5 @@
 import { test, module } from 'ember-qunit';
-import { route, stackRouter } from 'ember-constraint-router/map';
+import { route, stackRouter } from 'ember-constraint-router';
 import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
 import * as NavigationActions from 'ember-constraint-router/-private/navigation-actions';
 import * as StackActions from 'ember-constraint-router/-private/stack-actions';

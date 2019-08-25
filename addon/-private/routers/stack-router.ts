@@ -176,8 +176,6 @@ export class StackRouter implements Router {
   }
 
   popStack(action: Action, state: RouterState) : ReducerResult | void {
-    // TODO: test me
-
     const { key, n, immediate } = action;
     let backRouteIndex = state.index;
     if (action.type === StackActions.POP && n != null) {

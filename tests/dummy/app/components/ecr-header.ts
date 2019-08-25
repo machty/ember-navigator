@@ -9,8 +9,7 @@ export default class EcrHeader extends Component.extend({
 
   actions: {
     leftButton() {
-      // TODO: omg how do I type this
-      this.mountedRouter.pop();
+      (this as any).mountedRouter.pop();
     }
   }
 }) {
