@@ -63,6 +63,23 @@ module('Unit - SwitchRouter test', function(hooks) {
     assert.equal(innerRoute.index, 1);
     assert.deepEqual(innerRoute.routes.map(r => r.routeName), ["b1", "b2"]);
   });
+
+  test("no-op navigation within active route results in same state object being returned", function(assert) {
+    let router = buildExampleRouter();
+    let initialState = router.getInitialState();
+    let state2 = navigate(router, initialState, 'a1');
+    assert.equal(initialState, state2);
+  });
+
+  test("navigation within active route", function(assert) {
+    let router = buildExampleRouter();
+    let initialState = router.getInitialState();
+    let state2 = navigate(router, initialState, 'a2');
+    assert.notEqual(state2, initialState);
+    assert.equal(state2.index, 0);
+    let newNestedRoute = (state2.routes[0] as RouterState);
+    assert.equal(newNestedRoute.index, 1);
+  });
 });
 
 function buildExampleRouter() {

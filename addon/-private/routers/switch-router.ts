@@ -35,16 +35,12 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
     if (nextRouteState) {
       if (activeRouteState === nextRouteState) {
         // action was handled with no change, just return prior state
-        debugger;
         return handledAction(state);
       } else {
         // action was handled and state changed; we're not switching between
         // routes, but merely updating the current one.
         let routes = [...state.routes];
-        routes[state.index] = activeRouteState;
-
-        // TODO: TEST
-        debugger;
+        routes[state.index] = nextRouteState;
         return handledAction({
           ...state,
           routes
