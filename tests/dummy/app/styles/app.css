@@ -38,3 +38,9 @@ footer {
   right: 0;
   padding: 2rem;
 }
+
+pre {
+  margin: 0;
+  margin-left: 3px;
+  font-size: 11px;
+}
