@@ -2,29 +2,12 @@
 
 **Note: Very Very Alpha**
 
-This repo houses various Ember routing experiments that fall under the
-umbrella of "constraint routing", i.e. the ability to "route" or navigate
-by more things than just the URL (this is expecially useful for WebSocket-driven
-mobile apps like Uber/Lyft). This repo also includes experiments with mobile
-navigation stacks (like iOS's UINavigationController) that might be extracted
-into a separate library at a later date once the primitives settle.
+This probably shouldn't be called "constraint-router" any more, at least
+not until I reintroduce the concepts of constraints.
 
-Relevant links for the background/ground motivation for this:
-
-- [ember-constraint-router demo](https://www.youtube.com/watch?v=RwdKn-EfzgE)
-- [EmberNYC meetup haphazard lightning talk](https://youtu.be/dhfTPJJXuJ4?t=444)
-- [ember-rideshare](https://www.dunningpostor.com/ember-rideshare/)
-
-This is totally not ready for public consumption and currently relies on a
-[fork](https://github.com/machty/ember.js/tree/dynamic-scope)
-of Ember 3.1 (which consists of literally a
-[single line of code change](https://github.com/machty/ember.js/commit/d7d903acdfda7f36600a9c2db0437b21e09cbef3));
-I'm currently testing out a lot of these patterns on FutureProofRetail.com apps and if all
-goes well hopefully we can land an RFC or two to enable officially-sanctioned addon
-experimentation with "scoped services" and other dynamic scope use cases.
-
-If you're interesting to get involved or talk about this stuff, hit up the
-`#router-ideas` channel in the Ember Community Slack.
+The current focus is landing an Ember-equivalent API of
+[React Navigation](https://reactnavigation.org/) library, which is a
+robust, battle-tested, and well designed navigation solution.
 
 ## Installation
 
