@@ -38,6 +38,6 @@ export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 
 export interface Router extends Routeable {
   isRouter: true;
-  getStateForAction: (action: Action, state?: any) => ReducerResult;
+  dispatch: (action: Action, state?: any) => ReducerResult;
   getInitialState: (action: Action) => RouterState;
 }

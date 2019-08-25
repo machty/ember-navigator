@@ -116,7 +116,7 @@ module('Unit - StackRouter test', function(hooks) {
 });
 
 function handle(stackRouter: StackRouter, action: Action, state: RouterState) : RouterState {
-  let result = stackRouter.getStateForAction(action, state);
+  let result = stackRouter.dispatch(action, state);
 
   if (!result.handled) {
     throw new Error("expected handled action");

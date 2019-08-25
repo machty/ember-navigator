@@ -119,7 +119,7 @@ export class StackRouter implements Router {
         // note(brentvatne): does it make sense to wipe out the params
         // here? or even to add params at all? need more info about what
         // this solves
-        ...childRouter.getStateForAction(childAction),
+        ...childRouter.dispatch(childAction),
         routeName: action.routeName,
         key: action.key || generateKey(),
       };
@@ -148,7 +148,7 @@ export class StackRouter implements Router {
     }
   }
 
-  getStateForAction(action: Action, state: RouterState) {
+  dispatch(action: Action, state: RouterState) {
     if (action.type === NavigationActions.NAVIGATE) {
       let nextRouteState = this.delegateNavigationToActiveChildRouters(action, state) ||
                            this.navigateToPreexisting(action, state) ||
@@ -185,7 +185,7 @@ export class StackRouter implements Router {
           ? action.action
           : action;
 
-      const result = childRouter.getStateForAction(
+      const result = childRouter.dispatch(
         childAction,
         childRoute
       );
