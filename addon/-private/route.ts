@@ -23,7 +23,7 @@ export class Route implements RouteReducer {
 
   getInitialState(action: Action) : RouteState {
     // TODO: the typing is weird/flimsy here; all fields except type are optional on Action
-    let routeName = action.routeName;
+    let routeName = this.name;
     return {
       params: action.params,
       routeName,

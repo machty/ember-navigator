@@ -17,12 +17,13 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
   }
 
   getInitialState(action: Action) : RouterState {
+    let childRoutes = this.children.map(c => this.resetChildRoute(c));
     return {
       key: "SwitchRouterBase",
       params: undefined,
       routeName: this.name,
       componentName: "ecr-switch",
-      routes: this.children.map(c => this.resetChildRoute(c)),
+      routes: childRoutes,
       index: 0,
       isTransitioning: false,
     };
