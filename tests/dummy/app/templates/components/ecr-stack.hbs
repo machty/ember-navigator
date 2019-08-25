@@ -1,7 +1,6 @@
 <div class="nav-stack">
-  {{#each visibleFrames key="id" as |f|}}
+  {{#each currentStates key="key" as |s|}}
     <a href="#" >Back / Pop {{f.id}}</a>
-    {{component f.componentName}}
-    {{!component f.componentName route=f.route value=f.value provided=f.providedValues}}
+    {{component s.componentName config=s.config}}
   {{/each}}
 </div>

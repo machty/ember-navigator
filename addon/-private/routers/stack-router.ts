@@ -94,7 +94,6 @@ export class StackRouter implements Router {
       componentName: initialRouteName,
     };
 
-    // QUESTION
     return {
       key: 'StackRouterRoot',
       isTransitioning: false,

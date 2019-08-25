@@ -1,3 +1,4 @@
+/*
 import { test, module } from 'ember-qunit';
 import { NavStack } from 'ember-constraint-router/-private/nav-stack/nav-stack'
 import Ember from 'ember';
@@ -83,3 +84,4 @@ function compareArray(assert, actual, expected) {
     keys.forEach(k => assert.deepEqual(a[k], b[k]));
   }
 }
+*/
