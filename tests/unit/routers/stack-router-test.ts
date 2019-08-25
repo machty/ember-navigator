@@ -20,7 +20,7 @@ module('Unit - StackRouter test', function(hooks) {
   test("it provides a default state", function (assert) {
     let children = [ route('foo') ];
     let stackRouter = stackNavigator('root', children);
-    let state = handle(stackRouter, NavigationActions.init(), null)
+    let state = stackRouter.getInitialState(NavigationActions.init());
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
       "isTransitioning": false,
@@ -45,7 +45,7 @@ module('Unit - StackRouter test', function(hooks) {
         route('foo')
       ]),
     ]);
-    let state = handle(stackRouter, NavigationActions.init(), null);
+    let state = stackRouter.getInitialState(NavigationActions.init());
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
       "index": 0,
@@ -79,7 +79,7 @@ module('Unit - StackRouter test', function(hooks) {
       route('foo'),
       route('bar'),
     ]);
-    let initialState = handle(stackRouter, NavigationActions.init(), null);
+    let initialState = stackRouter.getInitialState(NavigationActions.init());
     let state = handle(stackRouter, NavigationActions.navigate({ routeName: 'bar' }), initialState);
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
@@ -98,7 +98,9 @@ module('Unit - StackRouter test', function(hooks) {
         {
           "key": "id-1",
           "params": undefined,
-          "routeName": "bar"
+          "routeName": "bar",
+
+          "componentName": "bar",
         }
       ]
     });
@@ -110,13 +112,12 @@ module('Unit - StackRouter test', function(hooks) {
     // providing a key causes a push
     let state3 = handle(stackRouter, NavigationActions.navigate({ routeName: 'bar', key: "lol" }), state2);
     assert.equal(state3.index, 2);
-
   });
-
 });
 
-function handle(stackRouter: StackRouter, action: Action, state: RouterState | null) : RouterState {
+function handle(stackRouter: StackRouter, action: Action, state: RouterState) : RouterState {
   let result = stackRouter.getStateForAction(action, state);
+
   if (!result.handled) {
     throw new Error("expected handled action");
   }

@@ -128,6 +128,7 @@ export class StackRouter implements Router {
       route = {
         params: this.getParamsForRouteAndAction(action.routeName, action),
         routeName: action.routeName,
+        componentName: action.routeName, // TODO: this seems wrong; also how come no type errors when commented out?
         key: action.key || generateKey(),
       };
     }
@@ -147,17 +148,7 @@ export class StackRouter implements Router {
     }
   }
 
-  // https://github.com/react-navigation/native/blob/708442b438125bbfeb975ccf18b70d64d2847e5f/src/createAppContainer.js#L389
-  getStateForAction(action: Action, state: RouterState | null) {
-    if (!state) {
-      return handledAction(this.getInitialState(action))
-    }
-
-    invariant(
-      action.type !== StackActions.PUSH || action.key == null,
-      'StackRouter does not support key on the push action'
-    );
-
+  getStateForAction(action: Action, state: RouterState) {
     if (action.type === NavigationActions.NAVIGATE) {
       let nextRouteState = this.delegateNavigationToActiveChildRouters(action, state) ||
                            this.navigateToPreexisting(action, state) ||
@@ -168,31 +159,11 @@ export class StackRouter implements Router {
       }
     }
 
-    if (behavesLikePushAction(action) && this.childRouteables[action.routeName]) {
-
+    if (action.type === StackActions.PUSH) {
+      invariant(action.key == null, 'StackRouter does not support key on the push action');
     }
 
     return handledAction(this.getInitialState(action))
-    /*
-
-    return {
-      key: 'StackRouterRoot',
-      routeName: this.name,
-      params: action.params,
-      isTransitioning: false,
-      componentName: this.componentName,
-      index: 0,
-      routes: [
-        {
-          params: action.params,
-          // ...childState,
-          
-          key: action.key || generateKey(),
-          routeName: action.routeName,
-        },
-      ],
-    };
-    */
   }
 
   childRouterNamed(name: string) : Router | null {
@@ -250,16 +221,13 @@ export class StackRouter implements Router {
     let route = {} as RouteState;
 
     if (initialChildRouter) {
-      let result = initialChildRouter.getStateForAction(
+      route = initialChildRouter.getInitialState(
         NavigationActions.navigate({
           routeName: initialRouteName,
           // TODO: initialRouteParams
           params: null
         })
-      );
-      if (result.handled) {
-        route = result.state;
-      }
+      )
     }
 
     // TODO: flesh out all the ways to merge params.

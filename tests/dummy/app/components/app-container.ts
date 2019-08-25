@@ -12,6 +12,6 @@ export default class AppContainer extends Component.extend({
   routerState: RouterState;
 
   willInsertElement() {
-    this.routerState = this.routerMap.getStateForAction(NavigationActions.init());
+    this.routerState = this.routerMap.getInitialState(NavigationActions.init());
   }
 };
