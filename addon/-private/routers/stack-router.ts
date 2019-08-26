@@ -8,7 +8,6 @@ import {
   BackAction
 } from "../actions/types";
 import {
-  RouteableReducer,
   RouterReducer,
   RouterState,
   ReducerResult,
@@ -25,25 +24,6 @@ import {
 export interface StackOptions extends BaseOptions {}
 
 export class StackRouter extends BaseRouter implements RouterReducer {
-  options: StackOptions;
-
-  constructor(
-    name: string,
-    children: RouteableReducer[],
-    options: StackOptions
-  ) {
-    super(name, children, options);
-  }
-
-  getParamsForRouteAndAction(routeName, action) {
-    let routeConfig = this.childRouteables[routeName];
-    if (routeConfig && routeConfig.params) {
-      return { ...routeConfig.params, ...action.params };
-    } else {
-      return action.params;
-    }
-  }
-
   dispatch(action: RouterActions, state: RouterState) {
     switch (action.type) {
       case NAVIGATE:
@@ -161,7 +141,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     }
   }
 
-  goBack(action: BackAction, state: RouterState): ReducerResult {
+  goBack(action: BackAction, _state: RouterState): ReducerResult {
     let key = action.payload.key;
     if (key) {
       // If set, navigation will go back from the given key
@@ -214,7 +194,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
   }
 }
 
-function notImplemented(message) {
+function notImplemented(message: string) {
   console.error(`NOT IMPLEMENTED: ${message}`);
   return unhandledAction();
 }

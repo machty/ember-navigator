@@ -1,4 +1,4 @@
-export default function invariant(condition, format, a?, b?, c?, d?, e?, f?) {
+export default function invariant(condition: any, format: string, a?: any, b?: any, c?: any, d?: any, e?: any, f?: any) {
   if (!condition) {
     var error;
     if (format === undefined) {
@@ -16,7 +16,7 @@ export default function invariant(condition, format, a?, b?, c?, d?, e?, f?) {
       error.name = 'Invariant Violation';
     }
 
-    error.framesToPop = 1; // we don't care about invariant's own frame
+    (error as any).framesToPop = 1; // we don't care about invariant's own frame
     throw error;
   }
 }

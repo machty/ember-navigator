@@ -11,7 +11,7 @@ export interface BaseOptions {
   componentName?: string;
 }
 
-export function handledAction(state): ReducerResult {
+export function handledAction(state: RouterState): ReducerResult {
   return { handled: true, state };
 }
 

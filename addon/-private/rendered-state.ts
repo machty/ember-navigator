@@ -6,7 +6,6 @@ export class RenderedRouteState {
   config: any;
   routeState: RouteState;
   componentName: string;
-  updateConfig: boolean;
   setConfigState(_state: RouteState) : void { }
 
   constructor(routeState: RouteState, owner: any) {
@@ -18,7 +17,6 @@ export class RenderedRouteState {
     if (Config) {
       if (typeof Config === 'object') {
         this.config = { ...Config };
-        this.updateConfig = false;
       } else {
         if (typeof Config.create === 'function') {
           this.config = Config.create({ state: routeState });
@@ -27,7 +25,6 @@ export class RenderedRouteState {
         }
         this.setConfigState = (state: RouteState) => set(this.config, 'state', state);
         setOwner(this.config, owner);
-        this.updateConfig = true;
       }
     }
   }

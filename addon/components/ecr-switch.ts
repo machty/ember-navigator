@@ -3,10 +3,8 @@ import Component from '@ember/component';
 import layout from '../templates/components/ecr-switch';
 import { computed } from '@ember/object';
 import { RouterState } from 'ember-constraint-router/-private/routeable';
-import { recomputeStateSet, RenderedRouteState } from 'ember-constraint-router/-private/rendered-state';
+import { recomputeStateSet } from 'ember-constraint-router/-private/rendered-state';
 import { getOwner } from '@ember/application';
-import ComputedProperty, { readOnly } from '@ember/object/computed';
-import Ember from 'ember';
 
 export default class EcrSwitch extends Component.extend({
   currentStates: computed('currentState', function() {
@@ -28,6 +26,6 @@ export default class EcrSwitch extends Component.extend({
   }),
 }) {
   layout = layout;
-  state: RouterState;
+  state?: RouterState;
 };
 

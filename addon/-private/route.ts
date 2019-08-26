@@ -38,7 +38,8 @@ export class Route implements RouteReducer {
     };
   }
 
-  dispatch(action: RouterActions, state: RouterState): UnhandledReducerResult {
+  // TODO: remove this?
+  dispatch(_action: RouterActions, _state: RouterState): UnhandledReducerResult {
     return { handled: false };
   }
 }

@@ -23,6 +23,7 @@ import {
   REPLACE,
   ReplaceParams,
   ReplaceAction,
+  SetParamsAction
 } from "./types";
 
 export const back = (payload: BackParams = {}): BackAction => ({
@@ -38,8 +39,9 @@ export const navigate = (payload: NavigateParams): NavigateAction => {
   return { type: NAVIGATE, payload };
 };
 
-export const setParams = (payload: SetParamsParams) => ({
-  type: SET_PARAMS
+export const setParams = (payload: SetParamsParams): SetParamsAction => ({
+  type: SET_PARAMS,
+  payload
 });
 
 export const pop = (payload: PopParams = {}): PopAction => ({

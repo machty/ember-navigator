@@ -4,9 +4,16 @@
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
     "noImplicitThis": true,
-    "noEmitOnError": false,
+    "alwaysStrict": true,
     "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noEmitOnError": false,
     "noEmit": true,
     "inlineSourceMap": true,
     "inlineSources": true,
@@ -26,15 +33,23 @@
       "ember-constraint-router/*": [
         "addon/*"
       ],
+      "ember-constraint-router/test-support": [
+        "addon-test-support"
+      ],
+      "ember-constraint-router/test-support/*": [
+        "addon-test-support/*"
+      ],
       "*": [
         "types/*"
       ]
     }
   },
   "include": [
-    "app",
-    "addon",
-    "tests",
-    "types"
+    "app/**/*",
+    "addon/**/*",
+    "tests/**/*",
+    "types/**/*",
+    "test-support/**/*",
+    "addon-test-support/**/*"
   ]
 }

@@ -1,6 +1,6 @@
 import { set } from "@ember/object";
 import { RouterReducer, RouterState } from "./routeable";
-import { RouterActions } from "./actions/types";
+import { RouterActions, NavigateParams, PopParams } from "./actions/types";
 import { navigate, pop } from "./actions/actions";
 
 export default class MountedRouter {
@@ -19,11 +19,11 @@ export default class MountedRouter {
     }
   }
 
-  navigate(options) {
+  navigate(options: NavigateParams) {
     this.dispatch(navigate(options));
   }
 
-  pop(options?) {
+  pop(options: PopParams) {
     this.dispatch(pop(options));
   }
 }

@@ -13,22 +13,10 @@ import {
   unhandledAction
 } from "./base-router";
 import { RouterActions, NAVIGATE, NavigateAction } from "../actions/types";
-import StateUtils from "../utils/state";
-import invariant from "../utils/invariant";
 
 export interface SwitchOptions extends BaseOptions {}
 
 export class SwitchRouter extends BaseRouter implements RouterReducer {
-  options: SwitchOptions;
-
-  constructor(
-    name: string,
-    children: RouteableReducer[],
-    options: SwitchOptions
-  ) {
-    super(name, children, options);
-  }
-
   dispatch(action: RouterActions, state: RouterState) {
     let activeRouteState = state.routes[state.index];
     let nextRouteState = this.dispatchTo([activeRouteState], action);
