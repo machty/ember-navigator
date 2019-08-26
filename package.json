@@ -22,7 +22,7 @@
   "dependencies": {
     "ember-cli-babel": "^7.10.0",
     "ember-cli-htmlbars": "^2.0.1",
-    "ember-cli-typescript": "^2.0.2",
+    "ember-cli-typescript": "https://github.com/typed-ember/ember-cli-typescript",
     "ember-maybe-import-regenerator": "^0.1.6",
     "process-nextick-args": "^1.0.7",
     "util-deprecate": "^1.0.2"
@@ -62,6 +62,7 @@
     "ember-resolver": "^4.0.0",
     "ember-source": "^3.1.12",
     "loader.js": "^4.2.3",
+    "ts-node": "8.3.0",
     "typescript": "^3.5.3"
   },
   "engines": {
