@@ -5,10 +5,17 @@ import { computed } from '@ember/object';
 import { RouterState } from 'ember-constraint-router/-private/routeable';
 import { recomputeStateSet } from 'ember-constraint-router/-private/rendered-state';
 import { getOwner } from '@ember/application';
+// import { toLeft, toRight } from 'ember-animated/transitions/move-over';
+import move from 'ember-animated/motions/move';
+import { fadeOut, fadeIn } from 'ember-animated/motions/opacity';
+import fade from 'ember-animated/transitions/fade';
+import { easeOut, easeIn } from 'ember-animated/easings/cosine';
+
 
 export default class EcrStack extends Component.extend({
   currentStates: computed('currentState', function() {
-    return [this.currentState];
+    let state = this.state as RouterState;
+    return state.routes.map(r => this.activeRouteStates[r.key]);
   }),
 
   currentState: computed('state', function() {
@@ -24,6 +31,21 @@ export default class EcrStack extends Component.extend({
       getOwner(this),
       this._previousRouteStates || {});
   }),
+
+  * transition({ insertedSprites, keptSprites, removedSprites }) {
+    insertedSprites.forEach(sprite => {
+      sprite.startAtPixel({ x: 300 });
+      sprite.applyStyles({ 'z-index': 1 });
+      move(sprite, { easing: easeOut });
+    });
+
+    removedSprites.forEach(sprite => {
+      sprite.startAtPixel({ x: 0 });
+      sprite.endAtPixel({ x: 300 });
+      sprite.applyStyles({ 'z-index': 1 });
+      move(sprite, { easing: easeOut });
+    });
+  },
 }) {
   layout = layout;
   state: RouterState;

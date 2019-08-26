@@ -3,10 +3,12 @@
       state=currentState
       mountedRouter=this.mountedRouter}}
 
-  {{#each currentStates key="key" as |s|}}
-    {{component s.componentName
-        config=s.config
-        state=s.routeState
-        mountedRouter=this.mountedRouter}}
-  {{/each}}
+  {{#animated-each currentStates key="key" use=transition duration=150 as |s|}}
+    <div class="stack-frame">
+      {{component s.componentName
+          config=s.config
+          state=s.routeState
+          mountedRouter=this.mountedRouter}}
+    </div>
+  {{/animated-each}}
 </div>

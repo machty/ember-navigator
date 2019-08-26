@@ -30,17 +30,6 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
   }
 
   dispatch(action: RouterActions, state: RouterState) {
-    switch(action.type) {
-      case NAVIGATE:
-        return this.navigate(action, state);
-    }
-
-    return unhandledAction();
-  }
-
-  navigate(action: NavigateAction, state: RouterState): ReducerResult {
-    // TODO: params!
-
     let activeRouteState = state.routes[state.index];
     let nextRouteState = this.dispatchTo([activeRouteState], action);
     if (nextRouteState) {
@@ -59,9 +48,20 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       }
     }
 
+    switch(action.type) {
+      case NAVIGATE:
+        return this.navigate(action, state);
+    }
+
+    return unhandledAction();
+  }
+
+  navigate(action: NavigateAction, state: RouterState): ReducerResult {
+    // TODO: params!
+
+    let activeRouteState = state.routes[state.index];
     let routeName = action.payload.routeName;
     if (activeRouteState.routeName === routeName) {
-      // TODO: params
       return handledAction(state);
     }
 

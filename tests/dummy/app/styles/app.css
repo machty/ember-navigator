@@ -19,9 +19,24 @@ body {
   margin-bottom: 15px;
 }
 
-.app-container, .nav-stack {
+.app-container, .nav-stack, .stack-frame {
   width: 300px;
   height: 500px;
+  position: relative;
+}
+
+.nav-stack {
+  overflow: hidden;
+}
+
+.stack-frame {
+  top: 3rem;
+  left: 0;
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid rgba(0,0,0,0.3);
+  /* background: white; */
+  background: rgba(255,255,255,0.3)
 }
 
 .app-container {
@@ -33,6 +48,7 @@ body {
   color: white;
   font-size: 1.5rem;
   height: 3rem;
+  line-height: 3rem;
 }
 
 .app-header-title {
@@ -46,4 +62,9 @@ pre {
   margin: 0;
   margin-left: 3px;
   font-size: 11px;
+}
+
+a.back-button {
+  text-decoration: none;
+  color: white;
 }
