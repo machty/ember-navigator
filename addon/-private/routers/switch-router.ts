@@ -30,7 +30,16 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
   }
 
   dispatch(action: RouterActions, state: RouterState) {
-    debugger;
+    switch(action.type) {
+      case NAVIGATE:
+        return this.navigate(action, state);
+    }
+
+    return unhandledAction();
+  }
+
+  navigate(action: NavigateAction, state: RouterState): ReducerResult {
+    // TODO: params!
 
     let activeRouteState = state.routes[state.index];
     let nextRouteState = this.dispatchTo([activeRouteState], action);
@@ -50,57 +59,51 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       }
     }
 
-    if (action.type === NAVIGATE) {
-      return this.navigateAway(action, state);
+    let routeName = action.payload.routeName;
+    if (activeRouteState.routeName === routeName) {
+      // TODO: params
+      return handledAction(state);
     }
 
-    return unhandledAction();
+    return this.navigateAway(action, state);
   }
 
   navigateAway(action: NavigateAction, state: RouterState): ReducerResult {
-    let navParams = action.payload;
-
     // TODO: it seems wasteful to deeply recurse on every unknown route.
     // consider adding a cache, or building one at the beginning?
     for (let i = 0; i < this.children.length; ++i) {
+      if (state.index === i) {
+        // skip the active route, which we already checked.
+        continue;
+      }
+
       let routeable = this.children[i];
-      if (routeable.name === navParams.routeName) {
-        // let initialState = this.resetChildRoute(routeable);
-        let initialState = routeable.getInitialState({
-          key: navParams.key
-        });
-        return handledAction({
-          ...StateUtils.push(state, initialState),
-          isTransitioning: true
-        });
+      let initialChildRouteState = this.resetChildRoute(routeable);
+      if (routeable.name === action.payload.routeName) {
+        return this.switchToRoute(state, initialChildRouteState, i);
       } else if (routeable.isRouter) {
-        // Didn't find a matching route, but we can recurse into the router
-        // to see if the route lives in there.
-        let router = routeable as RouterReducer;
-        let initialState = this.resetChildRoute(router);
-        let navigationResult = routeable.dispatch(action, initialState);
-
+        let navigationResult = routeable.dispatch(action, initialChildRouteState);
         if (navigationResult.handled) {
-          // We found the route. Now we need to replace this one.
-          let routes = [...state.routes];
-          let childRouteState = navigationResult.state;
-
-          invariant(i !== state.index, "indexes shouldn't match because we've already checked the active child route");
-
-          routes[state.index] = this.resetChildRoute(this.children[state.index]);
-          routes[i] = childRouteState;
-
-          return handledAction({
-            ...state,
-            routes,
-            index: i,
-            isTransitioning: true
-          });
+          return this.switchToRoute(state, navigationResult.state, i);
         }
       }
     }
 
     return unhandledAction();
+  }
+
+  switchToRoute(state: RouterState, childRouteState: RouteableState, i: number) {
+    let routes = [...state.routes];
+
+    routes[state.index] = this.resetChildRoute(this.children[state.index]);
+    routes[i] = childRouteState;
+
+    return handledAction({
+      ...state,
+      routes,
+      index: i,
+      isTransitioning: true
+    });
   }
 
   getInitialState(options: InitialStateOptions = {}): RouterState {

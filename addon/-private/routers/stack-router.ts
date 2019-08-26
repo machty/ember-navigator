@@ -6,7 +6,7 @@ import {
   POP,
   PopAction,
   BackAction
-} from "../actions/types"
+} from "../actions/types";
 import {
   RouteableReducer,
   RouterReducer,
@@ -33,6 +33,66 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     options: StackOptions
   ) {
     super(name, children, options);
+  }
+
+  getParamsForRouteAndAction(routeName, action) {
+    let routeConfig = this.childRouteables[routeName];
+    if (routeConfig && routeConfig.params) {
+      return { ...routeConfig.params, ...action.params };
+    } else {
+      return action.params;
+    }
+  }
+
+  dispatch(action: RouterActions, state: RouterState) {
+    switch (action.type) {
+      case NAVIGATE:
+        return this.navigate(action, state);
+      case BACK:
+        return this.goBack(action, state);
+      case POP:
+        return this.popStack(action, state);
+    }
+
+    return unhandledAction();
+  }
+
+  navigate(action: NavigateAction, state: RouterState): ReducerResult {
+    let nextRouteState =
+      this.delegateNavigationToActiveChildRouters(action, state) ||
+      this.navigateToPreexisting(action, state) ||
+      this.navigateToNew(action, state);
+
+    if (nextRouteState) {
+      return nextRouteState;
+    }
+
+    return unhandledAction();
+  }
+
+  delegateNavigationToActiveChildRouters(
+    action: NavigateAction,
+    state: RouterState
+  ): ReducerResult | void {
+    // Traverse routes from the top of the stack to the bottom, so the
+    // active route has the first opportunity, then the one before it, etc.
+    let reversedStates = state.routes.slice().reverse();
+    let nextRouteState = this.dispatchTo(reversedStates, action);
+    if (!nextRouteState) {
+      return;
+    }
+
+    const newState = StateUtils.replaceAndPrune(
+      state,
+      nextRouteState.key,
+      nextRouteState
+    );
+
+    return handledAction({
+      ...newState,
+      isTransitioning:
+        state.index !== newState.index ? true : state.isTransitioning
+    });
   }
 
   navigateToPreexisting(
@@ -85,7 +145,10 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     });
   }
 
-  navigateToNew(action: NavigateAction, state: RouterState): ReducerResult | void {
+  navigateToNew(
+    action: NavigateAction,
+    state: RouterState
+  ): ReducerResult | void {
     let navParams = action.payload;
     // TODO: it seems wasteful to deeply recurse on every unknown route.
     // consider adding a cache, or building one at the beginning?
@@ -115,41 +178,6 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     }
   }
 
-  getParamsForRouteAndAction(routeName, action) {
-    let routeConfig = this.childRouteables[routeName];
-    if (routeConfig && routeConfig.params) {
-      return { ...routeConfig.params, ...action.params };
-    } else {
-      return action.params;
-    }
-  }
-
-  dispatch(action: RouterActions, state: RouterState) {
-    switch(action.type) {
-      case NAVIGATE:
-        return this.navigate(action, state);
-      case BACK:
-        return this.goBack(action, state);
-      case POP:
-        return this.popStack(action, state);
-    }
-
-    return unhandledAction();
-  }
-
-  navigate(action: NavigateAction, state: RouterState): ReducerResult {
-    let nextRouteState =
-      this.delegateNavigationToActiveChildRouters(action, state) ||
-      this.navigateToPreexisting(action, state) ||
-      this.navigateToNew(action, state);
-
-    if (nextRouteState) {
-      return nextRouteState;
-    }
-
-    return unhandledAction();
-  }
-  
   goBack(action: BackAction, state: RouterState): ReducerResult {
     let key = action.payload.key;
     if (key) {
@@ -172,39 +200,14 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     const n = action.payload.n || 1;
     const backRouteIndex = Math.max(1, state.index - n + 1);
 
-    return (backRouteIndex > 0) ?
-      handledAction({
-        ...state,
-        routes: state.routes.slice(0, backRouteIndex),
-        index: backRouteIndex - 1,
-        isTransitioning: true,
-      }) :
-      unhandledAction();
-  }
-
-  delegateNavigationToActiveChildRouters(
-    action: NavigateAction,
-    state: RouterState
-  ): ReducerResult | void {
-    // Traverse routes from the top of the stack to the bottom, so the
-    // active route has the first opportunity, then the one before it, etc.
-    let reversedStates = state.routes.slice().reverse();
-    let nextRouteState = this.dispatchTo(reversedStates, action);
-    if (!nextRouteState) {
-      return;
-    }
-
-    const newState = StateUtils.replaceAndPrune(
-      state,
-      nextRouteState.key,
-      nextRouteState
-    );
-
-    return handledAction({
-      ...newState,
-      isTransitioning:
-        state.index !== newState.index ? true : state.isTransitioning
-    });
+    return backRouteIndex > 0
+      ? handledAction({
+          ...state,
+          routes: state.routes.slice(0, backRouteIndex),
+          index: backRouteIndex - 1,
+          isTransitioning: true
+        })
+      : unhandledAction();
   }
 
   getInitialState(options: InitialStateOptions = {}): RouterState {

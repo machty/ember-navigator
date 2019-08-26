@@ -52,7 +52,7 @@ module('Unit - SwitchRouter test', function(hooks) {
       "routes": [
         {
           "componentName": "b1",
-          "key": "id-8",
+          "key": "id-5",
           "params": null,
           "routeName": "b1"
         }
@@ -72,42 +72,23 @@ module('Unit - SwitchRouter test', function(hooks) {
     ]);
 
     let initialState = router.getInitialState();
-    assert.equal(initialState.routes[0].key, "b");
-    debugger;
-    // maybe it doesn't make sure to link to "root", because something above it always needs to whatever.
+    debugger
     let state2 = navigate(router, initialState, 'b');
-    // let state3 = navigate(router, state2, 'root');
-    // debugger;
-    // assert.deepEqual(state2.routes[1], {
-    // });
+    assert.equal(initialState, state2);
   });
 
-  test("WAT navigating to the parent route if a route you're in should be a no-op", function(assert) {
+  test("navigating away", function(assert) {
     let router = switchRouter('root', [
       route('a'),
+      route('b'),
     ]);
 
     let initialState = router.getInitialState();
-    debugger;
-    let state2 = navigate(router, initialState, 'root');
-    let state3 = navigate(router, state2, 'root');
-    debugger;
-    // assert.deepEqual(state2.routes[1], {
-    // });
+    let state2 = navigate(router, initialState, 'b');
+    assert.equal(state2.index, 1);
+    let state3 = navigate(router, state2, 'a');
+    assert.equal(state3.index, 0);
   });
-
-  // test("navigating between deeply nested routes causes old routes to be reset", function(assert) {
-  //   let router = switchRouter('root', [
-  //     route('a'),
-  //     route('b'),
-  //   ]);
-
-  //   let initialState = router.getInitialState();
-  //   let state2 = navigate(router, initialState, 'b');
-  //   let state3 = navigate(router, state2, 'a');
-  //   // assert.deepEqual(state2.routes[1], {
-  //   // });
-  // });
 
   test("no-op navigation within active route results in same state object being returned", function(assert) {
     let router = buildExampleRouter();
