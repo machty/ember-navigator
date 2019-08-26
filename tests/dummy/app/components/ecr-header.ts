@@ -1,7 +1,8 @@
 import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-header';
-import { readOnly } from '@ember/object/computed';
+import ComputedProperty, { readOnly } from '@ember/object/computed';
+import Ember from 'ember';
 
 export default class EcrHeader extends Component.extend({
   headerConfig: readOnly('state.config.header'),

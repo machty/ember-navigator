@@ -2,7 +2,8 @@ import {
   RouteableReducer,
   RouterReducer,
   RouteState,
-  ReducerResult
+  ReducerResult,
+  RouterState
 } from "../routeable";
 import { RouterActions } from "../actions/types";
 
@@ -52,7 +53,7 @@ export class BaseRouter {
     return child.isRouter ? (child as RouterReducer) : null;
   }
 
-  dispatchTo(routeStates: RouteState[], action: RouterActions) {
+  dispatchTo(routeStates: RouteState[], action: RouterActions) : RouterState | void {
     for (let routeState of routeStates) {
       let routeable = this.childRouteables[routeState.routeName];
 
