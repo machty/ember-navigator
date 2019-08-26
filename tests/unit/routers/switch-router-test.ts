@@ -72,7 +72,6 @@ module('Unit - SwitchRouter test', function(hooks) {
     ]);
 
     let initialState = router.getInitialState();
-    debugger
     let state2 = navigate(router, initialState, 'b');
     assert.equal(initialState, state2);
   });

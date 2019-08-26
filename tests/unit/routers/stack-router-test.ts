@@ -173,4 +173,19 @@ module('Unit - StackRouter test', function(hooks) {
     let state3 = handle(router, pop(), state2);
     assert.deepEqual(state3.routes, DEFAULT_STATE.routes);
   });
+
+  test("it supports navigating with params", function (assert) {
+    let router = stackRouter('root', [ route('foo') ]);
+    let state = router.getInitialState();
+    let state2 = navigate(router, state,  { routeName: 'foo', key: "1", params: { id: 4 } });
+    let state3 = navigate(router, state2, { routeName: 'foo', key: "2", params: { id: 5 }  });
+    let state4 = navigate(router, state3, { routeName: 'foo', key: "3", params: { id: 6 }  });
+    let allParams = state4.routes.map(r => ({ params: r.params }))
+    assert.deepEqual(allParams, [
+      { "params": null },
+      { "params": { "id": 4 } },
+      { "params": { "id": 5 } },
+      { "params": { "id": 6 } }
+    ]);
+  });
 });

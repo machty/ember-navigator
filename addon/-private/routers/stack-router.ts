@@ -58,16 +58,10 @@ export class StackRouter extends BaseRouter implements RouterReducer {
   }
 
   navigate(action: NavigateAction, state: RouterState): ReducerResult {
-    let nextRouteState =
-      this.delegateNavigationToActiveChildRouters(action, state) ||
-      this.navigateToPreexisting(action, state) ||
-      this.navigateToNew(action, state);
-
-    if (nextRouteState) {
-      return nextRouteState;
-    }
-
-    return unhandledAction();
+    return this.delegateNavigationToActiveChildRouters(action, state) ||
+           this.navigateToPreexisting(action, state) ||
+           this.navigateToNew(action, state) ||
+           unhandledAction();
   }
 
   delegateNavigationToActiveChildRouters(
@@ -156,7 +150,8 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       let routeable = this.children[i];
       if (routeable.name === navParams.routeName) {
         let initialState = routeable.getInitialState({
-          key: navParams.key
+          key: navParams.key,
+          params: navParams.params,
         });
         return handledAction({
           ...StateUtils.push(state, initialState),
