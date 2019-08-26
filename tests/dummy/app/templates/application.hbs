@@ -48,11 +48,12 @@
 
   <div class="debug-info">
     <p>
-      Router State<br>
-      Like "outlet" state in vanilla Ember, this is built up
+      Router State
+    </p>
+    <p>
+      Like "outlet" state in vanilla Ember (or redux reducer state), this is built up
       by the various routers and passed to the various navigator
-      components for rendering;
-      <br><br>
+      components for rendering.
     </p>
     <pre>{{json-stringify mountedRouter.state pretty=true}}</pre>
   </div>
