@@ -72,5 +72,9 @@
     "configPath": "tests/dummy/config",
     "demoURL": "http://machty.github.io/ember-constraint-router"
   },
-  "homepage": "https://machty.github.io/ember-constraint-router"
+  "homepage": "https://machty.github.io/ember-constraint-router",
+  "resolutions": {
+    "**/**/ember-cli-babel": "^7.10.0"
+  }
+
 }
