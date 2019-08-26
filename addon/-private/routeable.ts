@@ -25,11 +25,9 @@ export type UnhandledReducerResult = {
 
 export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 
-// TODO: it seems weird to share initialization params between routes, stack routers, etc
 export type InitialStateOptions = {
   key?: string;
   params?: any;
-  // routeName?: string;
 }
 
 export interface RouteableReducer {

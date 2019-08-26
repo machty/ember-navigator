@@ -65,7 +65,7 @@ module('Unit - StackRouter test', function(hooks) {
             "routeName": "b"
           }
         ]
-      }
+      } as RouterState
     ]);
   });
 
@@ -76,7 +76,7 @@ module('Unit - StackRouter test', function(hooks) {
       ]),
     ]);
 
-    let initialState= router.getInitialState();
+    let initialState = router.getInitialState();
     assert.deepEqual(initialState, {
       "componentName": "ecr-stack",
       "index": 0,
@@ -98,7 +98,7 @@ module('Unit - StackRouter test', function(hooks) {
               "routeName": "foo"
             }
           ]
-        }
+        } as RouterState
       ]
     })
 

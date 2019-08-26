@@ -20,24 +20,26 @@
     "postpublish": "ember ts:clean"
   },
   "dependencies": {
-    "ember-cli-babel": "^6.6.0",
+    "ember-cli-htmlbars": "^2.0.1",
+    "ember-cli-typescript": "^2.0.2",
     "ember-maybe-import-regenerator": "^0.1.6",
     "process-nextick-args": "^1.0.7",
-    "util-deprecate": "^1.0.2",
-    "ember-cli-htmlbars": "^2.0.1"
+    "util-deprecate": "^1.0.2"
   },
   "devDependencies": {
-    "@types/ember": "^2.8.16",
-    "@types/ember-qunit": "^3.0.1",
-    "@types/ember-test-helpers": "^0.7.1",
+    "@types/ember": "^3.1.0",
+    "@types/ember-qunit": "^3.4.6",
+    "@types/ember-test-helpers": "^1.0.5",
     "@types/ember-testing-helpers": "^0.0.3",
-    "@types/qunit": "^2.5.0",
-    "@types/rsvp": "^4.0.1",
+    "@types/ember__test-helpers": "^0.7.8",
+    "@types/qunit": "^2.9.0",
+    "@types/rsvp": "^4.0.3",
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^3.0.0",
     "ember-animated": "^0.7.0",
     "ember-app-scheduler": "^0.2.1",
-    "ember-cli": "^3.0.0",
+    "ember-cli": "^3.12.0",
+    "ember-cli-babel": "^7.10.0",
     "ember-cli-dependency-checker": "^2.0.0",
     "ember-cli-deploy": "^1.0.2",
     "ember-cli-deploy-build": "^1.1.1",
@@ -49,7 +51,7 @@
     "ember-cli-qunit": "^4.3.2",
     "ember-cli-shims": "^1.1.0",
     "ember-cli-sri": "^2.1.0",
-    "ember-cli-typescript": "typed-ember/ember-cli-typescript",
+    "ember-cli-typescript-blueprints": "^2.0.0",
     "ember-cli-uglify": "^2.0.0",
     "ember-code-snippet": "^3.0.0",
     "ember-disable-prototype-extensions": "^1.1.2",
@@ -60,7 +62,7 @@
     "ember-resolver": "^4.0.0",
     "ember-source": "^3.1.12",
     "loader.js": "^4.2.3",
-    "typescript": "^2.7.2"
+    "typescript": "^3.5.3"
   },
   "engines": {
     "node": "^4.5 || 6.* || >= 7.*"

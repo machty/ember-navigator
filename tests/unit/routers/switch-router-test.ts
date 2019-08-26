@@ -55,7 +55,7 @@ module('Unit - SwitchRouter test', function(hooks) {
           "routeName": "b1"
         }
       ]
-    });
+    } as RouterState);
     let state3 = navigate(router, initialState, 'b2');
     let innerRoute = state3.routes[1] as RouterState;
     assert.equal(innerRoute.index, 1);
