@@ -8,6 +8,17 @@ body {
   display: flex;
 }
 
+.debug-info {
+  max-width: 400px;
+  padding: 15px;
+  /* margin: 0 15px; */
+}
+
+.debug-info p {
+  margin: 0;
+  margin-bottom: 15px;
+}
+
 .app-container, .nav-stack {
   width: 300px;
   height: 500px;
@@ -29,14 +40,6 @@ body {
   top: 10px;
   width: 100%;
   text-align: center;
-}
-
-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 2rem;
 }
 
 pre {

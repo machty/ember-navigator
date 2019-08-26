@@ -1,26 +1,59 @@
 <div class="outer-container">
   {{app-container mountedRouter=mountedRouter}}
 
-  <pre>{{json-stringify mountedRouter.state pretty=true}}</pre>
+  <div class="debug-info">
+    <p>
+      This is a demo of a new router I've been working on.
+      It's still operating under the name "ember-constraint-router",
+      but I haven't yet introduced constraint-based routing into it;
+      instead, I'm focusing on bringing the best aspects of React Navigation
+      to this library. RN is a brilliant and elegant solution to
+      the complexities of mobile routing. 
+    </p>
+    <p>
+      The demo is still very ugly, but try clicking some of the links below
+      and watch how the state changes.
+    </p>
+    <p>Note: GENERATE_UUID will be replaced with a random UUID at the time of navigation</p>
+    <ul>
+      {{#each this.links as |l|}}
+        <li>{{l.routeName}}</li>
+        <ul>
+          {{#each l.variations as |v|}}
+            <li>
+              <a href="#" onclick={{action navigate (hash routeName=l.routeName key=v.key params=v.params)}}>
+                navigate() to {{l.routeName}}: 
+                <code>{{json-stringify v}}</code>
+              </a>
+            </li>
+          {{/each}}
+        </ul>
+      {{/each}}
+    </ul>
+  </div>
+
+  <div class="debug-info">
+    <p>
+      Router Map
+    </p>
+    <p>
+      Should seem familiar to the classic API, but functions
+      in a much simpler manner than the classic Ember DSL, and
+      should be easier to configure and experiment with.
+    </p>
+    {{#let (get-code-snippet "router-map.js") as |snippet|}}
+      <pre>{{snippet.source}}</pre>
+    {{/let}}
+  </div>
+
+  <div class="debug-info">
+    <p>
+      Router State<br>
+      Like "outlet" state in vanilla Ember, this is built up
+      by the various routers and passed to the various navigator
+      components for rendering;
+      <br><br>
+    </p>
+    <pre>{{json-stringify mountedRouter.state pretty=true}}</pre>
+  </div>
 </div>
-
-<footer>
-  <h3>navigate()</h3>
-  <p>Note: GENERATE_UUID will be replaced with a random UUID at the time of navigation</p>
-  <ul>
-    {{#each this.links as |l|}}
-      <li>{{l.routeName}}</li>
-      <ul>
-        {{#each l.variations as |v|}}
-          <li>
-            <a href="#" onclick={{action navigate (hash routeName=l.routeName key=v.key params=v.params)}}>
-              navigate() to {{l.routeName}}: 
-              <code>{{json-stringify v}}</code>
-            </a>
-          </li>
-        {{/each}}
-      </ul>
-    {{/each}}
-  </ul>
-</footer>
-

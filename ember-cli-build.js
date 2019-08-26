@@ -12,7 +12,9 @@ module.exports = function(defaults) {
     },
     isDevelopingAddon: function() {
       return false;
-    }
+    },
+    snippetPaths: ['tests/dummy/snippets'],
+    snippetSearchPaths: ['app', 'tests/dummy/app', 'addon'],
   });
 
   /*

@@ -7,16 +7,18 @@ import { stackRouter, switchRouter, route } from 'ember-constraint-router';
 export default Ember.Controller.extend({
   mountedRouter: computed(function() {
     return mount(
+      // BEGIN-SNIPPET router-map
       switchRouter('auth', [
-        stackRouter('login', [
+        stackRouter('logged-out', [
           route('enter-email'),
           route('terms-of-service'),
         ]),
-        stackRouter('root', [
+        stackRouter('logged-in', [
           route('frame-root'),
           route('frame-tweet'),
         ]),
       ])
+      // END-SNIPPET
     );
   }),
 
@@ -29,6 +31,22 @@ export default Ember.Controller.extend({
   },
 
   links: [
+    {
+      routeName: "logged-out",
+      variations: [ {} ],
+    },
+    {
+      routeName: "enter-email",
+      variations: [ {} ],
+    },
+    {
+      routeName: "terms-of-service",
+      variations: [ {} ],
+    },
+    {
+      routeName: "logged-in",
+      variations: [ {} ],
+    },
     {
       routeName: "frame-root",
       variations: [

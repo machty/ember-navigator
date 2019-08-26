@@ -30,6 +30,8 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
   }
 
   dispatch(action: RouterActions, state: RouterState) {
+    debugger;
+
     let activeRouteState = state.routes[state.index];
     let nextRouteState = this.dispatchTo([activeRouteState], action);
     if (nextRouteState) {
@@ -57,11 +59,13 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
 
   navigateAway(action: NavigateAction, state: RouterState): ReducerResult {
     let navParams = action.payload;
+
     // TODO: it seems wasteful to deeply recurse on every unknown route.
     // consider adding a cache, or building one at the beginning?
     for (let i = 0; i < this.children.length; ++i) {
       let routeable = this.children[i];
       if (routeable.name === navParams.routeName) {
+        // let initialState = this.resetChildRoute(routeable);
         let initialState = routeable.getInitialState({
           key: navParams.key
         });
@@ -73,7 +77,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
         // Didn't find a matching route, but we can recurse into the router
         // to see if the route lives in there.
         let router = routeable as RouterReducer;
-        let initialState = router.getInitialState({ key: action.payload.key });
+        let initialState = this.resetChildRoute(router);
         let navigationResult = routeable.dispatch(action, initialState);
 
         if (navigationResult.handled) {
@@ -99,10 +103,10 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
     return unhandledAction();
   }
 
-  getInitialState(_options: InitialStateOptions = {}): RouterState {
+  getInitialState(options: InitialStateOptions = {}): RouterState {
     let childRoutes = this.children.map(c => this.resetChildRoute(c));
     return {
-      key: "SwitchRouterBase",
+      key: options.key || "SwitchRouterBase",
       params: undefined,
       routeName: this.name,
       componentName: "ecr-switch",

@@ -2,7 +2,7 @@ import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-stack';
 import { computed } from '@ember/object';
-import { RouterReducer, RouterState } from 'ember-constraint-router/-private/routeable';
+import { RouterState } from 'ember-constraint-router/-private/routeable';
 import { recomputeStateSet } from 'ember-constraint-router/-private/rendered-state';
 import { getOwner } from '@ember/application';
 
