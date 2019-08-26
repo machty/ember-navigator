@@ -60,7 +60,7 @@
     "ember-native-dom-helpers": "^0.6.2",
     "ember-qunit": "^3.4.0",
     "ember-resolver": "^4.0.0",
-    "ember-source": "^3.1.12",
+    "ember-source": "^3.12.0",
     "loader.js": "^4.2.3",
     "ts-node": "8.3.0",
     "typescript": "^3.5.3"
@@ -76,5 +76,4 @@
   "resolutions": {
     "**/**/ember-cli-babel": "^7.10.0"
   }
-
 }
