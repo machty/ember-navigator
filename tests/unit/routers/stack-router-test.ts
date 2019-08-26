@@ -18,7 +18,6 @@ module('Unit - StackRouter test', function(hooks) {
 
   const DEFAULT_STATE = {
     "componentName": "ecr-stack",
-    "isTransitioning": false,
     "key": "StackRouterRoot",
     "params": {},
     "routeName": "root",
@@ -55,7 +54,6 @@ module('Unit - StackRouter test', function(hooks) {
       {
         "componentName": "ecr-stack",
         "index": 0,
-        "isTransitioning": false,
         "key": "StackRouterRoot",
         "params": {},
         "routeName": "nested",
@@ -82,7 +80,6 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual(initialState, {
       "componentName": "ecr-stack",
       "index": 0,
-      "isTransitioning": false,
       "key": "StackRouterRoot",
       "params": {},
       "routeName": "root",
@@ -90,7 +87,6 @@ module('Unit - StackRouter test', function(hooks) {
         {
           "componentName": "ecr-stack",
           "index": 0,
-          "isTransitioning": false,
           "key": "StackRouterRoot",
           "params": {},
           "routeName": "nested",
@@ -133,7 +129,6 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual(state, {
       "componentName": "ecr-stack",
       "index": 1,
-      "isTransitioning": true,
       "key": "StackRouterRoot",
       "params": {},
       "routeName": "root",

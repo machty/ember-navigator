@@ -102,7 +102,6 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       ...state,
       routes,
       index: i,
-      isTransitioning: true
     });
   }
 
@@ -115,7 +114,6 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       componentName: "ecr-switch",
       routes: childRoutes,
       index: 0,
-      isTransitioning: false
     };
   }
 

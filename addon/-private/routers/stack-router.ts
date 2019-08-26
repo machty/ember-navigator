@@ -82,11 +82,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       nextRouteState
     );
 
-    return handledAction({
-      ...newState,
-      isTransitioning:
-        state.index !== newState.index ? true : state.isTransitioning
-    });
+    return handledAction(newState);
   }
 
   navigateToPreexisting(
@@ -129,11 +125,9 @@ export class StackRouter extends BaseRouter implements RouterReducer {
         }
       };
     }
-    // Return state with new index. Change isTransitioning only if index has changed
+    // Return state with new index
     return handledAction({
       ...state,
-      isTransitioning:
-        state.index !== lastRouteIndex ? true : state.isTransitioning,
       index: lastRouteIndex,
       routes
     });
@@ -153,10 +147,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
           key: navParams.key,
           params: navParams.params,
         });
-        return handledAction({
-          ...StateUtils.push(state, initialState),
-          isTransitioning: true
-        });
+        return handledAction(StateUtils.push(state, initialState));
       } else {
         let initialState = routeable.getInitialState();
         // not a match, recurse
@@ -164,10 +155,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
         let navigationResult = routeable.dispatch(action, initialState);
         if (navigationResult.handled) {
           let childRouteState = navigationResult.state;
-          return handledAction({
-            ...StateUtils.push(state, childRouteState),
-            isTransitioning: true
-          });
+          return handledAction(StateUtils.push(state, childRouteState));
         }
       }
     }
@@ -199,8 +187,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       ? handledAction({
           ...state,
           routes: state.routes.slice(0, backRouteIndex),
-          index: backRouteIndex - 1,
-          isTransitioning: true
+          index: backRouteIndex - 1
         })
       : unhandledAction();
   }
@@ -216,7 +203,6 @@ export class StackRouter extends BaseRouter implements RouterReducer {
 
     return {
       key: options.key || "StackRouterRoot",
-      isTransitioning: false,
       index: 0,
       routes: [childRouteableState],
       componentName: this.componentName,

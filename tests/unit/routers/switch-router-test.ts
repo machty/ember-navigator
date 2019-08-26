@@ -16,7 +16,6 @@ module('Unit - SwitchRouter test', function(hooks) {
     assert.deepEqual(state, {
       "componentName": "ecr-switch",
       "index": 0,
-      "isTransitioning": false,
       "key": "SwitchRouterBase",
       "params": undefined,
       "routeName": "root",
@@ -45,7 +44,6 @@ module('Unit - SwitchRouter test', function(hooks) {
     assert.deepEqual(state2.routes[1], {
       "componentName": "ecr-stack",
       "index": 0,
-      "isTransitioning": false,
       "key": "b",
       "params": {},
       "routeName": "b",

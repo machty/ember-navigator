@@ -10,7 +10,6 @@ export interface RouteableState {
 export interface RouteState extends RouteableState { }
 
 export interface RouterState extends RouteableState {
-  isTransitioning: boolean;
   index: number;
   routes: RouteState[];
 };
