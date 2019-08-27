@@ -8,8 +8,10 @@ import { getOwner } from '@ember/application';
 
 export default class EcrStack extends Component.extend({
   currentStates: computed('currentState', function() {
-    let state = this.state as RouterState;
-    return state.routes.map(r => this.activeRouteStates[r.key]);
+    // let state = this.state as RouterState;
+    // return state.routes.map(r => this.activeRouteStates[r.key]);
+    let { currentState } = this;
+    return currentState ? [this.currentState] : [];
   }),
 
   currentState: computed('state', function() {
