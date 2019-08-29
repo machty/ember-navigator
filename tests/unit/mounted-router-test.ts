@@ -1,98 +1,13 @@
 import { test, module } from 'ember-qunit';
 import { route, switchRouter, stackRouter } from 'ember-constraint-router';
 import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
-import { } from 'ember-constraint-router/-private/mounted-router';
-import { RouterState, RouteableState } from 'ember-constraint-router/-private/routeable';
+import MountedRouter, { Resolver } from 'ember-constraint-router/-private/mounted-router';
 
 // a resolver returns all the information required to render a component.
 // for ember this means component name. for react this means a Component.
 // for glimmer this might also mean an imported Component.
 // each framework provides its own resolver.
 
-class Resolver {
-  resolve(): NodeDelegate | null {
-    return null;
-  }
-}
-
-type MountedNodeSet = { [key: string]: MountedNode };
-
-interface NodeDelegate {
-  update(state: any): void;
-  // mount(): void;
-  unmount(): void;
-}
-
-class MountedNode {
-  childNodes: MountedNodeSet;
-  delegate: NodeDelegate | null;
-  resolver: Resolver;
-  routeableState?: any;
-
-  constructor(resolver: Resolver) {
-    this.resolver = resolver;
-    this.delegate = this.resolver.resolve();
-    // if (this.delegate) {
-    //   this.delegate.mount();
-    // }
-    this.childNodes = {};
-  }
-
-  update(routeableState: RouteableState) {
-    if (this.routeableState === routeableState) { return; }
-
-    if ((routeableState as any).routes) {
-      let currentChildNodes = this.childNodes;
-      let nextChildNodes: MountedNodeSet = {};
-      let routerState: RouterState = routeableState as RouterState;
-
-      routerState.routes.forEach(childRouteState => {
-        let childNode = currentChildNodes[childRouteState.key];
-        if (!childNode) {
-          childNode = new MountedNode(this.resolver);
-        }
-        childNode.update(childRouteState);
-        nextChildNodes[childRouteState.key] = childNode;
-      });
-
-      Object.keys(currentChildNodes).forEach(key => {
-        if (nextChildNodes[key]) {
-          return;
-        }
-        currentChildNodes[key].unmount();
-      });
-
-      this.childNodes = nextChildNodes;
-    }
-
-    if (this.delegate) {
-      this.delegate.update(routeableState);
-    }
-
-    this.routeableState = routeableState;
-  }
-
-  unmount() {
-    if (this.delegate) {
-      this.delegate.unmount();
-    }
-  }
-}
-
-class MountedRouter {
-  // routerState?: RouterState;
-  resolver: Resolver;
-  rootNode: MountedNode;
-
-  constructor(resolver: Resolver) {
-    this.resolver = resolver;
-    this.rootNode = new MountedNode(resolver);
-  }
-
-  update(routerState: RouterState) {
-    this.rootNode.update(routerState);
-  }
-}
 
 function buildTestResolver() {
   let events: any[] = [];
@@ -143,11 +58,8 @@ module('Unit - MountedRouter test', function(hooks) {
       route('foo'),
       route('bar'),
     ]);
-    let state = router.getInitialState();
     let { resolver, events } = buildTestResolver();
-    let mountedRouter = new MountedRouter(resolver);
-    assert.deepEqual(events, [])
-    mountedRouter.update(state);
+    let mountedRouter = new MountedRouter(router, resolver);
 
     let expectedState = [
       {
@@ -168,7 +80,10 @@ module('Unit - MountedRouter test', function(hooks) {
     ]
 
     assert.deepEqual(events, expectedState);
-    mountedRouter.update(state);
+
+    mountedRouter.navigate({ routeName: 'bar' })
+
+    // mountedRouter.update(state);
     assert.deepEqual(events, expectedState);
   });
 })
