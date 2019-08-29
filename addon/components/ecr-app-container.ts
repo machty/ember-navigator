@@ -3,7 +3,7 @@ import Component from '@ember/component';
 import layout from '../templates/components/ecr-app-container';
 
 export default class AppContainer extends Component.extend({
-  classNames: 'app-container',
+  classNames: 'ecr-app-container',
 }) {
   layout = layout;
 };

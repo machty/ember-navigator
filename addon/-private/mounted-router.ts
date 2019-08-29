@@ -14,8 +14,12 @@ export default class MountedRouter {
   dispatch(action: RouterActions) {
     let result = this.router.dispatch(action, this.state);
     if (result.handled) {
+      console.log(result.state);
       // TODO: dispatch events?
       set(this, 'state', result.state);
+    } else {
+      console.warn(`mounted-router: unhandled action ${action.type}`);
+      debugger;
     }
   }
 

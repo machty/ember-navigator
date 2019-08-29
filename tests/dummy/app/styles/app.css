@@ -11,7 +11,6 @@ body {
 .debug-info {
   max-width: 400px;
   padding: 15px;
-  /* margin: 0 15px; */
 }
 
 .debug-info p {
@@ -19,27 +18,30 @@ body {
   margin-bottom: 15px;
 }
 
-.app-container, .nav-stack, .stack-frame {
+.ecr-app-container {
   width: 300px;
   height: 500px;
-  position: relative;
 }
 
-.nav-stack {
+.ecr-app-container, .ecr-stack, .ecr-switch {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.stack-frame {
-  top: 3rem;
-  left: 0;
-  position: absolute;
+.ecr-stack, .ecr-switch {
+  flex: 1;
+}
+
+.ecr-stack-frame {
   box-sizing: border-box;
   border: 1px solid rgba(0,0,0,0.3);
   /* background: white; */
-  background: rgba(255,255,255,0.3)
+  background: rgba(255,255,255,0.3);
+  flex: 1;
 }
 
-.app-container {
+.ecr-app-container {
   background-color: #ccffee;
 }
 

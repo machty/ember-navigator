@@ -16,6 +16,9 @@ export default Ember.Controller.extend({
         stackRouter('logged-in', [
           route('frame-root'),
           route('frame-tweet'),
+          stackRouter('nested', [
+            route('nested-a'),
+          ], { headerMode: 'none' }),
         ]),
       ])
       // END-SNIPPET
@@ -70,6 +73,16 @@ export default Ember.Controller.extend({
         { params: { tweet_id: "456" }, key: "GENERATE_UUID" },
         { params: { tweet_id: "999" }, key: "GENERATE_UUID" },
       ]
+    },
+    {
+      routeName: "nested-a",
+      variations: [
+        {},
+        { key: "a" },
+        { key: "b" },
+        { key: "c" },
+        { key: "GENERATE_UUID" },
+      ],
     },
   ]
 });

@@ -2,11 +2,14 @@ import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-stack';
 import { computed } from '@ember/object';
-import { RouterState } from 'ember-constraint-router/-private/routeable';
+import { RouterState, StackRouterState } from 'ember-constraint-router/-private/routeable';
 import { recomputeStateSet } from 'ember-constraint-router/-private/rendered-state';
 import { getOwner } from '@ember/application';
 
 export default class EcrStack extends Component.extend({
+  tagName: null,
+  classNames: 'ecr-stack',
+
   currentStates: computed('currentState', function() {
     // let state = this.state as RouterState;
     // return state.routes.map(r => this.activeRouteStates[r.key]);
@@ -30,4 +33,8 @@ export default class EcrStack extends Component.extend({
 }) {
   layout = layout;
   state?: RouterState;
+
+  get shouldRenderHeader() {
+    return (this.state as StackRouterState).headerMode !== 'none';
+  }
 };

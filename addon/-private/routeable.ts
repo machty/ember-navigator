@@ -14,6 +14,11 @@ export interface RouterState extends RouteableState {
   routes: RouteState[];
 };
 
+export interface StackRouterState extends RouterState {
+  headerComponentName: string;
+  headerMode: string;
+};
+
 export type HandledReducerResult = {
   handled: true;
   state: RouterState;

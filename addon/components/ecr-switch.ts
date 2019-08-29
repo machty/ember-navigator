@@ -7,6 +7,9 @@ import { recomputeStateSet } from 'ember-constraint-router/-private/rendered-sta
 import { getOwner } from '@ember/application';
 
 export default class EcrSwitch extends Component.extend({
+  tagName: null,
+  classNames: 'ecr-switch',
+
   currentStates: computed('currentState', function() {
     return [this.currentState];
   }),
