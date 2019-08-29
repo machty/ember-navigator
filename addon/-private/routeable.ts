@@ -11,7 +11,7 @@ export interface RouteState extends RouteableState { }
 
 export interface RouterState extends RouteableState {
   index: number;
-  routes: RouteState[];
+  routes: RouteableState[];
 };
 
 export interface StackRouterState extends RouterState {
