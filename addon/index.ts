@@ -19,10 +19,3 @@ export function stackRouter(name: string, children: RouteableReducer[], options:
 export function switchRouter(name: string, children: RouteableReducer[], options: SwitchOptions = {}) {
   return new SwitchRouter(name, children, options);
 }
-
-export class Config {
-  state: RouteState;
-  constructor(state: RouteState) {
-    this.state = state;
-  }
-}

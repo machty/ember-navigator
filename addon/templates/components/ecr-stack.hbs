@@ -1,6 +1,9 @@
+{{#if this.showHeader}}
   {{ecr-header
-      state=currentState
+      headerConfig=this.headerConfig
       mountedRouter=this.mountedRouter}}
+{{/if}}
+
 {{#each currentNodes key="key" as |childNode|}}
   {{component childNode.componentName node=childNode route=childNode.route}}
 {{/each}}

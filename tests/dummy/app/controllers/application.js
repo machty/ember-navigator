@@ -11,24 +11,10 @@ export default Ember.Controller.extend({
     let resolver = {
       resolve: (componentName) => {
         let factory = owner.factoryFor(`component:${componentName}`);
-
-        // let Config = factory && factory.class.Config;
-
-        // if (Config) {
-        //   if (typeof Config === 'object') {
-        //     this.config = { ...Config };
-        //   } else {
-        //     if (typeof Config.create === 'function') {
-        //       this.config = Config.create({ state: routeState });
-        //     } else {
-        //       this.config = new Config(routeState);
-        //     }
-        //     this.setConfigState = (state: RouteState) => set(this.config, 'state', state);
-        //     setOwner(this.config, owner);
-        //   }
-        // }
+        return factory && factory.class && factory.class.Route;
       }
     };
+
     return mount(
       // BEGIN-SNIPPET router-map
       switchRouter('auth', [

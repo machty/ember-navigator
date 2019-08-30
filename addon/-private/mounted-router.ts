@@ -19,6 +19,7 @@ export class MountedNode implements MountableNode {
   route: PublicRoute;
   key: string;
   id: number;
+  header?: any;
 
   constructor(resolver: Resolver, routeableState: RouteableState) {
     // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
@@ -41,6 +42,19 @@ export class MountedNode implements MountableNode {
 
   unmount() {
     this.route.unmount();
+  }
+
+  getHeaderConfig() : any {
+    let routerState = this.routeableState as RouterState;
+
+    if (routerState.routes) {
+      let key = routerState.routes[routerState.index].key;
+      let child = this.childNodes[key];
+      return child && child.getHeaderConfig();
+    } else {
+      // this is leaf route, check the PublicRoute
+      return this.route.header;
+    }
   }
 }
 

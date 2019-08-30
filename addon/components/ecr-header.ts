@@ -13,11 +13,4 @@ export default class EcrHeader extends Component.extend({
 }) {
   classNames = ['app-header'];  
   layout = layout;
-  state?: RenderedRouteState;
-
-  get headerConfig() {
-    return {
-      title: "lolzorps"
-    }
-  }
 };

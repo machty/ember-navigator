@@ -17,15 +17,14 @@ export default class EcrStack extends Component.extend({
     return [activeChildNode];
   }),
 
-  headerConfig: computed(function() {
-    return 123;
+  showHeader: computed(function() {
+    return this.node.routeableState.headerMode !== 'none';
+  }),
+
+  headerConfig: computed('route.node', function() {
+    let node = this.node as MountedNode;
+    return node.getHeaderConfig();
   }),
 }) {
   layout = layout;
-  state?: RouterState;
-
-  get shouldRenderHeader() {
-    return false;
-    // return (this.state as StackRouterState).headerMode !== 'none';
-  }
 };
