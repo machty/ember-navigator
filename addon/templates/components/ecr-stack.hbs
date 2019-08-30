@@ -1,7 +1,5 @@
 {{#if this.showHeader}}
-  {{ecr-header
-      headerConfig=this.headerConfig
-      mountedRouter=this.mountedRouter}}
+  {{ecr-header route=this.route}}
 {{/if}}
 
 {{#each currentNodes key="key" as |childNode|}}

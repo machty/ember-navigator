@@ -29,6 +29,7 @@ export default Ember.Controller.extend({
             route('nested-a'),
           ], { headerMode: 'none' }),
         ]),
+        route('no-header'),
       ]),
       // END-SNIPPET
       resolver
@@ -93,6 +94,10 @@ export default Ember.Controller.extend({
         { key: "c" },
         { key: "GENERATE_UUID" },
       ],
+    },
+    {
+      routeName: "no-header",
+      variations: [ {} ],
     },
   ]
 });

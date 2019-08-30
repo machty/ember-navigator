@@ -2,7 +2,7 @@ import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-stack';
 import { computed } from '@ember/object';
-import { RouterState, StackRouterState } from 'ember-constraint-router/-private/routeable';
+import { RouterState } from 'ember-constraint-router/-private/routeable';
 import { MountedNode } from 'ember-constraint-router/-private/mounted-router';
 
 export default class EcrStack extends Component.extend({
@@ -19,11 +19,6 @@ export default class EcrStack extends Component.extend({
 
   showHeader: computed(function() {
     return this.node.routeableState.headerMode !== 'none';
-  }),
-
-  headerConfig: computed('route.node', function() {
-    let node = this.node as MountedNode;
-    return node.getHeaderConfig();
   }),
 }) {
   layout = layout;
