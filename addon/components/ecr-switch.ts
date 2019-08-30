@@ -9,17 +9,14 @@ export default class EcrSwitch extends Component.extend({
   tagName: null,
   classNames: 'ecr-switch',
 
-  // TODO: what does this depend on! something needs to update on publicRoute
-  currentNodes: computed(function() {
+  currentNodes: computed('route.node', function() {
     let node = this.node as MountedNode;
-    debugger;
     let routerState = node.routeableState as RouterState;
     let activeChild = routerState.routes[routerState.index];
     let activeChildNode = node.childNodes[activeChild.key];
-    // debugger;
+    debugger;
     return [activeChildNode];
   }),
-
 }) {
   layout = layout;
   state?: RouterState;

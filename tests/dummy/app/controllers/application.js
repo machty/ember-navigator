@@ -10,8 +10,6 @@ export default Ember.Controller.extend({
 
     let resolver = {
       resolve: (componentName) => {
-        // this.routeState = routeState;
-        // this.componentName = this.routeState.componentName;
         let factory = owner.factoryFor(`component:${componentName}`);
 
         // debugger;
@@ -54,7 +52,6 @@ export default Ember.Controller.extend({
   }),
 
   navigate(options) {
-    debugger;
     let normalizedOptions = Object.assign({}, options);
     if (options.key === "GENERATE_UUID") {
       normalizedOptions.key = `uuid-${Math.floor(Math.random() * 10000000)}`;

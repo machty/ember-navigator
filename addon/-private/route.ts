@@ -45,7 +45,6 @@ export class Route implements RouteReducer {
   }
 
   reconcile(routeState: RouteState, mountedNode: MountedNode) {
-    debugger;
     mountedNode.update(routeState);
   }
 }

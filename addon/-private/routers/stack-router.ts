@@ -210,13 +210,13 @@ export class StackRouter extends BaseRouter implements RouterReducer {
         // child state hasn't changed in any way, don't recurse/update
         return;
       } else if (!childNode) {
-        childNode = new MountedNode(mountedNode.resolver, childRouteState.componentName);
+        childNode = new MountedNode(mountedNode.resolver, childRouteState);
       }
 
       let childRouteableReducer = this.childRouteables[childRouteState.routeName];
       childRouteableReducer.reconcile(childRouteState, childNode);
 
-      childNode.update(childRouteState)
+      // childNode.update(childRouteState)
       nextChildNodes[childRouteState.key] = childNode;
     });
 

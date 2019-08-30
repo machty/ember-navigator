@@ -12,16 +12,17 @@ function buildTestResolver() {
   class Route extends PublicRoute {
     id: number = delegateId++;
 
-    update(state: any) {
-      events.push({ id: this.id, type: "update", key: state.key});
+    update(_state: any) {
+      events.push({ id: this.id, type: "update", key: this.node.key});
     }
 
     unmount() {
-      events.push({ id: this.id, type: "unmount"});
+      // debugger;
+      events.push({ id: this.id, type: "unmount", key: this.node.key});
     }
 
     mount() {
-      events.push({ id: this.id, type: "mount"});
+      events.push({ id: this.id, type: "mount", key: this.node.key});
     }
 
     focus() {
@@ -51,17 +52,13 @@ function buildTestResolver() {
 module('Unit - MountedRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
 
-  test("basic shallow switch router state", function (assert) {
+  test("initial state is kind of moronic", function (assert) {
     let router = switchRouter('root', [
       route('foo'),
       route('bar'),
     ]);
     let { resolver, events } = buildTestResolver();
     let mountedRouter = new MountedRouter(router, resolver);
-    mountedRouter.navigate({ routeName: 'bar' })
-    mountedRouter.navigate({ routeName: 'bar' })
-    mountedRouter.navigate({ routeName: 'foo' })
-    mountedRouter.navigate({ routeName: 'foo' })
     assert.deepEqual(events, [
       {
         "id": 1,
@@ -69,23 +66,50 @@ module('Unit - MountedRouter test', function(hooks) {
         "type": "update"
       },
       {
+        "id": 0,
+        "key": "SwitchRouterBase",
+        "type": "update"
+      }
+    ]);
+  });
+
+  test("switch: navigation enters/updates the new route and unmounts the old one", function (assert) {
+    let router = switchRouter('root', [
+      route('foo'),
+      route('bar'),
+    ]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+    events.length = 0;
+    mountedRouter.navigate({ routeName: 'bar' })
+    assert.deepEqual(events, [
+      {
         "id": 2,
         "key": "bar",
         "type": "update"
       },
       {
         "id": 1,
-        "type": "unmount"
-      },
-      {
-        "id": 3,
         "key": "foo",
-        "type": "update"
+        "type": "unmount"
       },
       {
-        "id": 2,
-        "type": "unmount"
+        "id": 0,
+        "key": "SwitchRouterBase",
+        "type": "update"
       }
     ]);
+  });
+
+  test("no-op navigations result in zero changes/lifecycle events", function (assert) {
+    let router = switchRouter('root', [
+      route('foo'),
+      route('bar'),
+    ]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+    events.length = 0;
+    mountedRouter.navigate({ routeName: 'foo' })
+    assert.deepEqual(events, []);
   });
 })

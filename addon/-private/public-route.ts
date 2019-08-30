@@ -1,4 +1,5 @@
 import { MountableNode } from "./routeable";
+import { notifyPropertyChange } from "@ember/object";
 
 export class PublicRoute {
   node: MountableNode;
@@ -7,14 +8,18 @@ export class PublicRoute {
   }
 
   navigate(options: NavigateParams) {
-    debugger;
   }
 
   pop(options: PopParams) {
     // this.dispatch(pop(options));
   }
 
-  update(state: any) {}
+
+  update(state: any) {
+    // this is how we signal to components to re-render with the new state.
+    notifyPropertyChange(this, 'node')
+  }
+
   unmount() {}
   mount() {}
   focus() {}

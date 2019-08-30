@@ -61,6 +61,7 @@ export interface MountableNode {
   resolver: Resolver;
   routeableState?: any;
   route: PublicRoute;
+  key: string;
 }
 
 export interface Resolver {

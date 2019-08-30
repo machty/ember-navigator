@@ -1,1 +1,0 @@
-export { default } from "ember-constraint-router/components/ecr-render-node";

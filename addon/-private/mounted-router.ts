@@ -6,6 +6,8 @@ import { set } from "@ember/object";
 
 export type MountedNodeSet = { [key: string]: MountedNode };
 
+let ID = 0;
+
 // A MountedNode is the "internal" stateful node that the routing API doesn't have access to.
 // The Route is the public API object that we pass into components.
 
@@ -15,43 +17,48 @@ export class MountedNode implements MountableNode {
   routeableState?: RouteableState;
   componentName: string;
   route: PublicRoute;
+  key: string;
+  id: number;
 
-  constructor(resolver: Resolver, componentName: string) {
-    this.componentName = componentName;
+  constructor(resolver: Resolver, routeableState: RouteableState) {
+    // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
+    this.id = ID++;
+    this.componentName = routeableState.componentName;
+    this.key = routeableState.key;
     this.resolver = resolver;
-    let RouteConstuctor = this.resolver.resolve(componentName) || PublicRoute;
+    let RouteConstuctor = this.resolver.resolve(this.componentName) || PublicRoute;
     this.route = new RouteConstuctor(this);
     this.childNodes = {};
   }
 
   update(routeableState: RouteableState) {
+    // debugger;
     if (this.routeableState === routeableState) { return; }
 
-    if ((routeableState as any).routes) {
-      let currentChildNodes = this.childNodes;
-      let nextChildNodes: MountedNodeSet = {};
-      let routerState: RouterState = routeableState as RouterState;
+    // if ((routeableState as any).routes) {
+    //   let currentChildNodes = this.childNodes;
+    //   let nextChildNodes: MountedNodeSet = {};
+    //   let routerState: RouterState = routeableState as RouterState;
 
-      routerState.routes.forEach(childRouteState => {
-        let childNode = currentChildNodes[childRouteState.key];
-        if (!childNode) {
-          childNode = new MountedNode(this.resolver, childRouteState.componentName);
-        }
-        childNode.update(childRouteState);
-        nextChildNodes[childRouteState.key] = childNode;
-      });
+    //   routerState.routes.forEach(childRouteState => {
+    //     let childNode = currentChildNodes[childRouteState.key];
+    //     if (!childNode) {
+    //       childNode = new MountedNode(this.resolver, childRouteState);
+    //     }
+    //     childNode.update(childRouteState);
+    //     nextChildNodes[childRouteState.key] = childNode;
+    //   });
 
-      Object.keys(currentChildNodes).forEach(key => {
-        if (nextChildNodes[key]) {
-          return;
-        }
-        currentChildNodes[key].unmount();
-      });
+    //   Object.keys(currentChildNodes).forEach(key => {
+    //     if (nextChildNodes[key]) {
+    //       return;
+    //     }
+    //     currentChildNodes[key].unmount();
+    //   });
 
-      this.childNodes = nextChildNodes;
-    }
+    //   this.childNodes = nextChildNodes;
+    // }
 
-    debugger;
     this.route.update(routeableState);
     this.routeableState = routeableState;
   }
@@ -71,7 +78,7 @@ export default class MountedRouter {
     this.resolver = resolver;
     this.router = router;
     this.state = router.getInitialState();
-    this.rootNode = new MountedNode(resolver, this.state.componentName);
+    this.rootNode = new MountedNode(resolver, this.state);
     this._update();
   }
 
@@ -84,7 +91,6 @@ export default class MountedRouter {
       this._update();
     } else {
       console.warn(`mounted-router: unhandled action ${action.type}`);
-      debugger;
     }
   }
 
