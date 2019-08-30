@@ -1,5 +1,7 @@
 <div class="outer-container">
-  {{ecr-app-container mountedRouter=mountedRouter}}
+  <div class="ecr-app-container">
+    {{component mountedRouter.rootNode.componentName node=mountedRouter.rootNode route=mountedRouter.rootNode.route}}
+  </div>
 
   <div class="debug-info">
     <p>

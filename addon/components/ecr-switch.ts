@@ -3,30 +3,23 @@ import Component from '@ember/component';
 import layout from '../templates/components/ecr-switch';
 import { computed } from '@ember/object';
 import { RouterState } from 'ember-constraint-router/-private/routeable';
-import { recomputeStateSet } from 'ember-constraint-router/-private/rendered-state';
-import { getOwner } from '@ember/application';
+import { MountedNode } from 'ember-constraint-router/-private/mounted-router';
 
 export default class EcrSwitch extends Component.extend({
   tagName: null,
   classNames: 'ecr-switch',
 
-  currentStates: computed('currentState', function() {
-    return [this.currentState];
+  // TODO: what does this depend on! something needs to update on publicRoute
+  currentNodes: computed(function() {
+    let node = this.node as MountedNode;
+    debugger;
+    let routerState = node.routeableState as RouterState;
+    let activeChild = routerState.routes[routerState.index];
+    let activeChildNode = node.childNodes[activeChild.key];
+    // debugger;
+    return [activeChildNode];
   }),
 
-  currentState: computed('state', function() {
-    let state = this.state as RouterState;
-    let currentRouteState = state.routes[state.index];
-    return this.activeRouteStates[currentRouteState.key];
-  }),
-
-  _previousRouteStates: null,
-  activeRouteStates: computed('state', function() {
-    return this._previousRouteStates = recomputeStateSet(
-      this.state as RouterState,
-      getOwner(this),
-      this._previousRouteStates || {});
-  }),
 }) {
   layout = layout;
   state?: RouterState;

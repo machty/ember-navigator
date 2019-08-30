@@ -1,11 +1,38 @@
 import Ember from 'ember';
+import { getOwner } from '@ember/application';
 import { computed } from '@ember/object';
-
 import { mount } from 'ember-constraint-router';
 import { stackRouter, switchRouter, route } from 'ember-constraint-router';
 
 export default Ember.Controller.extend({
   mountedRouter: computed(function() {
+    let owner = getOwner(this);
+
+    let resolver = {
+      resolve: (componentName) => {
+        // this.routeState = routeState;
+        // this.componentName = this.routeState.componentName;
+        let factory = owner.factoryFor(`component:${componentName}`);
+
+        // debugger;
+
+        // let Config = factory && factory.class.Config;
+
+        // if (Config) {
+        //   if (typeof Config === 'object') {
+        //     this.config = { ...Config };
+        //   } else {
+        //     if (typeof Config.create === 'function') {
+        //       this.config = Config.create({ state: routeState });
+        //     } else {
+        //       this.config = new Config(routeState);
+        //     }
+        //     this.setConfigState = (state: RouteState) => set(this.config, 'state', state);
+        //     setOwner(this.config, owner);
+        //   }
+        // }
+      }
+    };
     return mount(
       // BEGIN-SNIPPET router-map
       switchRouter('auth', [
@@ -20,12 +47,14 @@ export default Ember.Controller.extend({
             route('nested-a'),
           ], { headerMode: 'none' }),
         ]),
-      ])
+      ]),
       // END-SNIPPET
+      resolver
     );
   }),
 
   navigate(options) {
+    debugger;
     let normalizedOptions = Object.assign({}, options);
     if (options.key === "GENERATE_UUID") {
       normalizedOptions.key = `uuid-${Math.floor(Math.random() * 10000000)}`;

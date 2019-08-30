@@ -8,6 +8,7 @@ import {
 } from "./routeable";
 import { generateKey } from "./key-generator";
 import { RouterActions } from "./actions/types";
+import { MountedNode } from "./mounted-router";
 
 export type RouteOptions = {
   componentName?: string;
@@ -41,5 +42,10 @@ export class Route implements RouteReducer {
   // TODO: remove this?
   dispatch(_action: RouterActions, _state: RouterState): UnhandledReducerResult {
     return { handled: false };
+  }
+
+  reconcile(routeState: RouteState, mountedNode: MountedNode) {
+    debugger;
+    mountedNode.update(routeState);
   }
 }

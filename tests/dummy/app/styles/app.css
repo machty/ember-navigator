@@ -21,6 +21,7 @@ body {
 .ecr-app-container {
   width: 300px;
   height: 500px;
+  flex-shrink: 0;
 }
 
 .ecr-app-container, .ecr-stack, .ecr-switch {

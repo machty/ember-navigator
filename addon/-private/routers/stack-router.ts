@@ -21,6 +21,7 @@ import {
   handledAction,
   unhandledAction
 } from "./base-router";
+import { MountedNodeSet, MountedNode } from "../mounted-router";
 
 export interface StackOptions extends BaseOptions {
   headerComponentName?: string;
@@ -197,6 +198,36 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       headerComponentName: (this.options as StackOptions).headerComponentName || "ecr-header",
       headerMode: (this.options as StackOptions).headerMode || 'float',
     };
+  }
+
+  reconcile(routerState: RouterState, mountedNode: MountedNode) {
+    let currentChildNodes = mountedNode.childNodes;
+    let nextChildNodes: MountedNodeSet = {};
+
+    routerState.routes.forEach(childRouteState => {
+      let childNode = currentChildNodes[childRouteState.key];
+      if (childNode && childNode.routeableState === childRouteState) {
+        // child state hasn't changed in any way, don't recurse/update
+        return;
+      } else if (!childNode) {
+        childNode = new MountedNode(mountedNode.resolver, childRouteState.componentName);
+      }
+
+      let childRouteableReducer = this.childRouteables[childRouteState.routeName];
+      childRouteableReducer.reconcile(childRouteState, childNode);
+
+      childNode.update(childRouteState)
+      nextChildNodes[childRouteState.key] = childNode;
+    });
+
+    Object.keys(currentChildNodes).forEach(key => {
+      if (nextChildNodes[key]) {
+        return;
+      }
+      currentChildNodes[key].unmount();
+    });
+
+    mountedNode.childNodes = nextChildNodes;
   }
 }
 

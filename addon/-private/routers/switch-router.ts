@@ -13,6 +13,7 @@ import {
   unhandledAction
 } from "./base-router";
 import { RouterActions, NAVIGATE, NavigateAction } from "../actions/types";
+import { MountedNode, MountedNodeSet } from "../mounted-router";
 
 export interface SwitchOptions extends BaseOptions {}
 
@@ -107,5 +108,35 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
 
   resetChildRoute(routeable: RouteableReducer): RouteableState {
     return routeable.getInitialState({ key: routeable.name });
+  }
+
+  // accept new router state and use it to update the mounted node,
+  // calling various lifecycle hooks as you go
+  reconcile(routerState: RouterState, mountedNode: MountedNode) {
+    let currentChildNodes = mountedNode.childNodes;
+    let nextChildNodes: MountedNodeSet = {};
+
+    let activeChildRouteState = routerState.routes[routerState.index];
+    let currentActiveNode = currentChildNodes[activeChildRouteState.key];
+
+    if (!currentActiveNode) {
+      currentActiveNode = new MountedNode(mountedNode.resolver, routerState.componentName);
+    }
+
+    let childRouteableReducer = this.childRouteables[activeChildRouteState.routeName];
+    childRouteableReducer.reconcile(activeChildRouteState, currentActiveNode);
+
+    nextChildNodes[activeChildRouteState.key] = currentActiveNode;
+
+    Object.keys(currentChildNodes).forEach(key => {
+      if (nextChildNodes[key]) {
+        return;
+      }
+      currentChildNodes[key].unmount();
+    });
+
+    // TODO: move all this into mountedNode.update??
+    mountedNode.childNodes = nextChildNodes;
+    mountedNode.update(routerState)
   }
 }

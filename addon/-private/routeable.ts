@@ -1,4 +1,5 @@
 import { RouterActions } from './actions/types'
+import { PublicRoute } from './public-route';
 
 export interface RouteableState {
   key: string;
@@ -42,6 +43,7 @@ export interface RouteableReducer {
   params?: any;
   getInitialState: (options?: InitialStateOptions) => RouteableState;
   dispatch: (action: RouterActions, state?: RouteableState) => ReducerResult;
+  reconcile(routerState: RouteableState, mountedNode: MountableNode) : void;
 };
 
 export interface RouteReducer extends RouteableReducer {
@@ -53,3 +55,17 @@ export interface RouterReducer extends RouteableReducer {
   isRouter: true;
   getInitialState: (options?: InitialStateOptions) => RouterState;
 }
+
+export interface MountableNode {
+  childNodes: MountableNodeSet;
+  resolver: Resolver;
+  routeableState?: any;
+  route: PublicRoute;
+}
+
+export interface Resolver {
+  resolve(componentName: string): typeof PublicRoute | null;
+}
+
+export type MountableNodeSet = { [key: string]: MountableNode };
+

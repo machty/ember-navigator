@@ -1,8 +1,3 @@
-{{#each currentStates key="key" as |s|}}
-  {{! TODO: shared helper for rendering "routeable" components? }}
-  {{component s.componentName
-      config=s.config
-      state=s.routeState
-      params=s.routeState.params
-      mountedRouter=this.mountedRouter}}
+{{#each currentNodes key="key" as |childNode|}}
+  {{component childNode.componentName node=childNode route=childNode.route}}
 {{/each}}
