@@ -12,8 +12,6 @@ export default Ember.Controller.extend({
       resolve: (componentName) => {
         let factory = owner.factoryFor(`component:${componentName}`);
 
-        // debugger;
-
         // let Config = factory && factory.class.Config;
 
         // if (Config) {

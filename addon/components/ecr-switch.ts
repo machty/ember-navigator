@@ -14,7 +14,6 @@ export default class EcrSwitch extends Component.extend({
     let routerState = node.routeableState as RouterState;
     let activeChild = routerState.routes[routerState.index];
     let activeChildNode = node.childNodes[activeChild.key];
-    debugger;
     return [activeChildNode];
   }),
 }) {

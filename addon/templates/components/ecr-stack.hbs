@@ -1,9 +1,6 @@
   {{ecr-header
       state=currentState
       mountedRouter=this.mountedRouter}}
-
-      WHAAT
-
 {{#each currentNodes key="key" as |childNode|}}
   {{component childNode.componentName node=childNode route=childNode.route}}
 {{/each}}

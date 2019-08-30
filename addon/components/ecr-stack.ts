@@ -26,7 +26,6 @@ export default class EcrStack extends Component.extend({
 
   get shouldRenderHeader() {
     return false;
-    // debugger;
     // return (this.state as StackRouterState).headerMode !== 'none';
   }
 };

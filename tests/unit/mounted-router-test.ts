@@ -17,7 +17,6 @@ function buildTestResolver() {
     }
 
     unmount() {
-      // debugger;
       events.push({ id: this.id, type: "unmount", key: this.node.key});
     }
 
@@ -111,5 +110,85 @@ module('Unit - MountedRouter test', function(hooks) {
     events.length = 0;
     mountedRouter.navigate({ routeName: 'foo' })
     assert.deepEqual(events, []);
+  });
+
+  test("stack: initial state", function (assert) {
+    let router = stackRouter('root', [
+      route('foo'),
+      route('bar'),
+    ]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+    assert.deepEqual(events, [
+      {
+        "id": 1,
+        "key": "id-0",
+        "type": "update"
+      },
+      {
+        "id": 0,
+        "key": "StackRouterRoot",
+        "type": "update"
+      }
+    ]);
+  });
+
+  test("stack: no-op", function (assert) {
+    let router = stackRouter('root', [
+      route('foo'),
+      route('bar'),
+    ]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+    events.length = 0;
+    mountedRouter.navigate({ routeName: 'foo' })
+    assert.deepEqual(events, []);
+  });
+
+  test("stack: basic nav", function (assert) {
+    let router = stackRouter('root', [
+      route('foo'),
+      route('bar'),
+    ]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+    events.length = 0;
+    mountedRouter.navigate({ routeName: 'bar' })
+    assert.deepEqual(events, [
+      {
+        "id": 2,
+        "key": "id-2",
+        "type": "update"
+      },
+      {
+        "id": 0,
+        "key": "StackRouterRoot",
+        "type": "update"
+      }
+    ]);
+  });
+
+  test("stack: popping", function (assert) {
+    let router = stackRouter('root', [
+      route('foo'),
+      route('bar'),
+    ]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+    mountedRouter.navigate({ routeName: 'bar' })
+    events.length = 0;
+    mountedRouter.navigate({ routeName: 'foo' })
+    assert.deepEqual(events, [
+      {
+        "id": 2,
+        "key": "id-2",
+        "type": "unmount"
+      },
+      {
+        "id": 0,
+        "key": "StackRouterRoot",
+        "type": "update"
+      }
+    ]);
   });
 })

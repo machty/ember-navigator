@@ -208,6 +208,8 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       let childNode = currentChildNodes[childRouteState.key];
       if (childNode && childNode.routeableState === childRouteState) {
         // child state hasn't changed in any way, don't recurse/update
+        // TODO: this next line is duplicated below... how can we DRY/clean it
+        nextChildNodes[childRouteState.key] = childNode;
         return;
       } else if (!childNode) {
         childNode = new MountedNode(mountedNode.resolver, childRouteState);
@@ -216,7 +218,6 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       let childRouteableReducer = this.childRouteables[childRouteState.routeName];
       childRouteableReducer.reconcile(childRouteState, childNode);
 
-      // childNode.update(childRouteState)
       nextChildNodes[childRouteState.key] = childNode;
     });
 
@@ -228,6 +229,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     });
 
     mountedNode.childNodes = nextChildNodes;
+    mountedNode.update(routerState)
   }
 }
 

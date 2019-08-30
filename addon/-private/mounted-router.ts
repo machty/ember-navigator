@@ -32,32 +32,8 @@ export class MountedNode implements MountableNode {
   }
 
   update(routeableState: RouteableState) {
-    // debugger;
+    // TODO: is this check needed? when else would this change?
     if (this.routeableState === routeableState) { return; }
-
-    // if ((routeableState as any).routes) {
-    //   let currentChildNodes = this.childNodes;
-    //   let nextChildNodes: MountedNodeSet = {};
-    //   let routerState: RouterState = routeableState as RouterState;
-
-    //   routerState.routes.forEach(childRouteState => {
-    //     let childNode = currentChildNodes[childRouteState.key];
-    //     if (!childNode) {
-    //       childNode = new MountedNode(this.resolver, childRouteState);
-    //     }
-    //     childNode.update(childRouteState);
-    //     nextChildNodes[childRouteState.key] = childNode;
-    //   });
-
-    //   Object.keys(currentChildNodes).forEach(key => {
-    //     if (nextChildNodes[key]) {
-    //       return;
-    //     }
-    //     currentChildNodes[key].unmount();
-    //   });
-
-    //   this.childNodes = nextChildNodes;
-    // }
 
     this.route.update(routeableState);
     this.routeableState = routeableState;
@@ -85,10 +61,11 @@ export default class MountedRouter {
   dispatch(action: RouterActions) {
     let result = this.router.dispatch(action, this.state);
     if (result.handled) {
-      console.log(result.state);
-      set(this, 'state', result.state);
-      // this.state = result.state;
-      this._update();
+      if (this.state !== result.state) {
+        console.log(result.state);
+        set(this, 'state', result.state);
+        this._update();
+      }
     } else {
       console.warn(`mounted-router: unhandled action ${action.type}`);
     }

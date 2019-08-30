@@ -135,7 +135,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       currentChildNodes[key].unmount();
     });
 
-    // TODO: move all this into mountedNode.update??
+    // TODO: this ceremony is duplicated with stack router. consolidate? move all this into mountedNode.update??
     mountedNode.childNodes = nextChildNodes;
     mountedNode.update(routerState)
   }
