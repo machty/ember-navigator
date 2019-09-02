@@ -3,6 +3,7 @@ import { RouterActions, NavigateParams, PopParams } from "./actions/types";
 import { navigate, pop } from "./actions/actions";
 import { PublicRoute } from "./public-route";
 import { set } from "@ember/object";
+import { sendEvent } from '@ember/object/events';
 
 export type MountedNodeSet = { [key: string]: MountedNode };
 
@@ -13,21 +14,21 @@ let ID = 0;
 
 export class MountedNode implements MountableNode {
   childNodes: MountedNodeSet;
-  resolver: Resolver;
   routeableState?: RouteableState;
   componentName: string;
   route: PublicRoute;
   key: string;
   id: number;
   header?: any;
+  mountedRouter: MountedRouter;
 
-  constructor(resolver: Resolver, routeableState: RouteableState) {
+  constructor(mountedRouter: MountedRouter, routeableState: RouteableState) {
     // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
     this.id = ID++;
+    this.mountedRouter = mountedRouter;
     this.componentName = routeableState.componentName;
     this.key = routeableState.key;
-    this.resolver = resolver;
-    let RouteConstuctor = this.resolver.resolve(this.componentName) || PublicRoute;
+    let RouteConstuctor = this.resolve(this.componentName) || PublicRoute;
     this.route = new RouteConstuctor(this);
     this.childNodes = {};
   }
@@ -42,6 +43,10 @@ export class MountedNode implements MountableNode {
 
   unmount() {
     this.route.unmount();
+  }
+
+  resolve(name: string) {
+    return this.mountedRouter.resolver.resolve(name);
   }
 
   getHeaderConfig() : any {
@@ -68,7 +73,7 @@ export default class MountedRouter {
     this.resolver = resolver;
     this.router = router;
     this.state = router.getInitialState();
-    this.rootNode = new MountedNode(resolver, this.state);
+    this.rootNode = new MountedNode(this, this.state);
     this._update();
   }
 
@@ -79,10 +84,15 @@ export default class MountedRouter {
         console.log(result.state);
         set(this, 'state', result.state);
         this._update();
+        this._sendEvents();
       }
     } else {
       console.warn(`mounted-router: unhandled action ${action.type}`);
     }
+  }
+
+  _sendEvents() {
+    sendEvent(this, 'didTransition');
   }
 
   _update() {

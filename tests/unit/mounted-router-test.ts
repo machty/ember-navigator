@@ -168,6 +168,29 @@ module('Unit - MountedRouter test', function(hooks) {
     ]);
   });
 
+  test("stack: basic nav with params", function (assert) {
+    let router = stackRouter('root', [
+      route('foo'),
+      route('bar'),
+    ]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+    events.length = 0;
+    mountedRouter.navigate({ routeName: 'bar', params: { bar_id: 123 } })
+    // assert.deepEqual(events, [
+    //   {
+    //     "id": 2,
+    //     "key": "id-2",
+    //     "type": "update"
+    //   },
+    //   {
+    //     "id": 0,
+    //     "key": "StackRouterRoot",
+    //     "type": "update"
+    //   }
+    // ]);
+  });
+
   test("stack: popping", function (assert) {
     let router = stackRouter('root', [
       route('foo'),

@@ -19,32 +19,10 @@ body {
 }
 
 .ecr-app-container {
+  background-color: #ccffee;
   width: 300px;
   height: 500px;
   flex-shrink: 0;
-}
-
-.ecr-app-container, .ecr-stack, .ecr-switch {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.ecr-stack, .ecr-switch {
-  flex: 1;
-  height: 100%;
-}
-
-.ecr-stack-frame {
-  box-sizing: border-box;
-  border: 1px solid rgba(0,0,0,0.3);
-  /* background: white; */
-  background: rgba(255,255,255,0.3);
-  flex: 1;
-}
-
-.ecr-app-container {
-  background-color: #ccffee;
 }
 
 .app-header {
@@ -62,13 +40,36 @@ body {
   text-align: center;
 }
 
+.ecr-stack-frame {
+  background: rgba(255,255,255,0.3);
+}
+
+a.back-button {
+  text-decoration: none;
+  color: white;
+}
+
 pre {
   margin: 0;
   margin-left: 3px;
   font-size: 11px;
 }
 
-a.back-button {
-  text-decoration: none;
-  color: white;
+/* begin app copy pasta */
+
+.ecr-app-container, .ecr-stack, .ecr-switch {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ecr-stack, .ecr-switch {
+  flex: 1;
+  height: 100%;
+}
+
+.ecr-stack-frame {
+  box-sizing: border-box;
+  border: 1px solid rgba(0,0,0,0.3);
+  flex: 1;
 }

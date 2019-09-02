@@ -20,6 +20,10 @@ export default class EcrStack extends Component.extend({
   showHeader: computed(function() {
     return this.node.routeableState.headerMode !== 'none';
   }),
+
+  headerComponentName: computed(function() {
+    return this.node.routeableState.headerComponentName;
+  }),
 }) {
   layout = layout;
 };

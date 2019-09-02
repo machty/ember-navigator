@@ -58,7 +58,6 @@ export interface RouterReducer extends RouteableReducer {
 
 export interface MountableNode {
   childNodes: MountableNodeSet;
-  resolver: Resolver;
   routeableState?: any;
   route: PublicRoute;
   key: string;

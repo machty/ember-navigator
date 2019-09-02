@@ -120,7 +120,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
     let currentActiveNode = currentChildNodes[activeChildRouteState.key];
 
     if (!currentActiveNode) {
-      currentActiveNode = new MountedNode(mountedNode.resolver, activeChildRouteState);
+      currentActiveNode = new MountedNode(mountedNode.mountedRouter, activeChildRouteState);
     }
 
     let childRouteableReducer = this.childRouteables[activeChildRouteState.routeName];

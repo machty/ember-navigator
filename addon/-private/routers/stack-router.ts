@@ -212,7 +212,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
         nextChildNodes[childRouteState.key] = childNode;
         return;
       } else if (!childNode) {
-        childNode = new MountedNode(mountedNode.resolver, childRouteState);
+        childNode = new MountedNode(mountedNode.mountedRouter, childRouteState);
       }
 
       let childRouteableReducer = this.childRouteables[childRouteState.routeName];
