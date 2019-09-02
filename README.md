@@ -2,9 +2,6 @@
 
 **Note: Very Very Alpha**
 
-This probably shouldn't be called "constraint-router" any more, at least
-not until I reintroduce the concepts of constraints.
-
 The current focus is landing an Ember-equivalent API of
 [React Navigation](https://reactnavigation.org/) library, which is a
 robust, battle-tested, and well designed navigation solution.
