@@ -58,7 +58,7 @@ export class MountedNode implements MountableNode {
       return child && child.getHeaderConfig();
     } else {
       // this is leaf route, check the PublicRoute
-      return this.route.header;
+      return (this.route as any).header;
     }
   }
 }

@@ -57,7 +57,7 @@ module('Unit - MountedRouter test', function(hooks) {
       route('bar'),
     ]);
     let { resolver, events } = buildTestResolver();
-    let mountedRouter = new MountedRouter(router, resolver);
+    new MountedRouter(router, resolver);
     assert.deepEqual(events, [
       {
         "id": 1,
@@ -118,7 +118,7 @@ module('Unit - MountedRouter test', function(hooks) {
       route('bar'),
     ]);
     let { resolver, events } = buildTestResolver();
-    let mountedRouter = new MountedRouter(router, resolver);
+    new MountedRouter(router, resolver);
     assert.deepEqual(events, [
       {
         "id": 1,
@@ -168,7 +168,7 @@ module('Unit - MountedRouter test', function(hooks) {
     ]);
   });
 
-  test("stack: basic nav with params", function (assert) {
+  test("stack: basic nav with params", function () {
     let router = stackRouter('root', [
       route('foo'),
       route('bar'),

@@ -1,5 +1,5 @@
 import MountedRouter from "./-private/mounted-router";
-import { RouterReducer, RouteState, RouteableReducer, Resolver } from "./-private/routeable";
+import { RouterReducer, RouteableReducer, Resolver } from "./-private/routeable";
 import { RouteOptions, Route } from "./-private/route";
 import { StackOptions, StackRouter } from "./-private/routers/stack-router";
 import { SwitchOptions, SwitchRouter } from "./-private/routers/switch-router";

@@ -22,6 +22,8 @@ module('Unit - StackRouter test', function(hooks) {
     "params": {},
     "routeName": "root",
     "index": 0,
+    "headerComponentName": "disregard",
+    "headerMode": "disregard",
     "routes": [
       {
         "key": "id-0",
@@ -83,6 +85,8 @@ module('Unit - StackRouter test', function(hooks) {
       "key": "StackRouterRoot",
       "params": {},
       "routeName": "root",
+      "headerComponentName": "disregard",
+      "headerMode": "disregard",
       "routes": [
         {
           "componentName": "ecr-stack",
