@@ -1,1 +1,1 @@
-export { default } from "ember-constraint-router/components/ecr-header";
+export { default } from "ember-navigator/components/ecr-header";

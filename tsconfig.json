@@ -27,16 +27,16 @@
         "tests/dummy/app/*",
         "app/*"
       ],
-      "ember-constraint-router": [
+      "ember-navigator": [
         "addon"
       ],
-      "ember-constraint-router/*": [
+      "ember-navigator/*": [
         "addon/*"
       ],
-      "ember-constraint-router/test-support": [
+      "ember-navigator/test-support": [
         "addon-test-support"
       ],
-      "ember-constraint-router/test-support/*": [
+      "ember-navigator/test-support/*": [
         "addon-test-support/*"
       ],
       "*": [

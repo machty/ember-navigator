@@ -1,8 +1,8 @@
 import { test, module } from 'ember-qunit';
-import { route, switchRouter, stackRouter } from 'ember-constraint-router';
-import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
+import { route, switchRouter, stackRouter } from 'ember-navigator';
+import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
 import { navigate } from './helpers';
-import { RouterState } from 'ember-constraint-router/-private/routeable';
+import { RouterState } from 'ember-navigator/-private/routeable';
 
 module('Unit - SwitchRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());

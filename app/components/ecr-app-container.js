@@ -1,1 +1,1 @@
-export { default } from "ember-constraint-router/components/ecr-app-container";
+export { default } from "ember-navigator/components/ecr-app-container";

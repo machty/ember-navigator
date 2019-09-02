@@ -1,4 +1,4 @@
-# ember-constraint-router
+# ember-navigator
 
 **Note: Very Very Alpha**
 
@@ -12,7 +12,7 @@ robust, battle-tested, and well designed navigation solution.
 ## Installation
 
 * `git clone <repository-url>` this repository
-* `cd ember-constraint-router`
+* `cd ember-navigator`
 * `yarn install`
 
 ## Running

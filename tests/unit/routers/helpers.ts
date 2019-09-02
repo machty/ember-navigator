@@ -1,6 +1,6 @@
-import { RouterReducer, RouterState } from "ember-constraint-router/-private/routeable";
-import { RouterActions } from "ember-constraint-router/-private/actions/types";
-import { navigate as navigateAction } from "ember-constraint-router/-private/actions/actions";
+import { RouterReducer, RouterState } from "ember-navigator/-private/routeable";
+import { RouterActions } from "ember-navigator/-private/actions/types";
+import { navigate as navigateAction } from "ember-navigator/-private/actions/actions";
 
 export function handle(router: RouterReducer, action: RouterActions, state: RouterState) : RouterState {
   let result = router.dispatch(action, state);

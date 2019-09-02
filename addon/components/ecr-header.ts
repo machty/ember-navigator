@@ -2,7 +2,7 @@ import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-header';
 import { computed } from '@ember/object';
-import { MountedNode } from 'ember-constraint-router/-private/mounted-router';
+import { MountedNode } from 'ember-navigator/-private/mounted-router';
 
 export default class EcrHeader extends Component.extend({
   mountedRouter: null,

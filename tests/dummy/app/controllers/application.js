@@ -1,8 +1,8 @@
 import Ember from 'ember';
 import { getOwner } from '@ember/application';
 import { computed } from '@ember/object';
-import { mount } from 'ember-constraint-router';
-import { stackRouter, switchRouter, route } from 'ember-constraint-router';
+import { mount } from 'ember-navigator';
+import { stackRouter, switchRouter, route } from 'ember-navigator';
 
 export default Ember.Controller.extend({
   mountedRouter: computed(function() {

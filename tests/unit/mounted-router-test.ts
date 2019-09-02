@@ -1,9 +1,9 @@
 import { test, module } from 'ember-qunit';
-import { route, switchRouter, stackRouter } from 'ember-constraint-router';
-import { _TESTING_ONLY_normalize_keys } from 'ember-constraint-router/-private/key-generator';
-import MountedRouter from 'ember-constraint-router/-private/mounted-router';
-import { Resolver } from 'ember-constraint-router/-private/routeable';
-import { PublicRoute } from 'ember-constraint-router/-private/public-route';
+import { route, switchRouter, stackRouter } from 'ember-navigator';
+import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
+import MountedRouter from 'ember-navigator/-private/mounted-router';
+import { Resolver } from 'ember-navigator/-private/routeable';
+import { PublicRoute } from 'ember-navigator/-private/public-route';
 
 function buildTestResolver() {
   let events: any[] = [];

@@ -1,1 +1,1 @@
-export { default } from "ember-constraint-router/components/ecr-switch";
+export { default } from "ember-navigator/components/ecr-switch";
