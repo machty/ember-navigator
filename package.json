@@ -6,7 +6,7 @@
     "ember-addon"
   ],
   "license": "MIT",
-  "author": "",
+  "author": "Alex Matchneer",
   "directories": {
     "doc": "doc",
     "test": "tests"
