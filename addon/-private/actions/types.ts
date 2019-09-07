@@ -7,6 +7,7 @@ export const POP_TO_TOP = "Navigation/POP_TO_TOP";
 export const PUSH = "Navigation/PUSH";
 export const RESET = "Navigation/RESET";
 export const REPLACE = "Navigation/REPLACE";
+export const BATCH = "Navigation/BATCH";
 
 export type BackParams = {
   key?: string;
@@ -97,6 +98,15 @@ export type ReplaceAction = {
   payload: ReplaceParams;
 };
 
-export type NavigationActions = NavigateAction | BackAction | SetParamsAction | InitAction;
+export type BatchParams = {
+  actions: RouterActions[];
+};
+
+export type BatchAction = {
+  type: typeof BATCH;
+  payload: BatchParams;
+};
+
+export type NavigationActions = NavigateAction | BackAction | SetParamsAction | InitAction | BatchAction;
 export type StackActions = ResetAction | ReplaceAction | PushAction | PopAction | PopToTopAction;
 export type RouterActions = NavigationActions | StackActions;

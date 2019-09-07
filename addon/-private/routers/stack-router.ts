@@ -5,7 +5,9 @@ import {
   RouterActions,
   POP,
   PopAction,
-  BackAction
+  BackAction,
+  BATCH,
+  BatchAction
 } from "../actions/types";
 import {
   RouterReducer,
@@ -37,6 +39,8 @@ export class StackRouter extends BaseRouter implements RouterReducer {
         return this.goBack(action, state);
       case POP:
         return this.popStack(action, state);
+      case BATCH:
+        return this.batch(action, state);
     }
 
     return unhandledAction();
@@ -175,6 +179,18 @@ export class StackRouter extends BaseRouter implements RouterReducer {
           index: backRouteIndex - 1
         })
       : unhandledAction();
+  }
+
+  batch(action: BatchAction, state: RouterState): ReducerResult {
+    let newState = state;
+    action.payload.actions.forEach(subaction => {
+      let result = this.dispatch(subaction, newState);
+      if (result.handled) {
+        newState = result.state;
+      }
+      // TODO: what if not handled? currently each batch will be treated as handled
+    });
+    return handledAction(newState);
   }
 
   getInitialState(options: InitialStateOptions = {}): StackRouterState {

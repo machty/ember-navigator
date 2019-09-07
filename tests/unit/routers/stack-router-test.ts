@@ -3,7 +3,7 @@ import { route, stackRouter } from 'ember-navigator';
 import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
 import { RouterState } from 'ember-navigator/-private/routeable';
 import { handle, navigate } from './helpers';
-import { pop } from 'ember-navigator/-private/actions/actions';
+import { pop, batch, navigate as makeNavigateAction } from 'ember-navigator/actions';
 
 module('Unit - StackRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
@@ -186,5 +186,36 @@ module('Unit - StackRouter test', function(hooks) {
       { "params": { "id": 5 } },
       { "params": { "id": 6 } }
     ]);
+  });
+
+  test("it supports sending batch actions to support popTo + 1", function (assert) {
+    let router = stackRouter('root', [
+      route('home'),
+      route('other'),
+      route('login-1'),
+      route('login-2'),
+    ]);
+
+    let pushRoutes = batch({
+      actions: [
+        makeNavigateAction({ routeName: 'other' }),
+        makeNavigateAction({ routeName: 'login-1' }),
+        makeNavigateAction({ routeName: 'login-2' }),
+      ],
+    })
+
+    let popLoginFlow = batch({
+      actions: [
+        makeNavigateAction({ routeName: 'login-1' }),
+        pop(),
+      ],
+    })
+
+    let state = router.getInitialState();
+    let state2 = handle(router, pushRoutes, state);
+    assert.deepEqual(state2.routes.map(r => r.routeName), ["home", "other", "login-1", "login-2"]);
+
+    let state3 = handle(router, popLoginFlow, state2);
+    assert.deepEqual(state3.routes.map(r => r.routeName), ["home", "other"]);
   });
 });

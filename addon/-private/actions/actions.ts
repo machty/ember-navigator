@@ -23,7 +23,10 @@ import {
   REPLACE,
   ReplaceParams,
   ReplaceAction,
-  SetParamsAction
+  SetParamsAction,
+  BatchParams,
+  BatchAction,
+  BATCH
 } from "./types";
 
 export const back = (payload: BackParams = {}): BackAction => ({
@@ -63,5 +66,10 @@ export const reset = (payload: ResetParams): ResetAction => ({
 
 export const replace = (payload: ReplaceParams): ReplaceAction => ({
   type: REPLACE,
+  payload
+});
+
+export const batch = (payload: BatchParams): BatchAction => ({
+  type: BATCH,
   payload
 });
