@@ -71,6 +71,20 @@ module('Unit - StackRouter test', function(hooks) {
     ]);
   });
 
+  test("it supports deeply nested sibling stack routers", function (assert) {
+    let router = stackRouter('root', [
+      stackRouter('a', [
+        route('aa'),
+      ]),
+      stackRouter('b', [
+        route('bb'),
+      ]),
+    ]);
+    let initialState = router.getInitialState();
+    let state = navigate(router, initialState, 'bb');
+    assert.equal(state.index, 1);
+  });
+
   test("it supports nesting", function (assert) {
     let router = stackRouter('root', [
       stackRouter('nested', [

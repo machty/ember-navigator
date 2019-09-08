@@ -198,8 +198,8 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     let childRouteableState = this.childRouteables[
       initialRouteName
     ].getInitialState({
-      // routeName: initialRouteName,
-      params: null
+      params: null,
+      key: initialRouteName,
     });
 
     return {
