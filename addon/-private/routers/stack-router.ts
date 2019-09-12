@@ -47,14 +47,14 @@ export class StackRouter extends BaseRouter implements RouterReducer {
   }
 
   navigate(action: NavigateAction, state: RouterState): ReducerResult {
-    return this.delegateNavigationToActiveChildRouters(action, state) ||
+    return this.delegateToActiveChildRouters(action, state) ||
            this.navigateToPreexisting(action, state) ||
            this.navigateToNew(action, state) ||
            unhandledAction();
   }
 
-  delegateNavigationToActiveChildRouters(
-    action: NavigateAction,
+  delegateToActiveChildRouters(
+    action: RouterActions,
     state: RouterState
   ): ReducerResult | void {
     // Traverse routes from the top of the stack to the bottom, so the
@@ -167,6 +167,11 @@ export class StackRouter extends BaseRouter implements RouterReducer {
   }
 
   popStack(action: PopAction, state: RouterState): ReducerResult {
+    let result = this.delegateToActiveChildRouters(action, state);
+    if (result) {
+      return result;
+    }
+
     // determine the index to go back *from*. In this case, n=1 means to go
     // back from state.index, as if it were a normal "BACK" action
     const n = action.payload.n || 1;

@@ -187,6 +187,21 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual(state3.routes, DEFAULT_STATE.routes);
   });
 
+  test("it supports letting the deepest stack pop the route", function (assert) {
+    let router = stackRouter('root', [
+      route('a'),
+      stackRouter('nested', [
+        route('b'),
+        route('c')
+      ])
+    ]);
+    let initialState = router.getInitialState();
+    let state2 = navigate(router, initialState, { routeName: 'nested' });
+    let state3 = navigate(router, state2, { routeName: 'c' });
+    let state4 = handle(router, pop(), state3);
+    assert.equal(state4.index, 1);
+  });
+
   test("it supports navigating with params", function (assert) {
     let router = stackRouter('root', [ route('foo') ]);
     let state = router.getInitialState();
