@@ -1,5 +1,5 @@
 import { MountableNode } from "./routeable";
-import { notifyPropertyChange, set } from "@ember/object";
+import { notifyPropertyChange } from "@ember/object";
 import { NavigateParams, PopParams } from "./actions/types";
 
 export class PublicRoute {
