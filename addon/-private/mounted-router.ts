@@ -31,6 +31,7 @@ export class MountedNode implements MountableNode {
     let RouteConstuctor = this.resolve(this.componentName) || PublicRoute;
     this.route = new RouteConstuctor(this);
     this.childNodes = {};
+    this.mount();
   }
 
   update(routeableState: RouteableState) {
@@ -39,6 +40,10 @@ export class MountedNode implements MountableNode {
 
     this.route.update(routeableState);
     this.routeableState = routeableState;
+  }
+
+  mount() {
+    this.route.mount();
   }
 
   unmount() {
