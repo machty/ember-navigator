@@ -51,27 +51,6 @@ function buildTestResolver() {
 module('Unit - MountedRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
 
-  test("initial state is kind of moronic", function (assert) {
-    let router = switchRouter('root', [
-      route('foo'),
-      route('bar'),
-    ]);
-    let { resolver, events } = buildTestResolver();
-    new MountedRouter(router, resolver);
-    assert.deepEqual(events, [
-      {
-        "id": 1,
-        "key": "foo",
-        "type": "update"
-      },
-      {
-        "id": 0,
-        "key": "SwitchRouterBase",
-        "type": "update"
-      }
-    ]);
-  });
-
   test("switch: navigation enters/updates the new route and unmounts the old one", function (assert) {
     let router = switchRouter('root', [
       route('foo'),
@@ -85,7 +64,7 @@ module('Unit - MountedRouter test', function(hooks) {
       {
         "id": 2,
         "key": "bar",
-        "type": "update"
+        "type": "mount"
       },
       {
         "id": 1,
@@ -121,14 +100,14 @@ module('Unit - MountedRouter test', function(hooks) {
     new MountedRouter(router, resolver);
     assert.deepEqual(events, [
       {
-        "id": 1,
-        "key": "id-0",
-        "type": "update"
-      },
-      {
         "id": 0,
         "key": "StackRouterRoot",
-        "type": "update"
+        "type": "mount"
+      },
+      {
+        "id": 1,
+        "key": "foo",
+        "type": "mount"
       }
     ]);
   });
@@ -157,8 +136,8 @@ module('Unit - MountedRouter test', function(hooks) {
     assert.deepEqual(events, [
       {
         "id": 2,
-        "key": "id-2",
-        "type": "update"
+        "key": "id-1",
+        "type": "mount"
       },
       {
         "id": 0,
@@ -168,7 +147,7 @@ module('Unit - MountedRouter test', function(hooks) {
     ]);
   });
 
-  test("stack: basic nav with params", function () {
+  test("stack: basic nav with params", function (assert) {
     let router = stackRouter('root', [
       route('foo'),
       route('bar'),
@@ -177,18 +156,18 @@ module('Unit - MountedRouter test', function(hooks) {
     let mountedRouter = new MountedRouter(router, resolver);
     events.length = 0;
     mountedRouter.navigate({ routeName: 'bar', params: { bar_id: 123 } })
-    // assert.deepEqual(events, [
-    //   {
-    //     "id": 2,
-    //     "key": "id-2",
-    //     "type": "update"
-    //   },
-    //   {
-    //     "id": 0,
-    //     "key": "StackRouterRoot",
-    //     "type": "update"
-    //   }
-    // ]);
+    assert.deepEqual(events, [
+      {
+        "id": 2,
+        "key": "id-1",
+        "type": "mount"
+      },
+      {
+        "id": 0,
+        "key": "StackRouterRoot",
+        "type": "update"
+      }
+    ]);
   });
 
   test("stack: popping", function (assert) {
@@ -204,7 +183,7 @@ module('Unit - MountedRouter test', function(hooks) {
     assert.deepEqual(events, [
       {
         "id": 2,
-        "key": "id-2",
+        "key": "id-1",
         "type": "unmount"
       },
       {

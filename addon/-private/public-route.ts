@@ -4,7 +4,6 @@ import { NavigateParams, PopParams } from "./actions/types";
 
 export class PublicRoute {
   node: MountableNode;
-  params: any;
 
   constructor(node: MountableNode) {
     this.node = node;
@@ -18,10 +17,13 @@ export class PublicRoute {
     (this.node as any).mountedRouter.pop(options);
   }
 
-  update(state: any) {
-    set(this, 'params', state.params);
+  update(_state: any) {
     // this is how we signal to components to re-render with the new state.
     notifyPropertyChange(this, 'node')
+  }
+
+  get params() {
+    return this.node.params || {};
   }
 
   unmount() {}

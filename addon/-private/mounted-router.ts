@@ -14,10 +14,8 @@ let ID = 0;
 
 export class MountedNode implements MountableNode {
   childNodes: MountedNodeSet;
-  routeableState?: RouteableState;
-  componentName: string;
+  routeableState: RouteableState;
   route: PublicRoute;
-  key: string;
   id: number;
   header?: any;
   mountedRouter: MountedRouter;
@@ -26,8 +24,7 @@ export class MountedNode implements MountableNode {
     // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
     this.id = ID++;
     this.mountedRouter = mountedRouter;
-    this.componentName = routeableState.componentName;
-    this.key = routeableState.key;
+    this.routeableState = routeableState;
     let RouteConstuctor = this.resolve(this.componentName) || PublicRoute;
     this.route = new RouteConstuctor(this);
     this.childNodes = {};
@@ -52,6 +49,18 @@ export class MountedNode implements MountableNode {
 
   resolve(name: string) {
     return this.mountedRouter.resolver.resolve(name);
+  }
+
+  get componentName() {
+    return this.routeableState.componentName;
+  }
+
+  get key() {
+    return this.routeableState.key;
+  }
+
+  get params() {
+    return this.routeableState.params;
   }
 
   getHeaderConfig() : any {
