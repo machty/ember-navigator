@@ -208,7 +208,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     });
 
     return {
-      key: options.key || "StackRouterRoot",
+      key: options.key || this.name,
       index: 0,
       routes: [childRouteableState],
       componentName: this.componentName,
@@ -221,7 +221,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     };
   }
 
-  reconcile(routerState: RouterState, mountedNode: MountedNode) {
+  reconcile(routerState: RouterState, mountedNode: MountedNode, action: RouterActions) {
     let currentChildNodes = mountedNode.childNodes;
     let nextChildNodes: MountedNodeSet = {};
 
@@ -237,7 +237,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       }
 
       let childRouteableReducer = this.childRouteables[childRouteState.routeName];
-      childRouteableReducer.reconcile(childRouteState, childNode);
+      childRouteableReducer.reconcile(childRouteState, childNode, action);
 
       nextChildNodes[childRouteState.key] = childNode;
     });

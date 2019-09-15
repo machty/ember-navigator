@@ -7,7 +7,7 @@ import {
   InitialStateOptions
 } from "./routeable";
 import { generateKey } from "./key-generator";
-import { RouterActions } from "./actions/types";
+import { RouterActions, NAVIGATE, NavigateAction } from "./actions/types";
 import { MountedNode } from "./mounted-router";
 
 export type RouteOptions = {
@@ -44,7 +44,16 @@ export class Route implements RouteReducer {
     return { handled: false };
   }
 
-  reconcile(routeState: RouteState, mountedNode: MountedNode) {
+  reconcile(routeState: RouteState, mountedNode: MountedNode, action: RouterActions) {
     mountedNode.update(routeState);
+    if (action.type === NAVIGATE) {
+      let navigateAction = action as NavigateAction;
+      if (navigateAction.payload.routeName === routeState.routeName) {
+        let actionKey = navigateAction.payload.key;
+        if (!actionKey || actionKey === routeState.key) {
+          mountedNode.didNavigate(navigateAction.payload.params);
+        }
+      }
+    }
   }
 }

@@ -112,7 +112,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
 
   // accept new router state and use it to update the mounted node,
   // calling various lifecycle hooks as you go
-  reconcile(routerState: RouterState, mountedNode: MountedNode) {
+  reconcile(routerState: RouterState, mountedNode: MountedNode, action: RouterActions) {
     let currentChildNodes = mountedNode.childNodes;
     let nextChildNodes: MountedNodeSet = {};
 
@@ -124,7 +124,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
     }
 
     let childRouteableReducer = this.childRouteables[activeChildRouteState.routeName];
-    childRouteableReducer.reconcile(activeChildRouteState, currentActiveNode);
+    childRouteableReducer.reconcile(activeChildRouteState, currentActiveNode, action);
 
     nextChildNodes[activeChildRouteState.key] = currentActiveNode;
 

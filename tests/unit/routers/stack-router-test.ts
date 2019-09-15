@@ -96,7 +96,7 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual(initialState, {
       "componentName": "ecr-stack",
       "index": 0,
-      "key": "StackRouterRoot",
+      "key": "root",
       "params": {},
       "routeName": "root",
       "headerComponentName": "disregard",

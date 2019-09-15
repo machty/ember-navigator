@@ -30,4 +30,5 @@ export class PublicRoute {
   mount() {}
   focus() {}
   blur() {}
+  didNavigate(_params: any) {}
 }

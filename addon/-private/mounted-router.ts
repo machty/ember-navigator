@@ -1,6 +1,6 @@
 import { RouterReducer, RouterState, RouteableState, MountableNode, Resolver } from "./routeable";
 import { RouterActions, NavigateParams, PopParams } from "./actions/types";
-import { navigate, pop } from "./actions/actions";
+import { navigate, pop, init } from "./actions/actions";
 import { PublicRoute } from "./public-route";
 import { set } from "@ember/object";
 import { sendEvent } from '@ember/object/events';
@@ -75,6 +75,10 @@ export class MountedNode implements MountableNode {
       return (this.route as any).header;
     }
   }
+
+  didNavigate(params: any) {
+    this.route.didNavigate(params);
+  }
 }
 
 export default class MountedRouter {
@@ -88,7 +92,7 @@ export default class MountedRouter {
     this.router = router;
     this.state = router.getInitialState();
     this.rootNode = new MountedNode(this, this.state);
-    this._update();
+    this._update(init({}));
   }
 
   dispatch(action: RouterActions) {
@@ -97,7 +101,7 @@ export default class MountedRouter {
       if (this.state !== result.state) {
         console.log(result.state);
         set(this, 'state', result.state);
-        this._update();
+        this._update(action);
         this._sendEvents();
       }
     } else {
@@ -109,8 +113,8 @@ export default class MountedRouter {
     sendEvent(this, 'didTransition');
   }
 
-  _update() {
-    this.router.reconcile(this.state, this.rootNode);
+  _update(action: RouterActions) {
+    this.router.reconcile(this.state, this.rootNode, action);
   }
 
   navigate(options: NavigateParams) {

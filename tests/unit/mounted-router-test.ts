@@ -5,29 +5,49 @@ import MountedRouter from 'ember-navigator/-private/mounted-router';
 import { Resolver } from 'ember-navigator/-private/routeable';
 import { PublicRoute } from 'ember-navigator/-private/public-route';
 
-function buildTestResolver() {
+function buildTestResolver(overrides: any = {}) {
   let events: any[] = [];
   let delegateId = 0;
+
+  let mask = {
+    update: true,
+    mount: true,
+    unmount: true,
+  };
+
+  Object.assign(mask, overrides);
 
   class Route extends PublicRoute {
     id: number = delegateId++;
 
     update(_state: any) {
-      events.push({ id: this.id, type: "update", key: this.node.key});
+      this.pushEvent('update')
     }
 
     unmount() {
-      events.push({ id: this.id, type: "unmount", key: this.node.key});
+      this.pushEvent('unmount')
     }
 
     mount() {
-      events.push({ id: this.id, type: "mount", key: this.node.key});
+      this.pushEvent('mount')
     }
 
     focus() {
+      this.pushEvent('focus')
     }
 
     blur() {
+      this.pushEvent('blur')
+    }
+
+    didNavigate(params: any) {
+      this.pushEvent('didNavigate', { params });
+    }
+
+    pushEvent(type: string, extras: any = {}) {
+      if (mask[type]) {
+        events.push({ id: this.id, type, key: this.node.key, ...extras });
+      }
     }
   }
 
@@ -152,15 +172,50 @@ module('Unit - MountedRouter test', function(hooks) {
       route('foo'),
       route('bar'),
     ]);
-    let { resolver, events } = buildTestResolver();
+    let { resolver, events } = buildTestResolver({ didNavigate: true });
     let mountedRouter = new MountedRouter(router, resolver);
     events.length = 0;
     mountedRouter.navigate({ routeName: 'bar', params: { bar_id: 123 } })
+    mountedRouter.navigate({ routeName: 'foo', params: {} })
+
+    // TODO: this is all weird and unproven.
+    // we call didNavigate ONLY if you pass params... we don't diff.
+    // this is ridiculously hard to solve.
+
     assert.deepEqual(events, [
       {
         "id": 2,
         "key": "id-1",
         "type": "mount"
+      },
+      {
+        "id": 2,
+        "key": "id-1",
+        "params": {
+          "bar_id": 123
+        },
+        "type": "didNavigate"
+      },
+      {
+        "id": 0,
+        "key": "StackRouterRoot",
+        "type": "update"
+      },
+      {
+        "id": 1,
+        "key": "foo",
+        "type": "update"
+      },
+      {
+        "id": 1,
+        "key": "foo",
+        "params": {},
+        "type": "didNavigate"
+      },
+      {
+        "id": 2,
+        "key": "id-1",
+        "type": "unmount"
       },
       {
         "id": 0,

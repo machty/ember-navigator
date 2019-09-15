@@ -43,7 +43,7 @@ export interface RouteableReducer {
   params?: any;
   getInitialState: (options?: InitialStateOptions) => RouteableState;
   dispatch: (action: RouterActions, state?: RouteableState) => ReducerResult;
-  reconcile(routerState: RouteableState, mountedNode: MountableNode) : void;
+  reconcile(routerState: RouteableState, mountedNode: MountableNode, action: RouterActions) : void;
 };
 
 export interface RouteReducer extends RouteableReducer {
