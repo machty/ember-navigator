@@ -22,11 +22,11 @@ module('Unit - StackRouter test', function(hooks) {
     "params": {},
     "routeName": "root",
     "index": 0,
-    "headerComponentName": "disregard",
-    "headerMode": "disregard",
+    "headerComponentName": "ecr-header",
+    "headerMode": "float",
     "routes": [
       {
-        "key": "id-0",
+        "key": "foo",
         "params": null,
         "routeName": "foo",
         "componentName": "foo",
@@ -55,14 +55,16 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual((state.routes[1] as RouterState).routes, [
       {
         "componentName": "ecr-stack",
+        "headerComponentName": "ecr-header",
+        "headerMode": "float",
         "index": 0,
-        "key": "StackRouterRoot",
+        "key": "nested",
         "params": {},
         "routeName": "nested",
         "routes": [
           {
             "componentName": "b",
-            "key": "id-2",
+            "key": "b",
             "params": null,
             "routeName": "b"
           }
@@ -99,19 +101,21 @@ module('Unit - StackRouter test', function(hooks) {
       "key": "StackRouterRoot",
       "params": {},
       "routeName": "root",
-      "headerComponentName": "disregard",
-      "headerMode": "disregard",
+      "headerComponentName": "ecr-header",
+      "headerMode": "float",
       "routes": [
         {
           "componentName": "ecr-stack",
+          "headerComponentName": "ecr-header",
+          "headerMode": "float",
           "index": 0,
-          "key": "StackRouterRoot",
+          "key": "nested",
           "params": {},
           "routeName": "nested",
           "routes": [
             {
               "componentName": "foo",
-              "key": "id-0",
+              "key": "foo",
               "params": null,
               "routeName": "foo"
             }
@@ -124,7 +128,7 @@ module('Unit - StackRouter test', function(hooks) {
     assert.deepEqual((state2.routes[0] as RouterState).routes, [
       {
         "componentName": "foo",
-        "key": "id-0",
+        "key": "foo",
         "params": null,
         "routeName": "foo"
       },
@@ -144,8 +148,10 @@ module('Unit - StackRouter test', function(hooks) {
     ]);
     let initialState = router.getInitialState();
     let state = navigate(router, initialState, { routeName: 'bar' });
-    assert.deepEqual(state, {
+    assert.deepEqual(state as any, {
       "componentName": "ecr-stack",
+      "headerComponentName": "ecr-header",
+      "headerMode": "float",
       "index": 1,
       "key": "StackRouterRoot",
       "params": {},
@@ -153,12 +159,12 @@ module('Unit - StackRouter test', function(hooks) {
       "routes": [
         {
           "componentName": "foo",
-          "key": "id-0",
+          "key": "foo",
           "params": null,
           "routeName": "foo"
         },
         {
-          "key": "id-2",
+          "key": "id-1",
           "params": undefined,
           "routeName": "bar",
           "componentName": "bar",
