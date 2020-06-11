@@ -18,6 +18,8 @@ import { MountedNode, MountedNodeSet } from "../mounted-router";
 export interface SwitchOptions extends BaseOptions {}
 
 export class SwitchRouter extends BaseRouter implements RouterReducer {
+  defaultKey = "SwitchRouterBase";
+
   dispatch(action: RouterActions, state: RouterState) {
     let activeRouteState = state.routes[state.index];
     let nextRouteState = this.dispatchTo([activeRouteState], action);
@@ -97,7 +99,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
   getInitialState(options: InitialStateOptions = {}): RouterState {
     let childRoutes = this.children.map(c => this.resetChildRoute(c));
     return {
-      key: options.key || "SwitchRouterBase",
+      key: options.key || this.defaultKey,
       params: undefined,
       routeName: this.name,
       componentName: "ecr-switch",
