@@ -25,8 +25,7 @@ export class MountedNode implements MountableNode {
     this.id = ID++;
     this.mountedRouter = mountedRouter;
     this.routeableState = routeableState;
-    let RouteConstuctor = this.resolve(this.componentName) || PublicRoute;
-    this.route = new RouteConstuctor(this);
+    this.route = this.mountedRouter.createRoute(this);
     this.childNodes = {};
     this.mount();
   }
@@ -48,7 +47,7 @@ export class MountedNode implements MountableNode {
   }
 
   resolve(name: string) {
-    return this.mountedRouter.resolver.resolve(name);
+    return this.mountedRouter.resolve(name);
   }
 
   get componentName() {
@@ -119,5 +118,14 @@ export default class MountedRouter {
 
   pop(options: PopParams) {
     this.dispatch(pop(options));
+  }
+
+  resolve(name: string) {
+    return this.resolver.resolve(name);
+  }
+
+  createRoute(node: MountedNode) {
+    let RouteConstuctor = this.resolve(node.componentName) || PublicRoute;
+    return new RouteConstuctor(node);
   }
 }
