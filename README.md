@@ -103,7 +103,7 @@ that is built up by the various routers and passed to the various navigator comp
 <details>
   <summary>Here is an annotated example of what a snapshot in time of router state might look like:</summary>
 
-```json
+```js
 {
   // The routeName corresponds to the name given in the router map
   "routeName": "tabs",
