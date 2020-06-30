@@ -17,7 +17,7 @@ robust, battle-tested, and well-designed navigation solution for React Native.
 
 ## Concepts
 
-- [Router "map"](#router--map-)
+- [Router "map"](#router-map)
 - [Router State](#router-state)
 - [Actions](#actions)
 - ["Mounting"](#-mounting-)
