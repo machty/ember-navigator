@@ -1,3 +1,7 @@
+<header>
+  <img src="./ember-navigator-mark.svg" width=60 height=60 /> <h1>Ember Navigator</h1>
+</header>
+
 <div class="outer-container">
   <div class="ecr-app-container">
     {{component mountedRouter.rootNode.componentName node=mountedRouter.rootNode route=mountedRouter.rootNode.route}}
@@ -10,7 +14,7 @@
       but I haven't yet introduced constraint-based routing into it;
       instead, I'm focusing on bringing the best aspects of React Navigation
       to this library. RN is a brilliant and elegant solution to
-      the complexities of mobile routing. 
+      the complexities of mobile routing.
     </p>
     <p>
       The demo is still very ugly, but try clicking some of the links below
@@ -24,7 +28,7 @@
           {{#each l.variations as |v|}}
             <li>
               <a href="#" onclick={{action navigate (hash routeName=l.routeName key=v.key params=v.params)}}>
-                navigate() to {{l.routeName}}: 
+                navigate() to {{l.routeName}}:
                 <code>{{json-stringify v}}</code>
               </a>
             </li>

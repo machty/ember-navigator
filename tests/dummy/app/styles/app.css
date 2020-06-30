@@ -4,8 +4,30 @@ body {
   font-family: Arial, sans-serif;
 }
 
+header {
+  line-height: 60px;
+  border-bottom: 1px solid #8800ff;
+  display: flex;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+header img {
+  flex: 0 0 auto;
+}
+
+header h1 {
+  font-family: Georgia, serif;
+  color: #8800ffcc;
+  line-height: 60px;
+  margin:0 0 0 8px;
+  font-size: 40px;
+  padding:0;
+}
+
 .outer-container {
   display: flex;
+  justify-content: space-evenly;
 }
 
 .debug-info {
