@@ -1,4 +1,4 @@
-# ember-navigator
+# ember-navigator <img src="https://raw.githubusercontent.com/machty/ember-navigator/master/tests/dummy/public/ember-navigator-mark.svg" width=36 height=36 />
 
 **Note: Very Alpha. Under-documented. Intended only for experimenters and intrepid early adopters.**
 
