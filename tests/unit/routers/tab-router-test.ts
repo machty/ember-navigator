@@ -2,7 +2,7 @@ import { test, module } from 'ember-qunit';
 import { route, tabRouter, stackRouter } from 'ember-navigator';
 import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
 import { navigate } from './helpers';
-import { RouterState, StackRouterState } from 'ember-navigator/-private/routeable';
+import { RouterState } from 'ember-navigator/-private/routeable';
 
 module('Unit - TabRouter test', function(hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
