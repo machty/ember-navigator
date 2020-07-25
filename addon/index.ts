@@ -4,7 +4,8 @@ import { RouteOptions, Route } from "./-private/route";
 import { StackOptions, StackRouter } from "./-private/routers/stack-router";
 import { SwitchOptions, SwitchRouter } from "./-private/routers/switch-router";
 import { TabOptions, TabRouter } from "./-private/routers/tab-router";
-import { PublicRoute } from "./-private/public-route";
+
+export { default as NavigatorRoute } from "./-private/navigator-route";
 
 export function mount(routerMap: RouterReducer, resolver: Resolver) : MountedRouter {
   return new MountedRouter(routerMap, resolver)
@@ -25,5 +26,3 @@ export function switchRouter(name: string, children: RouteableReducer[], options
 export function tabRouter(name: string, children: RouteableReducer[], options: TabOptions = {}) {
   return new TabRouter(name, children, options);
 }
-
-export const NavigatorRoute = PublicRoute;

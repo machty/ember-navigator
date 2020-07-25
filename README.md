@@ -242,9 +242,13 @@ stateful node that the routing API doesn't have access to.
 
 ### Routes
 
-The `MountedRouter` resolves route definitions to `Route` instances. This is a public API that has a reference to the underlying
-`MountedNode`. The `Route` instance is provided to the rendered component. ember-navigator provides `PublicRoute` which can be
-a good base class to extend Route classes from.
+The `MountedRouter` resolves route definitions to `NavigatorRoute` instances. This is a public API that has a reference to the underlying
+`MountedNode`. The `NavigatorRoute` instance is provided to the rendered component. ember-navigator provides a `NavigatorRoute` base class
+to extend your classes from. These `NavigatorRoute` instances are instantiated via the Ember container under the type `navigator-route`.
+So a "tweet" route would be resolved via the container as `navigator-route:tweet`, which Ember would look for, by default, in
+`app/navigator-routes/tweet.js`. If a named NavigatorRoute is not found, it will look up `navigator-route:basic`. ember-navgiator
+exports NavigatorRoute to this location, but you are encouraged to override it with your own implementation by creating a file at
+`app/navigator-routes/basic.js` in your app.
 
 ### URLs and ember-navigator
 

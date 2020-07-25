@@ -1,11 +1,15 @@
 import { RouterActions } from './actions/types'
-import { PublicRoute } from './public-route';
+import NavigatorRoute from './navigator-route';
 
 export interface RouteableState {
   key: string;
   routeName: string;
   params: any;
   componentName: string;
+};
+
+export interface NavigatorRouteFactory {
+  create: (injections?: any) => NavigatorRoute;
 };
 
 export interface RouteState extends RouteableState { }
@@ -59,13 +63,14 @@ export interface RouterReducer extends RouteableReducer {
 export interface MountableNode {
   childNodes: MountableNodeSet;
   routeableState?: any;
-  route: PublicRoute;
+  route: NavigatorRoute;
+  mountedRouter: any;
   key: string;
   params: any;
 }
 
 export interface Resolver {
-  resolve(componentName: string): typeof PublicRoute | null;
+  resolve(componentName: string): typeof NavigatorRoute | any;
 }
 
 export type MountableNodeSet = { [key: string]: MountableNode };

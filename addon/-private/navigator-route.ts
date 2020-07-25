@@ -2,19 +2,25 @@ import { MountableNode } from "./routeable";
 import { notifyPropertyChange } from "@ember/object";
 import { NavigateParams, PopParams } from "./actions/types";
 
-export class PublicRoute {
+export default class NavigatorRoute {
   node: MountableNode;
 
   constructor(node: MountableNode) {
     this.node = node;
   }
 
-  navigate(options: NavigateParams) {
-    (this.node as any).mountedRouter.navigate(options);
+  static create(props: { node: MountableNode }) {
+    let instance = new this(props.node);
+    Object.assign(instance, props);
+    return instance;
   }
 
-  pop(options: PopParams) {
-    (this.node as any).mountedRouter.pop(options);
+  navigate(options: NavigateParams) {
+    this.node.mountedRouter.navigate(options);
+  }
+
+  pop(options?: PopParams) {
+    this.node.mountedRouter.pop(options);
   }
 
   update(_state: any) {

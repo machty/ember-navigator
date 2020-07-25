@@ -2,22 +2,22 @@ import Component from '@ember/component';
 // @ts-ignore: Ignore import of compiled template
 import layout from '../templates/components/ecr-header';
 import { computed } from '@ember/object';
-import { MountedNode } from 'ember-navigator/-private/mounted-router';
+import { NavigatorRoute } from 'ember-navigator';
 
 export default class EcrHeader extends Component.extend({
-  mountedRouter: null,
+  route: NavigatorRoute,
 
   headerConfig: computed('route.node', function() {
-    let node = this.route.node as MountedNode;
+    let node = this.route.node;
     return node.getHeaderConfig();
   }),
 
   actions: {
     leftButton() {
-      (this as any).mountedRouter.pop();
+      this.route.pop();
     }
   }
 }) {
-  classNames = ['app-header'];  
+  classNames = ['app-header'];
   layout = layout;
 };

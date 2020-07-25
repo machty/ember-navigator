@@ -1,7 +1,7 @@
 import { RouterReducer, RouterState, RouteableState, MountableNode, Resolver } from "./routeable";
 import { RouterActions, NavigateParams, PopParams } from "./actions/types";
 import { navigate, pop } from "./actions/actions";
-import { PublicRoute } from "./public-route";
+import NavigatorRoute from "./navigator-route";
 import { set } from "@ember/object";
 import { sendEvent } from '@ember/object/events';
 
@@ -15,7 +15,7 @@ let ID = 0;
 export class MountedNode implements MountableNode {
   childNodes: MountedNodeSet;
   routeableState: RouteableState;
-  route: PublicRoute;
+  route: NavigatorRoute;
   id: number;
   header?: any;
   mountedRouter: MountedRouter;
@@ -25,7 +25,7 @@ export class MountedNode implements MountableNode {
     this.id = ID++;
     this.mountedRouter = mountedRouter;
     this.routeableState = routeableState;
-    this.route = this.mountedRouter.createRoute(this);
+    this.route = this.mountedRouter.createNavigatorRoute(this);
     this.childNodes = {};
     this.mount();
   }
@@ -54,6 +54,10 @@ export class MountedNode implements MountableNode {
     return this.routeableState.componentName;
   }
 
+  get routeName() {
+    return this.routeableState.routeName;
+  }
+
   get key() {
     return this.routeableState.key;
   }
@@ -70,7 +74,7 @@ export class MountedNode implements MountableNode {
       let child = this.childNodes[key];
       return child && child.getHeaderConfig();
     } else {
-      // this is leaf route, check the PublicRoute
+      // this is leaf route, check the NavigatorRoute
       return (this.route as any).header;
     }
   }
@@ -124,8 +128,17 @@ export default class MountedRouter {
     return this.resolver.resolve(name);
   }
 
-  createRoute(node: MountedNode) {
-    let RouteConstuctor = this.resolve(node.componentName) || PublicRoute;
-    return new RouteConstuctor(node);
+  // By default, we expect the resolver to return a factory that is invoked via `create()` as factories in
+  // Ember's container are. If you want to plain non-container-aware classes, you should pass a custom
+  // Resolver to MountedRouter that returns an ES6 class from resolve(...). The class should have a
+  // constructor accepting one argument (a MountedNode instance).
+
+  createNavigatorRoute(node: MountedNode) {
+    let RouteFactory = this.resolve(node.routeName)!;
+    if (RouteFactory.create) {
+      return RouteFactory.create({ node });
+    } else {
+      return new RouteFactory(node);
+    }
   }
 }
