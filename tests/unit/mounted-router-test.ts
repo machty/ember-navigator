@@ -3,13 +3,13 @@ import { route, switchRouter, stackRouter } from 'ember-navigator';
 import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
 import MountedRouter from 'ember-navigator/-private/mounted-router';
 import { Resolver } from 'ember-navigator/-private/routeable';
-import { PublicRoute } from 'ember-navigator/-private/public-route';
+import NavigatorRoute from 'ember-navigator/-private/navigator-route';
 
 function buildTestResolver() {
   let events: any[] = [];
   let delegateId = 0;
 
-  class Route extends PublicRoute {
+  class Route extends NavigatorRoute {
     id: number = delegateId++;
 
     update(_state: any) {

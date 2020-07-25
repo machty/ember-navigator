@@ -1,20 +1,12 @@
 import Ember from 'ember';
-import { getOwner } from '@ember/application';
 import { computed } from '@ember/object';
 import { mount } from 'ember-navigator';
 import { stackRouter, switchRouter, route } from 'ember-navigator';
+import { inject as service } from '@ember/service';
 
 export default Ember.Controller.extend({
+  navigatorRouteResolver: service(),
   mountedRouter: computed(function() {
-    let owner = getOwner(this);
-
-    let resolver = {
-      resolve: (componentName) => {
-        let factory = owner.factoryFor(`component:${componentName}`);
-        return factory && factory.class && factory.class.Route;
-      }
-    };
-
     return mount(
       // BEGIN-SNIPPET router-map
       switchRouter('auth', [
@@ -32,7 +24,7 @@ export default Ember.Controller.extend({
         route('no-header'),
       ]),
       // END-SNIPPET
-      resolver
+      this.navigatorRouteResolver
     );
   }),
 

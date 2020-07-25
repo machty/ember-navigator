@@ -23,17 +23,23 @@
     <p>Note: GENERATE_UUID will be replaced with a random UUID at the time of navigation</p>
     <ul>
       {{#each this.links as |l|}}
-        <li>{{l.routeName}}</li>
-        <ul>
-          {{#each l.variations as |v|}}
-            <li>
-              <a href="#" onclick={{action navigate (hash routeName=l.routeName key=v.key params=v.params)}}>
-                navigate() to {{l.routeName}}:
-                <code>{{json-stringify v}}</code>
-              </a>
-            </li>
-          {{/each}}
-        </ul>
+        <li>
+          <h4>{{l.routeName}}</h4>
+          <ul>
+            {{#each l.variations as |v index|}}
+              <li>
+                <a
+                  href="#"
+                  onclick={{action navigate (hash routeName=l.routeName key=v.key params=v.params)}}
+                  data-test-navigate={{concat l.routeName '-' (or v.key 'default') '-' index}}
+                >
+                  navigate() to {{l.routeName}}:
+                  <code>{{json-stringify v}}</code>
+                </a>
+              </li>
+            {{/each}}
+          </ul>
+        </li>
       {{/each}}
     </ul>
   </div>
