@@ -1,4 +1,4 @@
-import { test, module } from 'ember-qunit';
+import { test, module } from 'qunit';
 import { route, switchRouter, stackRouter } from 'ember-navigator';
 import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
 import MountedRouter from 'ember-navigator/-private/mounted-router';

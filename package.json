@@ -115,6 +115,7 @@
   "homepage": "https://github.com/machty/ember-navigator",
   "resolutions": {
     "**/@ember/test-helpers": "^2.4.0",
-    "**/ember-cli-babel": "^7.26.6"
+    "**/ember-cli-babel": "^7.26.6",
+    "@babel/parser": "7.16.4"
   }
 }
