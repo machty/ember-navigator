@@ -26,3 +26,7 @@
 
 # jsdoc assets
 /tests/dummy/public/
+
+# FIXME: Some reason the decorators in this file are causing:
+# Parsing error: This experimental syntax requires enabling one of the following parser plugin(s): 'decorators-legacy, decorators'
+tests/dummy/app/controllers/application.js
