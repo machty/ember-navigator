@@ -11,6 +11,11 @@
     "doc": "doc",
     "test": "tests"
   },
+  "release-it": {
+    "npm": {
+      "skipChecks": true
+    }
+  },
   "repository": "https://github.com/machty/ember-navigator",
   "scripts": {
     "build": "ember build --environment=production",
