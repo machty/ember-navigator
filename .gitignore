@@ -23,7 +23,5 @@ bower.json.ember-try
 package.json.ember-try
 
 TODO.md
--dsl.d.ts
-addon/-dsl.js
-addon/index.js
-index.d.ts
+
+/.eslintcache

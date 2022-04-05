@@ -1,83 +1,110 @@
 /* eslint-env node */
-module.exports = {
-  scenarios: [
-    {
-      name: 'ember-lts-2.8',
-      bower: {
-        dependencies: {
-          'ember': 'components/ember#lts-2-8'
+"use strict";
+
+const getChannelURL = require("ember-source-channel-url");
+
+module.exports = async function () {
+  return {
+    useYarn: true,
+    scenarios: [
+      {
+        name: "ember-lts-3.8",
+        npm: {
+          devDependencies: {
+            "ember-source": "~3.8.0",
+            "ember-angle-bracket-invocation-polyfill": "^3.0.0",
+            "ember-decorators-polyfill": "^1.1.5",
+            "ember-on-modifier": "^1.0.1",
+          },
         },
-        resolutions: {
-          'ember': 'lts-2-8'
-        }
       },
-      npm: {
-        devDependencies: {
-          'ember-source': null
-        }
-      }
-    },
-    {
-      name: 'ember-lts-2.12',
-      npm: {
-        devDependencies: {
-          'ember-source': '~2.12.0'
-        }
-      }
-    },
-    {
-      name: 'ember-release',
-      bower: {
-        dependencies: {
-          'ember': 'components/ember#release'
+      {
+        name: "ember-lts-3.12",
+        npm: {
+          devDependencies: {
+            "ember-source": "~3.12.0",
+          },
         },
-        resolutions: {
-          'ember': 'release'
-        }
       },
-      npm: {
-        devDependencies: {
-          'ember-source': null
-        }
-      }
-    },
-    {
-      name: 'ember-beta',
-      bower: {
-        dependencies: {
-          'ember': 'components/ember#beta'
+      {
+        name: "ember-lts-3.16",
+        npm: {
+          devDependencies: {
+            "ember-source": "~3.16.0",
+          },
         },
-        resolutions: {
-          'ember': 'beta'
-        }
       },
-      npm: {
-        devDependencies: {
-          'ember-source': null
-        }
-      }
-    },
-    {
-      name: 'ember-canary',
-      bower: {
-        dependencies: {
-          'ember': 'components/ember#canary'
+      {
+        name: "ember-lts-3.20",
+        npm: {
+          devDependencies: {
+            "ember-source": "~3.20.5",
+          },
         },
-        resolutions: {
-          'ember': 'canary'
-        }
       },
-      npm: {
-        devDependencies: {
-          'ember-source': null
-        }
-      }
-    },
-    {
-      name: 'ember-default',
-      npm: {
-        devDependencies: {}
-      }
-    }
-  ]
+      {
+        name: "ember-lts-3.24",
+        npm: {
+          devDependencies: {
+            "ember-source": "~3.24.3",
+          },
+        },
+      },
+      {
+        name: "ember-release",
+        npm: {
+          devDependencies: {
+            "ember-source": await getChannelURL("release"),
+            "ember-auto-import": "^2.0.0",
+            webpack: "^5.0.0",
+          },
+        },
+      },
+      {
+        name: "ember-beta",
+        npm: {
+          devDependencies: {
+            "ember-source": await getChannelURL("beta"),
+            "ember-auto-import": "^2.0.0",
+            webpack: "^5.0.0",
+          },
+        },
+      },
+      {
+        name: "ember-canary",
+        npm: {
+          devDependencies: {
+            "ember-source": await getChannelURL("canary"),
+            "ember-auto-import": "^2.0.0",
+            webpack: "^5.0.0",
+          },
+        },
+      },
+      {
+        name: "ember-default",
+        npm: {
+          devDependencies: {},
+        },
+      },
+      {
+        name: "typescript-3.7",
+        npm: {
+          devDependencies: {
+            "@types/node": "~16.11.7", // @types/node 17.x breaks TS 3.7
+            typescript: "~3.7.0",
+          },
+        },
+        command: "tsc",
+      },
+      {
+        name: "typescript-3.9",
+        npm: {
+          devDependencies: {
+            typescript: "~3.9.0",
+          },
+        },
+        command: "tsc",
+      },
+    ],
+  };
 };

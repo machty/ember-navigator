@@ -3,6 +3,7 @@ import Component from '@ember/component';
 import layout from '../templates/components/ecr-header';
 import { computed } from '@ember/object';
 import { NavigatorRoute } from 'ember-navigator';
+import { action } from '@ember/object';
 
 export default class EcrHeader extends Component.extend({
   route: NavigatorRoute,
@@ -11,13 +12,12 @@ export default class EcrHeader extends Component.extend({
     let node = this.route.node;
     return node.getHeaderConfig();
   }),
-
-  actions: {
-    leftButton() {
-      this.route.pop();
-    }
-  }
 }) {
   classNames = ['app-header'];
   layout = layout;
+
+  @action
+  leftButton() {
+    this.route.pop();
+  }
 };
