@@ -2,6 +2,6 @@
   {{component this.headerComponentName route=this.route}}
 {{/if}}
 
-{{#each currentNodes key="key" as |childNode|}}
+{{#each this.currentNodes key="key" as |childNode|}}
   {{component childNode.componentName node=childNode route=childNode.route}}
 {{/each}}

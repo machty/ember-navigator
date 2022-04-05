@@ -6,6 +6,7 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
+    "experimentalDecorators": true,
     "alwaysStrict": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,

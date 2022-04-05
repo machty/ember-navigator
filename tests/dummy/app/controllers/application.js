@@ -1,12 +1,16 @@
 import Ember from 'ember';
+import Controller from '@ember/controller'
 import { computed } from '@ember/object';
 import { mount } from 'ember-navigator';
 import { stackRouter, switchRouter, route } from 'ember-navigator';
 import { inject as service } from '@ember/service';
+import { action } from '@ember/object';
 
-export default Ember.Controller.extend({
-  navigatorRouteResolver: service(),
-  mountedRouter: computed(function() {
+export default class extends Controller {
+  @service navigatorRouteResolver;
+
+  @computed
+  get mountedRouter() {
     return mount(
       // BEGIN-SNIPPET router-map
       switchRouter('auth', [
@@ -26,17 +30,18 @@ export default Ember.Controller.extend({
       // END-SNIPPET
       this.navigatorRouteResolver
     );
-  }),
+  }
 
+  @action
   navigate(options) {
     let normalizedOptions = Object.assign({}, options);
     if (options.key === "GENERATE_UUID") {
       normalizedOptions.key = `uuid-${Math.floor(Math.random() * 10000000)}`;
     }
     this.mountedRouter.navigate(normalizedOptions);
-  },
+  }
 
-  links: [
+  links = [
     {
       routeName: "logged-out",
       variations: [ {} ],
@@ -92,4 +97,4 @@ export default Ember.Controller.extend({
       variations: [ {} ],
     },
   ]
-});
+}

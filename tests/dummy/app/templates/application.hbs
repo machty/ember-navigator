@@ -4,21 +4,15 @@
 
 <div class="outer-container">
   <div class="ecr-app-container">
-    {{component mountedRouter.rootNode.componentName node=mountedRouter.rootNode route=mountedRouter.rootNode.route}}
+    {{component this.mountedRouter.rootNode.componentName node=this.mountedRouter.rootNode route=this.mountedRouter.rootNode.route}}
   </div>
 
   <div class="debug-info">
     <p>
-      This is a demo of a new router I've been working on.
-      It's still operating under the name "ember-navigator",
-      but I haven't yet introduced constraint-based routing into it;
-      instead, I'm focusing on bringing the best aspects of React Navigation
-      to this library. RN is a brilliant and elegant solution to
-      the complexities of mobile routing.
+      This is a demo of ember-navigator.
     </p>
     <p>
-      The demo is still very ugly, but try clicking some of the links below
-      and watch how the state changes.
+      Try clicking some of the links below and watch how the state changes.
     </p>
     <p>Note: GENERATE_UUID will be replaced with a random UUID at the time of navigation</p>
     <ul>
@@ -30,7 +24,7 @@
               <li>
                 <a
                   href="#"
-                  onclick={{action navigate (hash routeName=l.routeName key=v.key params=v.params)}}
+                  {{on 'click' (fn this.navigate (hash routeName=l.routeName key=v.key params=v.params))}}
                   data-test-navigate={{concat l.routeName '-' (or v.key 'default') '-' index}}
                 >
                   navigate() to {{l.routeName}}:
@@ -67,6 +61,6 @@
       by the various routers and passed to the various navigator
       components for rendering.
     </p>
-    <pre>{{json-stringify mountedRouter.state pretty=true}}</pre>
+    <pre>{{json-stringify this.mountedRouter.state pretty=true}}</pre>
   </div>
 </div>
