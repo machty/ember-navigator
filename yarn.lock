@@ -10699,7 +10699,7 @@ terser@^4.1.2, terser@^4.3.9:
     source-map "~0.6.1"
     source-map-support "~0.5.12"
 
-testem@^3.2.0:
+testem@^3.2.0, testem@^3.4.2:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/testem/-/testem-3.6.0.tgz#bf5c86944bafd035c18f41f520195cce5eef33a8"
   integrity sha512-sXwx2IlOadOhrKf0hsV1Yt/yuYhdfrtJ4dpp7T6pFN62GjMyKifjAv2SFm+4zYHee1JwxheO7JUL0+3iN0rlHw==
