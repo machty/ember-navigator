@@ -156,8 +156,8 @@ jobs:
           - ember-default
           # - typescript-3.7
           - typescript-3.9
-          - embroider-safe
-          - embroider-optimized
+          # - embroider-safe
+          # - embroider-optimized
         allow-failure: [false]
         include:
           - ember-try-scenario: ember-beta
