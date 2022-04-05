@@ -159,11 +159,11 @@ jobs:
           # - embroider-safe
           # - embroider-optimized
         allow-failure: [false]
-        include:
-          - ember-try-scenario: ember-beta
-            allow-failure: true
-          - ember-try-scenario: ember-canary
-            allow-failure: true
+        # include:
+        #   - ember-try-scenario: ember-beta
+        #     allow-failure: true
+        #   - ember-try-scenario: ember-canary
+        #     allow-failure: true
 
     steps:
       - uses: actions/checkout@v2
