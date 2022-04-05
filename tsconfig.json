@@ -52,5 +52,12 @@
     "types/**/*",
     "test-support/**/*",
     "addon-test-support/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "tmp",
+    "vendor",
+    ".git",
+    "dist"
   ]
 }
