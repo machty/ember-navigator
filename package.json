@@ -67,7 +67,7 @@
     "@types/qunit": "^2.9.0",
     "@types/rsvp": "^4.0.3",
     "@typescript-eslint/eslint-plugin": "^5.18.0",
-    "babel-eslint": "^10.1.0",
+    "@babel/eslint-parser": "^7.5.4",
     "broccoli-asset-rev": "^2.4.5",
     "ember-ajax": "^5.1.1",
     "ember-auto-import": "^1.11.3",
@@ -101,6 +101,7 @@
     "eslint-plugin-qunit": "^6.2.0",
     "loader.js": "^4.7.0",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.3.2",
     "qunit": "^2.13.0",
     "qunit-dom": "^2.0.0",
     "typescript": "^4.6.3"
