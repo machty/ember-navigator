@@ -1,31 +1,29 @@
-import Ember from 'ember';
-import Controller from '@ember/controller'
-import { computed } from '@ember/object';
-import { mount } from 'ember-navigator';
-import { stackRouter, switchRouter, route } from 'ember-navigator';
-import { inject as service } from '@ember/service';
-import { action } from '@ember/object';
+import Controller from "@ember/controller";
+import { computed } from "@ember/object";
+import { mount } from "ember-navigator";
+import { stackRouter, switchRouter, route } from "ember-navigator";
+import { inject as service } from "@ember/service";
+import { action } from "@ember/object";
 
 export default class extends Controller {
   @service navigatorRouteResolver;
 
+  // eslint-disable-next-line ember/require-computed-property-dependencies
   @computed
   get mountedRouter() {
     return mount(
       // BEGIN-SNIPPET router-map
-      switchRouter('auth', [
-        stackRouter('logged-out', [
-          route('enter-email'),
-          route('terms-of-service'),
+      switchRouter("auth", [
+        stackRouter("logged-out", [
+          route("enter-email"),
+          route("terms-of-service"),
         ]),
-        stackRouter('logged-in', [
-          route('frame-root'),
-          route('frame-tweet'),
-          stackRouter('nested', [
-            route('nested-a'),
-          ], { headerMode: 'none' }),
+        stackRouter("logged-in", [
+          route("frame-root"),
+          route("frame-tweet"),
+          stackRouter("nested", [route("nested-a")], { headerMode: "none" }),
         ]),
-        route('no-header'),
+        route("no-header"),
       ]),
       // END-SNIPPET
       this.navigatorRouteResolver
@@ -44,19 +42,19 @@ export default class extends Controller {
   links = [
     {
       routeName: "logged-out",
-      variations: [ {} ],
+      variations: [{}],
     },
     {
       routeName: "enter-email",
-      variations: [ {} ],
+      variations: [{}],
     },
     {
       routeName: "terms-of-service",
-      variations: [ {} ],
+      variations: [{}],
     },
     {
       routeName: "logged-in",
-      variations: [ {} ],
+      variations: [{}],
     },
     {
       routeName: "frame-root",
@@ -66,7 +64,7 @@ export default class extends Controller {
         { key: "b" },
         { key: "c" },
         { key: "GENERATE_UUID" },
-      ]
+      ],
     },
     {
       routeName: "frame-tweet",
@@ -80,7 +78,7 @@ export default class extends Controller {
         { params: { tweet_id: "123" }, key: "GENERATE_UUID" },
         { params: { tweet_id: "456" }, key: "GENERATE_UUID" },
         { params: { tweet_id: "999" }, key: "GENERATE_UUID" },
-      ]
+      ],
     },
     {
       routeName: "nested-a",
@@ -94,7 +92,7 @@ export default class extends Controller {
     },
     {
       routeName: "no-header",
-      variations: [ {} ],
+      variations: [{}],
     },
-  ]
+  ];
 }
