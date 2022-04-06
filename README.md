@@ -1,15 +1,23 @@
 # ember-navigator <img src="https://raw.githubusercontent.com/machty/ember-navigator/master/tests/dummy/public/ember-navigator-mark.svg" width=36 height=36 />
 
-**Note: Very Alpha. Under-documented. Intended only for experimenters and intrepid early adopters.**
+A routing/navigation library for Ember.js suitable for mobile app UI flows, modeled after
+[React Navigation](https://reactnavigation.org/) and a few other mobile-centric navigation
+libraries that have popped up over the years.
 
-This project aims to provide an alternative to the Ember Router that is better-suited to mobile navigation patterns.
-In particular, many mobile apps have a things like a tab bar where one tab is active at a time, and each tab has a
-stack-style navigation where screens are pushed onto the stack as a user drills down into content and the back button
-pops screens off the stack. The order, quantity, and types of screens pushed onto a stack can vary considerably, which
-makes the built-in Ember router poorly suited for this use case.
+## Status: Beta
 
-It is heavily influenced by the API of the [React Navigation](https://reactnavigation.org/) library, which is a
-robust, battle-tested, and well-designed navigation solution for React Native.
+Ember Navigator is beta, under-documented, but used in production
+[FutureProof Retail](https://github.com/futureproofRetail/)
+and [Yapp](https://github.com/yappbox) applications (and others) since 2020.
+
+## Motivation
+
+Ember.js's Router is robust and battle-tested, but is not well-suited to common UI flows for mobile
+applications. For instance, it is a common mobile UI pattern to offer a tab bar of navigation buttons
+for different sections of the app, and for each section of the app to maintain/remember/restore
+its internal navigation state (which may be stack-based) when navigating between the tabs. This would
+be very difficult to model in the Ember.js Router, but is much easier with the primitives that
+Ember Navigator provides.
 
 ## Installation
 
