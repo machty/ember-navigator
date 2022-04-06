@@ -16,6 +16,10 @@
       "skipChecks": true
     }
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "repository": "https://github.com/machty/ember-navigator",
   "scripts": {
     "build": "ember build --environment=production",
