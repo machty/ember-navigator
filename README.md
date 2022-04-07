@@ -8,7 +8,7 @@ libraries that have popped up over the years.
 
 Ember Navigator is beta, under-documented, but used in production
 [FutureProof Retail](https://github.com/futureproofRetail/)
-and [Yapp](https://github.com/yappbox) applications (and others) since 2020.
+and [Yapp](https://github.com/yapplabs) applications (and others) since 2020.
 
 ## Motivation
 
