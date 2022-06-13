@@ -71,6 +71,17 @@ export default class NavigatorRoute {
   }
 
   /**
+   * Returns the closest parent of the provided name.
+   */
+  parentNamed(name: string): NavigatorRoute | null {
+    let cur: NavigatorRoute | null = this;
+    while (cur && cur.name !== name) {
+      cur = cur.parent;
+    }
+    return cur;
+  }
+
+  /**
    * Returns the nearest parent router, e.g. the stack router that this route is mounted in.
    */
   get parentRouter(): NavigatorRoute | null {

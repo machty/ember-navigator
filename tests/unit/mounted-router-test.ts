@@ -149,6 +149,9 @@ module('Unit - MountedRouter test', function(hooks) {
     assert.equal(barRoute.parent, fooRoute);
     assert.equal(barRoute.parent!.parent!.name, 'root');
 
+    assert.equal(barRoute.parentNamed('bar')!.name, 'bar');
+    assert.equal(barRoute.parentNamed('bar2'), null);
+
     assert.equal(barRoute.parent?.parentRoute, null);
 
     assert.equal(barRoute.parentRouter!.name, 'root');
