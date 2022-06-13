@@ -13,7 +13,7 @@ import {
   unhandledAction
 } from "./base-router";
 import { RouterActions, NAVIGATE, NavigateAction } from "../actions/types";
-import { MountedNode, MountedNodeSet } from "../mounted-router";
+import { MountedNode, MountedNodeSet } from "../mounted-node";
 
 export interface SwitchOptions extends BaseOptions {}
 

@@ -23,7 +23,7 @@ import {
   handledAction,
   unhandledAction
 } from "./base-router";
-import { MountedNodeSet, MountedNode } from "../mounted-router";
+import { MountedNodeSet, MountedNode } from "../mounted-node";
 
 export interface StackOptions extends BaseOptions {
   headerComponentName?: string;

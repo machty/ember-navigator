@@ -7,7 +7,7 @@ import {
 } from "./routeable";
 import { generateKey } from "./key-generator";
 import { RouterActions } from "./actions/types";
-import { MountedNode } from "./mounted-router";
+import { MountedNode } from "./mounted-node";
 
 export type RouteOptions = {
   componentName?: string;
