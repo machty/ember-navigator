@@ -1,6 +1,6 @@
 import MountedRouter from "./-private/mounted-router";
 import { RouterReducer, RouteableReducer, Resolver } from "./-private/routeable";
-import { RouteOptions, Route } from "./-private/route";
+import { RouteOptions, RouteReducer } from "./-private/route-reducer";
 import { StackOptions, StackRouter } from "./-private/routers/stack-router";
 import { SwitchOptions, SwitchRouter } from "./-private/routers/switch-router";
 import { TabOptions, TabRouter } from "./-private/routers/tab-router";
@@ -12,7 +12,7 @@ export function mount(routerMap: RouterReducer, resolver: Resolver) : MountedRou
 }
 
 export function route(name: string, options: RouteOptions = {}) {
-  return new Route(name, options);
+  return new RouteReducer(name, options);
 }
 
 export function stackRouter(name: string, children: RouteableReducer[], options: StackOptions = {}) {

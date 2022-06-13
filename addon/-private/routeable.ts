@@ -50,11 +50,6 @@ export interface RouteableReducer {
   reconcile(routerState: RouteableState, mountedNode: MountableNode) : void;
 };
 
-export interface RouteReducer extends RouteableReducer {
-  isRouter: false;
-  getInitialState: (options?: InitialStateOptions) => RouteState;
-}
-
 export interface RouterReducer extends RouteableReducer {
   isRouter: true;
   getInitialState: (options?: InitialStateOptions) => RouterState;
@@ -67,6 +62,7 @@ export interface MountableNode {
   mountedRouter: any;
   key: string;
   params: any;
+  routeName: string;
 }
 
 export interface Resolver {

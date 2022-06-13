@@ -9,9 +9,15 @@ export type MountedNodeSet = { [key: string]: MountedNode };
 
 let ID = 0;
 
-// A MountedNode is the "internal" stateful node that the routing API doesn't have access to.
-// The Route is the public API object that we pass into components.
-
+/**
+ * A MountedNode is an internal/private class that represents a node in the router tree that
+ * has been fully initialized (similar to components in ember that have been fully rendered
+ * into the DOM, or "mounted" components in React).
+ * 
+ * Apps should not import, subclass, or interact with this class; instead, apps should
+ * define subclasses of {NavigatorRoute}, which is the public API for customizing
+ * behavior when the route is mounted.
+ */
 export class MountedNode implements MountableNode {
   childNodes: MountedNodeSet;
   routeableState: RouteableState;

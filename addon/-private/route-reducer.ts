@@ -1,5 +1,4 @@
 import {
-  RouteReducer,
   RouteableReducer,
   RouteState,
   RouterState,
@@ -14,7 +13,17 @@ export type RouteOptions = {
   componentName?: string;
 };
 
-export class Route implements RouteReducer {
+/**
+ * This is the reducer object returned by the `route()` function in the mapping DSL, e.g.
+ *
+ *    [
+ *       route('home'),
+ *       route('customer', { path: 'customer/:customer_id' }),
+ *    ]
+ *
+ * It represents a leaf (child-less) route in the routing tree.
+ */
+export class RouteReducer implements RouteableReducer {
   name: string;
   children: RouteableReducer[];
   options: RouteOptions;
