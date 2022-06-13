@@ -63,6 +63,7 @@ export interface MountableNode {
   key: string;
   params: any;
   routeName: string;
+  parentNode: MountableNode | null;
 }
 
 export interface Resolver {

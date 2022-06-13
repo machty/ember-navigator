@@ -23,11 +23,13 @@ export class MountedNode implements MountableNode {
   id: number;
   header?: any;
   mountedRouter: MountedRouter;
+  parentNode: MountedNode | null;
 
-  constructor(mountedRouter: MountedRouter, routeableState: RouteableState) {
+  constructor(mountedRouter: MountedRouter, parentNode: MountedNode | null, routeableState: RouteableState) {
     // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
     this.id = ID++;
     this.mountedRouter = mountedRouter;
+    this.parentNode = parentNode;
     this.routeableState = routeableState;
     this.route = this.mountedRouter.createNavigatorRoute(this);
     this.childNodes = {};

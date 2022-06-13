@@ -47,9 +47,13 @@ export default class NavigatorRoute {
     return this.node.routeName;
   }
 
-  get parentRoute() {
-    // return this.node.params || {};
-    return null;
+  get parentRoute(): NavigatorRoute | null {
+    const parentNode = this.node.parentNode;
+    if (!parentNode) {
+      return null;
+    }
+
+    return (parentNode as MountableNode).route;
   }
 
   // Public overridable hooks:

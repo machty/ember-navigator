@@ -15,7 +15,7 @@ export default class MountedRouter {
     this.resolver = resolver;
     this.router = router;
     this.state = router.getInitialState();
-    this.rootNode = new MountedNode(this, this.state);
+    this.rootNode = new MountedNode(this, null, this.state);
     this._update();
   }
 

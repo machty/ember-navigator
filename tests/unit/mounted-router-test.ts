@@ -140,9 +140,10 @@ module('Unit - MountedRouter test', function(hooks) {
       }
     ]);
 
+    const fooRoute = mountedRouter.rootNode.childNodes['foo'].route;
     const barRoute = mountedRouter.rootNode.childNodes['id-1'].route;
     assert.equal(barRoute.name, 'bar');
-    // const fooRoute = barRoute.parentRoute;
+    assert.equal(barRoute.parentRoute, fooRoute);
   });
 
   test("stack: basic nav with params", function (assert) {
