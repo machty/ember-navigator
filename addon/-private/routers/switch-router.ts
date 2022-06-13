@@ -13,7 +13,7 @@ import {
   unhandledAction
 } from "./base-router";
 import { RouterActions, NAVIGATE, NavigateAction } from "../actions/types";
-import { MountedNode, MountedNodeSet } from "../mounted-router";
+import { MountedNode, MountedNodeSet } from "../mounted-node";
 
 export interface SwitchOptions extends BaseOptions {}
 
@@ -122,7 +122,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
     let currentActiveNode = currentChildNodes[activeChildRouteState.key];
 
     if (!currentActiveNode) {
-      currentActiveNode = new MountedNode(mountedNode.mountedRouter, activeChildRouteState);
+      currentActiveNode = new MountedNode(mountedNode.mountedRouter, mountedNode, activeChildRouteState);
     }
 
     let childRouteableReducer = this.childRouteables[activeChildRouteState.routeName];

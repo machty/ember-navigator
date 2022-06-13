@@ -3,7 +3,7 @@ import { route, switchRouter, stackRouter } from 'ember-navigator';
 import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
 import MountedRouter from 'ember-navigator/-private/mounted-router';
 import { Resolver } from 'ember-navigator/-private/routeable';
-import NavigatorRoute from 'ember-navigator/-private/navigator-route';
+import { NavigatorRoute } from 'ember-navigator';
 
 function buildTestResolver() {
   let events: any[] = [];
@@ -22,12 +22,6 @@ function buildTestResolver() {
 
     mount() {
       events.push({ id: this.id, type: "mount", key: this.node.key});
-    }
-
-    focus() {
-    }
-
-    blur() {
     }
   }
 
@@ -145,6 +139,20 @@ module('Unit - MountedRouter test', function(hooks) {
         "type": "update"
       }
     ]);
+
+    const fooRoute = mountedRouter.rootNode.childNodes['foo'].route;
+    assert.equal(fooRoute.key, 'foo');
+
+    const barRoute = mountedRouter.rootNode.childNodes['id-1'].route;
+    assert.equal(barRoute.name, 'bar');
+    assert.equal(barRoute.key, 'id-1');
+    assert.equal(barRoute.parent, fooRoute);
+    assert.equal(barRoute.parent!.parent!.name, 'root');
+
+    assert.equal(barRoute.parent?.parentRoute, null);
+
+    assert.equal(barRoute.parentRouter!.name, 'root');
+    assert.equal(barRoute.parent!.parentRouter!.name, 'root');
   });
 
   test("stack: basic nav with params", function (assert) {
