@@ -225,24 +225,24 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     let currentChildNodes = mountedNode.childNodes;
     let nextChildNodes: MountedNodeSet = {};
 
-    let parentRoute: MountedNode = mountedNode;
+    let parent: MountedNode = mountedNode;
     routerState.routes.forEach(childRouteState => {
       let childNode = currentChildNodes[childRouteState.key];
       if (childNode && childNode.routeableState === childRouteState) {
         // child state hasn't changed in any way, don't recurse/update
         // TODO: the next two lines are duplicated below... how can we DRY/clean it
         nextChildNodes[childRouteState.key] = childNode;
-        parentRoute = childNode;
+        parent = childNode;
         return;
       } else if (!childNode) {
-        childNode = new MountedNode(mountedNode.mountedRouter, parentRoute, childRouteState);
+        childNode = new MountedNode(mountedNode.mountedRouter, parent, childRouteState);
       }
 
       let childRouteableReducer = this.childRouteables[childRouteState.routeName];
       childRouteableReducer.reconcile(childRouteState, childNode);
 
       nextChildNodes[childRouteState.key] = childNode;
-      parentRoute = childNode;
+      parent = childNode;
     });
 
     Object.keys(currentChildNodes).forEach(key => {

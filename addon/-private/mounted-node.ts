@@ -72,6 +72,10 @@ export class MountedNode implements MountableNode {
     return this.routeableState.params;
   }
 
+  get isRouter() {
+    return !!(this.routeableState as any).routes;
+  }
+
   getHeaderConfig(): any {
     let routerState = this.routeableState as RouterState;
 
