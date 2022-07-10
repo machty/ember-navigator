@@ -45,7 +45,7 @@ export default class MountedRouter {
     this.dispatch(navigate(options));
   }
 
-  pop(options: PopParams) {
+  pop(options: PopParams | undefined) {
     this.dispatch(pop(options));
   }
 

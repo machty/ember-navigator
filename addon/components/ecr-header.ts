@@ -5,14 +5,14 @@ import { computed } from '@ember/object';
 import { NavigatorRoute } from 'ember-navigator';
 import { action } from '@ember/object';
 
-export default class EcrHeader extends Component.extend({
-  route: NavigatorRoute,
+export default class EcrHeader extends Component {
+  route!: NavigatorRoute;
 
-  headerConfig: computed('route.node', function() {
-    let node = this.route.node;
-    return node.getHeaderConfig();
-  }),
-}) {
+  @computed('route.node')
+  get headerConfig() {
+    return this.route.node.getHeaderConfig()
+  }
+
   classNames = ['app-header'];
   layout = layout;
 

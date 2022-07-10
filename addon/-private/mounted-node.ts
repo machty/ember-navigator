@@ -1,4 +1,4 @@
-import { RouterState, RouteableState, MountableNode } from "./routeable";
+import { RouterState, RouteableState } from "./routeable";
 import NavigatorRoute from "./navigator-route";
 import MountedRouter from "./mounted-router";
 
@@ -16,7 +16,7 @@ let ID = 0;
  * behavior when the route is mounted.
  */
 
-export class MountedNode implements MountableNode {
+export class MountedNode {
   childNodes: MountedNodeSet;
   routeableState: RouteableState;
   route: NavigatorRoute;

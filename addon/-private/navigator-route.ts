@@ -1,4 +1,3 @@
-import { MountableNode } from "./routeable";
 import { notifyPropertyChange } from "@ember/object";
 import { NavigateParams, PopParams } from "./actions/types";
 import { MountedNode } from "./mounted-node";
@@ -9,13 +8,13 @@ import { MountedNode } from "./mounted-node";
  * overridden in the subclass.
  */
 export default class NavigatorRoute {
-  node: MountableNode;
+  node: MountedNode;
 
-  constructor(node: MountableNode) {
+  constructor(node: MountedNode) {
     this.node = node;
   }
 
-  static create(props: { node: MountableNode }) {
+  static create(props: { node: MountedNode }) {
     let instance = new this(props.node);
     Object.assign(instance, props);
     return instance;
@@ -67,7 +66,7 @@ export default class NavigatorRoute {
       return null;
     }
 
-    return (parentNode as MountableNode).route;
+    return (parentNode as MountedNode).route;
   }
 
   /**

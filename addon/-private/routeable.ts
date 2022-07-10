@@ -1,4 +1,5 @@
 import { RouterActions } from './actions/types'
+import { MountedNode } from './mounted-node';
 import NavigatorRoute from './navigator-route';
 
 export interface RouteableState {
@@ -47,7 +48,7 @@ export interface RouteableReducer {
   params?: any;
   getInitialState: (options?: InitialStateOptions) => RouteableState;
   dispatch: (action: RouterActions, state?: RouteableState) => ReducerResult;
-  reconcile(routerState: RouteableState, mountedNode: MountableNode) : void;
+  reconcile(routerState: RouteableState, mountedNode: MountedNode) : void;
 };
 
 export interface RouterReducer extends RouteableReducer {
@@ -55,20 +56,6 @@ export interface RouterReducer extends RouteableReducer {
   getInitialState: (options?: InitialStateOptions) => RouterState;
 }
 
-export interface MountableNode {
-  childNodes: MountableNodeSet;
-  routeableState?: any;
-  route: NavigatorRoute;
-  mountedRouter: any;
-  key: string;
-  params: any;
-  routeName: string;
-  parentNode: MountableNode | null;
-}
-
 export interface Resolver {
   resolve(componentName: string): typeof NavigatorRoute | any;
 }
-
-export type MountableNodeSet = { [key: string]: MountableNode };
-
