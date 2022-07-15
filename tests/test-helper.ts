@@ -1,3 +1,5 @@
+import 'qunit-dom';
+
 import { setApplication } from '@ember/test-helpers';
 import * as QUnit from 'qunit';
 import { setup } from 'qunit-dom';
