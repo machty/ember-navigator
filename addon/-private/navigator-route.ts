@@ -1,7 +1,12 @@
-import { MountableNode } from "./routeable";
-import { notifyPropertyChange } from "@ember/object";
-import { NavigateParams, PopParams } from "./actions/types";
-import { MountedNode } from "./mounted-node";
+import { notifyPropertyChange } from '@ember/object';
+
+import type { NavigateParams, PopParams } from './actions/types';
+import type { MountedNode } from './mounted-node';
+import type { RouteableState } from './routeable';
+
+export type Header = {
+  title?: string;
+};
 
 /**
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
@@ -9,15 +14,18 @@ import { MountedNode } from "./mounted-node";
  * overridden in the subclass.
  */
 export default class NavigatorRoute {
-  node: MountableNode;
+  node: MountedNode;
+  header?: Header;
 
-  constructor(node: MountableNode) {
+  constructor(node: MountedNode) {
     this.node = node;
   }
 
-  static create(props: { node: MountableNode }) {
+  static create(props: { node: MountedNode }) {
     let instance = new this(props.node);
+
     Object.assign(instance, props);
+
     return instance;
   }
 
@@ -29,9 +37,9 @@ export default class NavigatorRoute {
     this.node.mountedRouter.pop(options);
   }
 
-  update(_state: any) {
+  update(_state: RouteableState) {
     // this is how we signal to components to re-render with the new state.
-    notifyPropertyChange(this, "node");
+    notifyPropertyChange(this, 'node');
   }
 
   /**
@@ -63,21 +71,25 @@ export default class NavigatorRoute {
    */
   get parent(): NavigatorRoute | null {
     const parentNode = this.node.parentNode;
+
     if (!parentNode) {
       return null;
     }
 
-    return (parentNode as MountableNode).route;
+    return (parentNode as MountedNode).route;
   }
 
   /**
    * Returns the closest parent of the provided name.
    */
   parentNamed(name: string): NavigatorRoute | null {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cur: NavigatorRoute | null = this;
+
     while (cur && cur.name !== name) {
       cur = cur.parent;
     }
+
     return cur;
   }
 
@@ -85,10 +97,13 @@ export default class NavigatorRoute {
    * Returns the nearest parent router, e.g. the stack router that this route is mounted in.
    */
   get parentRouter(): NavigatorRoute | null {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cur: NavigatorRoute | null = this;
+
     while (cur && !(cur.node as MountedNode).isRouter) {
       cur = cur.parent;
     }
+
     return cur;
   }
 
@@ -97,6 +112,7 @@ export default class NavigatorRoute {
    */
   get parentRoute(): NavigatorRoute | null {
     const parent = this.parent;
+
     if (!parent) {
       return null;
     }
@@ -115,10 +131,12 @@ export default class NavigatorRoute {
    * Within this hook, you can access `this.params` to access any params passed into
    * this route (such as model IDs or any other information)
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   mount() {}
 
   /**
    * `unmount` is called after the route has been removed from the routing tree.
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   unmount() {}
 }

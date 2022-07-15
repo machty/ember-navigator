@@ -1,6 +1,6 @@
+import { assert } from '@ember/debug';
 
-import invariant from './invariant';
-import { RouterState, RouteState } from '../routeable';
+import type { RouterState, RouteState } from '../routeable';
 
 /**
  * Utilities to perform atomic operation with navigate state and routes.
@@ -15,7 +15,7 @@ const StateUtils = {
    * Gets a route by key. If the route isn't found, returns `null`.
    */
   get(state: RouterState, key: string) {
-    return state.routes.find(route => route.key === key) || null;
+    return state.routes.find((route) => route.key === key) || null;
   },
 
   /**
@@ -23,7 +23,7 @@ const StateUtils = {
    * routes of the navigation state: RouterState, or -1 if it is not present.
    */
   indexOf(state: RouterState, key: string) {
-    return state.routes.findIndex(route => route.key === key);
+    return state.routes.findIndex((route) => route.key === key);
   },
 
   /**
@@ -31,7 +31,7 @@ const StateUtils = {
    * routes of the navigation state.
    */
   has(state: RouterState, key: string) {
-    return !!state.routes.some(route => route.key === key);
+    return !!state.routes.some((route) => route.key === key);
   },
 
   /**
@@ -40,13 +40,13 @@ const StateUtils = {
    * stack is at.
    */
   push(state: RouterState, route: RouteState) {
-    invariant(
-      StateUtils.indexOf(state, route.key) === -1,
-      'should not push route with duplicated key %s',
-      route.key
+    assert(
+      `should not push route with duplicated key ${route.key}`,
+      StateUtils.indexOf(state, route.key) === -1
     );
 
     const routes = state.routes.slice();
+
     routes.push(route);
 
     return {
@@ -66,7 +66,9 @@ const StateUtils = {
       // [Note]: Over-popping does not throw error. Instead, it will be no-op.
       return state;
     }
+
     const routes = state.routes.slice(0, -1);
+
     return {
       ...state,
       index: routes.length - 1,
@@ -82,7 +84,7 @@ const StateUtils = {
       return state;
     }
 
-    invariant(!!state.routes[index], 'invalid index %s to jump to', index);
+    assert(`invalid index ${index} to jump to`, !!state.routes[index]);
 
     return {
       ...state,
@@ -95,6 +97,7 @@ const StateUtils = {
    */
   jumpTo(state: RouterState, key: string) {
     const index = StateUtils.indexOf(state, key);
+
     return StateUtils.jumpToIndex(state, index);
   },
 
@@ -104,6 +107,7 @@ const StateUtils = {
   back(state: RouterState) {
     const index = state.index - 1;
     const route = state.routes[index];
+
     return route ? StateUtils.jumpToIndex(state, index) : state;
   },
 
@@ -113,6 +117,7 @@ const StateUtils = {
   forward(state: RouterState) {
     const index = state.index + 1;
     const route = state.routes[index];
+
     return route ? StateUtils.jumpToIndex(state, index) : state;
   },
 
@@ -121,7 +126,7 @@ const StateUtils = {
    * Note that this moves the index to the position to where the new route in the
    * stack is at and updates the routes array accordingly.
    */
-  replaceAndPrune(state: RouterState, key: string, route: any) {
+  replaceAndPrune(state: RouterState, key: string, route: RouterState) {
     const index = StateUtils.indexOf(state, key);
     const replaced = StateUtils.replaceAtIndex(state, index, route);
 
@@ -142,7 +147,9 @@ const StateUtils = {
     const index = StateUtils.indexOf(state, key);
     const nextIndex = preserveIndex ? state.index : index;
     let nextState = StateUtils.replaceAtIndex(state, index, route);
+
     nextState.index = nextIndex;
+
     return nextState;
   },
 
@@ -152,18 +159,14 @@ const StateUtils = {
    * stack is at.
    */
   replaceAtIndex(state: RouterState, index: number, route: RouteState) {
-    invariant(
-      !!state.routes[index],
-      'invalid index %s for replacing route %s',
-      index,
-      route.key
-    );
+    assert(`invalid index ${index} for replacing route ${route.key}`, !!state.routes[index]);
 
     if (state.routes[index] === route && index === state.index) {
       return state;
     }
 
     const routes = state.routes.slice();
+
     routes[index] = route;
 
     return {
@@ -179,21 +182,19 @@ const StateUtils = {
    * stack is at if the param `index` isn't provided.
    */
   reset(state: RouterState, routes: RouteState[], index: number) {
-    invariant(
-      routes.length && Array.isArray(routes),
-      'invalid routes to replace'
-    );
+    assert('invalid routes to replace', routes.length && Array.isArray(routes));
 
     const nextIndex = index === undefined ? routes.length - 1 : index;
 
     if (state.routes.length === routes.length && state.index === nextIndex) {
       const compare = (route: RouteState, ii: number) => routes[ii] === route;
+
       if (state.routes.every(compare)) {
         return state;
       }
     }
 
-    invariant(!!routes[nextIndex], 'invalid index %s to reset', nextIndex);
+    assert(`invalid index ${nextIndex} to reset`, !!routes[nextIndex]);
 
     return {
       ...state,

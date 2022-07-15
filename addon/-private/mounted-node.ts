@@ -1,6 +1,9 @@
-import { RouterState, RouteableState, MountableNode } from "./routeable";
-import NavigatorRoute from "./navigator-route";
-import MountedRouter from "./mounted-router";
+import { tracked } from '@glimmer/tracking';
+
+import type MountedRouter from './mounted-router';
+import type { Header } from './navigator-route';
+import type NavigatorRoute from './navigator-route';
+import type { RouteableState, RouterState } from './routeable';
 
 export type MountedNodeSet = { [key: string]: MountedNode };
 
@@ -16,16 +19,20 @@ let ID = 0;
  * behavior when the route is mounted.
  */
 
-export class MountedNode implements MountableNode {
-  childNodes: MountedNodeSet;
-  routeableState: RouteableState;
+export class MountedNode {
+  @tracked childNodes: MountedNodeSet;
+  @tracked routeableState: RouteableState;
   route: NavigatorRoute;
   id: number;
-  header?: any;
+  // header?: any;
   mountedRouter: MountedRouter;
   parentNode: MountedNode | null;
 
-  constructor(mountedRouter: MountedRouter, parentNode: MountedNode | null, routeableState: RouteableState) {
+  constructor(
+    mountedRouter: MountedRouter,
+    parentNode: MountedNode | null,
+    routeableState: RouteableState
+  ) {
     // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
     this.id = ID++;
     this.mountedRouter = mountedRouter;
@@ -38,7 +45,9 @@ export class MountedNode implements MountableNode {
 
   update(routeableState: RouteableState) {
     // TODO: is this check needed? when else would this change?
-    if (this.routeableState === routeableState) { return; }
+    if (this.routeableState === routeableState) {
+      return;
+    }
 
     this.route.update(routeableState);
     this.routeableState = routeableState;
@@ -73,19 +82,20 @@ export class MountedNode implements MountableNode {
   }
 
   get isRouter() {
-    return !!(this.routeableState as any).routes;
+    return !!(this.routeableState as RouterState).routes;
   }
 
-  getHeaderConfig(): any {
+  getHeaderConfig(): Header | null {
     let routerState = this.routeableState as RouterState;
 
     if (routerState.routes) {
       let key = routerState.routes[routerState.index].key;
       let child = this.childNodes[key];
-      return child && child.getHeaderConfig();
+
+      return child?.getHeaderConfig();
     } else {
       // this is leaf route, check the NavigatorRoute
-      return (this.route as any).header;
+      return this.route.header || null;
     }
   }
 }

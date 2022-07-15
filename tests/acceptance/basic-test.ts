@@ -1,13 +1,13 @@
+import { click, currentURL, visit } from '@ember/test-helpers';
 import { module, test } from 'qunit';
-import { click, visit, currentURL } from '@ember/test-helpers';
 import { setupApplicationTest } from 'ember-qunit';
 
-module('Acceptance | basic', function(hooks) {
+module('Acceptance | basic', function (hooks) {
   setupApplicationTest(hooks);
 
-  test('visiting /', async function(assert) {
+  test('visiting /', async function (assert) {
     await visit('/');
-    assert.equal(currentURL(), '/');
+    assert.strictEqual(currentURL(), '/');
     assert.dom('.ecr-app-container h3').hasText('Login');
     await click('[data-test-navigate="logged-in-default-0"]');
     assert.dom('.ecr-app-container h3').hasText('Root Cellar');

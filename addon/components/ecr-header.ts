@@ -1,23 +1,25 @@
-import Component from '@ember/component';
-// @ts-ignore: Ignore import of compiled template
-import layout from '../templates/components/ecr-header';
-import { computed } from '@ember/object';
-import { NavigatorRoute } from 'ember-navigator';
+import Component from '@glimmer/component';
 import { action } from '@ember/object';
 
-export default class EcrHeader extends Component.extend({
-  route: NavigatorRoute,
+import type { MountedNode } from 'ember-navigator/-private/mounted-node';
+import type NavigatorRoute from 'ember-navigator/-private/navigator-route';
 
-  headerConfig: computed('route.node', function() {
-    let node = this.route.node;
-    return node.getHeaderConfig();
-  }),
-}) {
-  classNames = ['app-header'];
-  layout = layout;
+interface Args {
+  node: MountedNode;
+  route: NavigatorRoute;
+}
+
+export default class EcrHeader extends Component<Args> {
+  get headerConfig() {
+    return this.args.node.getHeaderConfig();
+  }
+
+  get route() {
+    return this.args.node.route;
+  }
 
   @action
   leftButton() {
-    this.route.pop();
+    this.args.route.pop();
   }
-};
+}

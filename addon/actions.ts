@@ -1,25 +1,14 @@
 import {
   back,
+  batch,
   init,
   navigate,
-  setParams,
   pop,
   popToTop,
   push,
-  reset,
   replace,
-  batch
-} from "./-private/actions/actions";
+  reset,
+  setParams,
+} from './-private/actions/actions';
 
-export {
-  back,
-  init,
-  navigate,
-  setParams,
-  pop,
-  popToTop,
-  push,
-  reset,
-  replace,
-  batch
-};
+export { back, batch, init, navigate, pop, popToTop, push, replace, reset, setParams };

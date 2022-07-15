@@ -1,13 +1,13 @@
-export const BACK = "Navigation/BACK";
-export const INIT = "Navigation/INIT";
-export const NAVIGATE = "Navigation/NAVIGATE";
-export const SET_PARAMS = "Navigation/SET_PARAMS";
-export const POP = "Navigation/POP";
-export const POP_TO_TOP = "Navigation/POP_TO_TOP";
-export const PUSH = "Navigation/PUSH";
-export const RESET = "Navigation/RESET";
-export const REPLACE = "Navigation/REPLACE";
-export const BATCH = "Navigation/BATCH";
+export const BACK = 'Navigation/BACK';
+export const INIT = 'Navigation/INIT';
+export const NAVIGATE = 'Navigation/NAVIGATE';
+export const SET_PARAMS = 'Navigation/SET_PARAMS';
+export const POP = 'Navigation/POP';
+export const POP_TO_TOP = 'Navigation/POP_TO_TOP';
+export const PUSH = 'Navigation/PUSH';
+export const RESET = 'Navigation/RESET';
+export const REPLACE = 'Navigation/REPLACE';
+export const BATCH = 'Navigation/BATCH';
 
 export type BackParams = {
   key?: string;
@@ -19,7 +19,7 @@ export type BackAction = {
 };
 
 export type InitParams = {
-  params?: any;
+  params?: Record<string, unknown>;
 };
 
 export type InitAction = {
@@ -29,7 +29,7 @@ export type InitAction = {
 
 export type NavigateParams = {
   routeName: string;
-  params?: any;
+  params?: Record<string, unknown>;
   action?: RouterActions;
   key?: string;
 };
@@ -41,7 +41,7 @@ export type NavigateAction = {
 
 export type SetParamsParams = {
   key?: string;
-  params?: any;
+  params?: Record<string, unknown>;
   preserveFocus: boolean;
 };
 
@@ -65,7 +65,7 @@ export type PopToTopAction = {
 
 export type PushParams = {
   routeName: string;
-  params?: any;
+  params?: Record<string, unknown>;
   action?: RouterActions;
 };
 
@@ -107,6 +107,11 @@ export type BatchAction = {
   payload: BatchParams;
 };
 
-export type NavigationActions = NavigateAction | BackAction | SetParamsAction | InitAction | BatchAction;
+export type NavigationActions =
+  | NavigateAction
+  | BackAction
+  | SetParamsAction
+  | InitAction
+  | BatchAction;
 export type StackActions = ResetAction | ReplaceAction | PushAction | PopAction | PopToTopAction;
 export type RouterActions = NavigationActions | StackActions;

@@ -1,29 +1,21 @@
-import Component from '@ember/component';
-// @ts-ignore: Ignore import of compiled template
-import layout from '../templates/components/ecr-stack';
-import { computed } from '@ember/object';
-import { RouterState } from 'ember-navigator/-private/routeable';
-import { MountedNode } from 'ember-navigator/-private/mounted-router';
+import EcrRouterComponent from './ecr-router-component';
 
-export default class EcrStack extends Component.extend({
-  tagName: null,
-  classNames: 'ecr-stack',
+import type { RouterState } from 'ember-navigator/-private/routeable';
 
-  currentNodes: computed('route.node', function() {
-    let node = this.node as MountedNode;
-    let routerState = node.routeableState as RouterState;
+export default class EcrStack extends EcrRouterComponent {
+  get currentNodes() {
+    let routerState = this.args.node.routeableState as RouterState;
     let activeChild = routerState.routes[routerState.index];
-    let activeChildNode = node.childNodes[activeChild.key];
+    let activeChildNode = this.args.node.childNodes[activeChild.key];
+
     return [activeChildNode];
-  }),
+  }
 
-  showHeader: computed(function() {
-    return this.node.routeableState.headerMode !== 'none';
-  }),
+  get showHeader() {
+    return this.args.node.routeableState.headerMode !== 'none';
+  }
 
-  headerComponentName: computed(function() {
-    return this.node.routeableState.headerComponentName;
-  }),
-}) {
-  layout = layout;
-};
+  get headerComponentName() {
+    return this.args.node.routeableState.headerComponentName;
+  }
+}

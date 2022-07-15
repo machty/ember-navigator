@@ -1,23 +1,16 @@
-import Component from '@ember/component';
-// @ts-ignore: Ignore import of compiled template
-import layout from '../templates/components/ecr-switch';
-import { computed } from '@ember/object';
-import { RouterState } from 'ember-navigator/-private/routeable';
-import { MountedNode } from 'ember-navigator/-private/mounted-node';
+import EcrRouterComponent from './ecr-router-component';
 
-export default class EcrSwitch extends Component.extend({
-  tagName: null,
-  classNames: 'ecr-switch',
+import type { RouterState } from 'ember-navigator/-private/routeable';
 
-  currentNodes: computed('route.node', function() {
-    let node = this.node as MountedNode;
+export default class EcrSwitch extends EcrRouterComponent {
+  state?: RouterState;
+
+  get currentNodes() {
+    let node = this.args.node;
     let routerState = node.routeableState as RouterState;
     let activeChild = routerState.routes[routerState.index];
     let activeChildNode = node.childNodes[activeChild.key];
-    return [activeChildNode];
-  }),
-}) {
-  layout = layout;
-  state?: RouterState;
-};
 
+    return [activeChildNode];
+  }
+}

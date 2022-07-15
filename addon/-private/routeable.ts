@@ -1,74 +1,61 @@
-import { RouterActions } from './actions/types'
-import NavigatorRoute from './navigator-route';
+import type { RouterActions } from './actions/types';
+import type { MountedNode } from './mounted-node';
+import type NavigatorRoute from './navigator-route';
 
 export interface RouteableState {
   key: string;
   routeName: string;
-  params: any;
+  params: Record<string, unknown>;
   componentName: string;
-};
 
-export interface NavigatorRouteFactory {
-  create: (injections?: any) => NavigatorRoute;
-};
+  // TODO: consider getting rid of these? Do any apps in the wild use these?
+  headerComponentName?: string;
+  headerMode?: string;
+}
 
-export interface RouteState extends RouteableState { }
+export type RouteState = RouteableState;
 
 export interface RouterState extends RouteableState {
   index: number;
   routes: RouteableState[];
-};
+}
 
 export interface StackRouterState extends RouterState {
   headerComponentName: string;
   headerMode: string;
-};
+}
 
 export type HandledReducerResult = {
   handled: true;
   state: RouterState;
-}
+};
 
 export type UnhandledReducerResult = {
   handled: false;
-}
+};
 
 export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 
 export type InitialStateOptions = {
   key?: string;
-  params?: any;
-}
+  params?: Record<string, unknown>;
+};
 
 export interface RouteableReducer {
   name: string;
   children: RouteableReducer[];
   isRouter: boolean;
-  params?: any;
+  params?: Record<string, unknown>;
   getInitialState: (options?: InitialStateOptions) => RouteableState;
   dispatch: (action: RouterActions, state?: RouteableState) => ReducerResult;
-  reconcile(routerState: RouteableState, mountedNode: MountableNode) : void;
-};
+  reconcile(routerState: RouteableState, mountedNode: MountedNode): void;
+}
 
 export interface RouterReducer extends RouteableReducer {
   isRouter: true;
   getInitialState: (options?: InitialStateOptions) => RouterState;
 }
 
-export interface MountableNode {
-  childNodes: MountableNodeSet;
-  routeableState?: any;
-  route: NavigatorRoute;
-  mountedRouter: any;
-  key: string;
-  params: any;
-  routeName: string;
-  parentNode: MountableNode | null;
-}
-
 export interface Resolver {
-  resolve(componentName: string): typeof NavigatorRoute | any;
+  resolve(componentName: string): typeof NavigatorRoute | null;
 }
-
-export type MountableNodeSet = { [key: string]: MountableNode };
-
