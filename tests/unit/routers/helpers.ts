@@ -20,7 +20,7 @@ export function handle(
 export function navigate(
   router: RouterReducer,
   state: RouterState,
-  params: NavigateParams
+  params: string | NavigateParams
 ): RouterState {
   let action = navigateAction(typeof params === 'string' ? { routeName: params } : params);
 

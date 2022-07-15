@@ -18,19 +18,19 @@ module('Unit - SwitchRouter test', function (hooks) {
       componentName: 'ecr-switch',
       index: 0,
       key: 'SwitchRouterBase',
-      params: undefined,
+      params: {},
       routeName: 'root',
       routes: [
         {
           componentName: 'foo',
           key: 'foo',
-          params: undefined,
+          params: {},
           routeName: 'foo',
         },
         {
           componentName: 'bar',
           key: 'bar',
-          params: undefined,
+          params: {},
           routeName: 'bar',
         },
       ],
@@ -55,7 +55,7 @@ module('Unit - SwitchRouter test', function (hooks) {
         {
           componentName: 'b1',
           key: 'b1',
-          params: null,
+          params: {},
           routeName: 'b1',
         },
       ],

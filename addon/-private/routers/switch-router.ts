@@ -106,7 +106,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
 
     return {
       key: options.key || this.defaultKey,
-      params: undefined,
+      params: {},
       routeName: this.name,
       componentName: 'ecr-switch',
       routes: childRoutes,

@@ -48,6 +48,9 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Test that ts precompile works
+        run: './node_modules/.bin/ember ts:precompile'
+
   test:
     name: Tests
     runs-on: ${{ matrix.os }}
