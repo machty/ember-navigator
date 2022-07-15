@@ -31,7 +31,7 @@ module('Unit - StackRouter test', function (hooks) {
     routes: [
       {
         key: 'foo',
-        params: null,
+        params: {},
         routeName: 'foo',
         componentName: 'foo',
       },
@@ -67,7 +67,7 @@ module('Unit - StackRouter test', function (hooks) {
           {
             componentName: 'b',
             key: 'b',
-            params: null,
+            params: {},
             routeName: 'b',
           },
         ],
@@ -112,7 +112,7 @@ module('Unit - StackRouter test', function (hooks) {
             {
               componentName: 'foo',
               key: 'foo',
-              params: null,
+              params: {},
               routeName: 'foo',
             },
           ],
@@ -126,13 +126,13 @@ module('Unit - StackRouter test', function (hooks) {
       {
         componentName: 'foo',
         key: 'foo',
-        params: null,
+        params: {},
         routeName: 'foo',
       },
       {
         componentName: 'foo',
         key: 'other',
-        params: undefined,
+        params: {},
         routeName: 'foo',
       },
     ]);
@@ -143,8 +143,7 @@ module('Unit - StackRouter test', function (hooks) {
     let initialState = router.getInitialState();
     let state = navigate(router, initialState, { routeName: 'bar' });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    assert.deepEqual(state as any, {
+    assert.deepEqual(state, {
       componentName: 'ecr-stack',
       headerComponentName: 'ecr-header',
       headerMode: 'float',
@@ -156,12 +155,12 @@ module('Unit - StackRouter test', function (hooks) {
         {
           componentName: 'foo',
           key: 'foo',
-          params: null,
+          params: {},
           routeName: 'foo',
         },
         {
           key: 'id-1',
-          params: undefined,
+          params: {},
           routeName: 'bar',
           componentName: 'bar',
         },
@@ -213,7 +212,7 @@ module('Unit - StackRouter test', function (hooks) {
     let allParams = state4.routes.map((r) => ({ params: r.params }));
 
     assert.deepEqual(allParams, [
-      { params: null },
+      { params: {} },
       { params: { id: 4 } },
       { params: { id: 5 } },
       { params: { id: 6 } },

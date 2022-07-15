@@ -43,7 +43,7 @@ export class RouteReducer implements RouteableReducer {
     let routeName = this.name;
 
     return {
-      params: options.params,
+      params: options.params || {},
       routeName,
       key: options.key || generateKey(),
       componentName: routeName,
