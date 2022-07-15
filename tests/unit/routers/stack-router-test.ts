@@ -143,6 +143,7 @@ module('Unit - StackRouter test', function (hooks) {
     let initialState = router.getInitialState();
     let state = navigate(router, initialState, { routeName: 'bar' });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     assert.deepEqual(state as any, {
       componentName: 'ecr-stack',
       headerComponentName: 'ecr-header',

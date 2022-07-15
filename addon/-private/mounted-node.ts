@@ -1,6 +1,7 @@
 import { tracked } from '@glimmer/tracking';
 
 import type MountedRouter from './mounted-router';
+import type { Header } from './navigator-route';
 import type NavigatorRoute from './navigator-route';
 import type { RouteableState, RouterState } from './routeable';
 
@@ -23,7 +24,7 @@ export class MountedNode {
   @tracked routeableState: RouteableState;
   route: NavigatorRoute;
   id: number;
-  header?: any;
+  // header?: any;
   mountedRouter: MountedRouter;
   parentNode: MountedNode | null;
 
@@ -81,20 +82,20 @@ export class MountedNode {
   }
 
   get isRouter() {
-    return !!(this.routeableState as any).routes;
+    return !!(this.routeableState as RouterState).routes;
   }
 
-  getHeaderConfig(): any {
+  getHeaderConfig(): Header | null {
     let routerState = this.routeableState as RouterState;
 
     if (routerState.routes) {
       let key = routerState.routes[routerState.index].key;
       let child = this.childNodes[key];
 
-      return child && child.getHeaderConfig();
+      return child?.getHeaderConfig();
     } else {
       // this is leaf route, check the NavigatorRoute
-      return (this.route as any).header;
+      return this.route.header || null;
     }
   }
 }

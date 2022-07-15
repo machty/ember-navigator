@@ -1,4 +1,4 @@
-import invariant from './invariant';
+import { assert } from '@ember/debug';
 
 import type { RouterState, RouteState } from '../routeable';
 
@@ -40,10 +40,9 @@ const StateUtils = {
    * stack is at.
    */
   push(state: RouterState, route: RouteState) {
-    invariant(
-      StateUtils.indexOf(state, route.key) === -1,
-      'should not push route with duplicated key %s',
-      route.key
+    assert(
+      `should not push route with duplicated key ${route.key}`,
+      StateUtils.indexOf(state, route.key) === -1
     );
 
     const routes = state.routes.slice();
@@ -85,7 +84,7 @@ const StateUtils = {
       return state;
     }
 
-    invariant(!!state.routes[index], 'invalid index %s to jump to', index);
+    assert(`invalid index ${index} to jump to`, !!state.routes[index]);
 
     return {
       ...state,
@@ -127,7 +126,7 @@ const StateUtils = {
    * Note that this moves the index to the position to where the new route in the
    * stack is at and updates the routes array accordingly.
    */
-  replaceAndPrune(state: RouterState, key: string, route: any) {
+  replaceAndPrune(state: RouterState, key: string, route: RouterState) {
     const index = StateUtils.indexOf(state, key);
     const replaced = StateUtils.replaceAtIndex(state, index, route);
 
@@ -160,7 +159,7 @@ const StateUtils = {
    * stack is at.
    */
   replaceAtIndex(state: RouterState, index: number, route: RouteState) {
-    invariant(!!state.routes[index], 'invalid index %s for replacing route %s', index, route.key);
+    assert(`invalid index ${index} for replacing route ${route.key}`, !!state.routes[index]);
 
     if (state.routes[index] === route && index === state.index) {
       return state;
@@ -183,7 +182,7 @@ const StateUtils = {
    * stack is at if the param `index` isn't provided.
    */
   reset(state: RouterState, routes: RouteState[], index: number) {
-    invariant(routes.length && Array.isArray(routes), 'invalid routes to replace');
+    assert('invalid routes to replace', routes.length && Array.isArray(routes));
 
     const nextIndex = index === undefined ? routes.length - 1 : index;
 
@@ -195,7 +194,7 @@ const StateUtils = {
       }
     }
 
-    invariant(!!routes[nextIndex], 'invalid index %s to reset', nextIndex);
+    assert(`invalid index ${nextIndex} to reset`, !!routes[nextIndex]);
 
     return {
       ...state,

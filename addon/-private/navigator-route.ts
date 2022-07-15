@@ -2,6 +2,11 @@ import { notifyPropertyChange } from '@ember/object';
 
 import type { NavigateParams, PopParams } from './actions/types';
 import type { MountedNode } from './mounted-node';
+import type { RouteableState } from './routeable';
+
+export type Header = {
+  title?: string;
+};
 
 /**
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
@@ -10,6 +15,7 @@ import type { MountedNode } from './mounted-node';
  */
 export default class NavigatorRoute {
   node: MountedNode;
+  header?: Header;
 
   constructor(node: MountedNode) {
     this.node = node;
@@ -31,7 +37,7 @@ export default class NavigatorRoute {
     this.node.mountedRouter.pop(options);
   }
 
-  update(_state: any) {
+  update(_state: RouteableState) {
     // this is how we signal to components to re-render with the new state.
     notifyPropertyChange(this, 'node');
   }

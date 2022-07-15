@@ -7,14 +7,20 @@ import MountedRouter from 'ember-navigator/-private/mounted-router';
 
 import type { Resolver } from 'ember-navigator/-private/routeable';
 
+interface TestEvent {
+  id: number;
+  type: string;
+  key: string;
+}
+
 function buildTestResolver() {
-  let events: any[] = [];
+  let events: TestEvent[] = [];
   let delegateId = 0;
 
   class Route extends NavigatorRoute {
     id: number = delegateId++;
 
-    update(_state: any) {
+    update() {
       events.push({ id: this.id, type: 'update', key: this.node.key });
     }
 
@@ -28,10 +34,8 @@ function buildTestResolver() {
   }
 
   class TestResolver implements Resolver {
-    delegates: any[];
     id: number;
     constructor() {
-      this.delegates = [];
       this.id = 0;
     }
 
@@ -142,15 +146,15 @@ module('Unit - MountedRouter test', function (hooks) {
     assert.strictEqual(barRoute.name, 'bar');
     assert.strictEqual(barRoute.key, 'id-1');
     assert.strictEqual(barRoute.parent, fooRoute);
-    assert.strictEqual(barRoute.parent!.parent!.name, 'root');
+    assert.strictEqual(barRoute.parent?.parent?.name, 'root');
 
-    assert.strictEqual(barRoute.parentNamed('bar')!.name, 'bar');
+    assert.strictEqual(barRoute.parentNamed('bar')?.name, 'bar');
     assert.strictEqual(barRoute.parentNamed('bar2'), null);
 
     assert.strictEqual(barRoute.parent?.parentRoute, null);
 
-    assert.strictEqual(barRoute.parentRouter!.name, 'root');
-    assert.strictEqual(barRoute.parent!.parentRouter!.name, 'root');
+    assert.strictEqual(barRoute.parentRouter?.name, 'root');
+    assert.strictEqual(barRoute.parent?.parentRouter?.name, 'root');
   });
 
   test('stack: basic nav with params', function (assert) {

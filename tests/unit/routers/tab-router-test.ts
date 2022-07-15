@@ -123,6 +123,7 @@ module('Unit - TabRouter test', function (hooks) {
 
     assert.strictEqual(state4.index, 0, 'first tab should be active');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let tabRouterState = state4.routes[0] as any;
 
     assert.strictEqual(tabRouterState.index, 1, 'first tab should still be drilled down one level');

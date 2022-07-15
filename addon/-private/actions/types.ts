@@ -19,7 +19,7 @@ export type BackAction = {
 };
 
 export type InitParams = {
-  params?: any;
+  params?: Record<string, unknown>;
 };
 
 export type InitAction = {
@@ -29,7 +29,7 @@ export type InitAction = {
 
 export type NavigateParams = {
   routeName: string;
-  params?: any;
+  params?: Record<string, unknown>;
   action?: RouterActions;
   key?: string;
 };
@@ -41,7 +41,7 @@ export type NavigateAction = {
 
 export type SetParamsParams = {
   key?: string;
-  params?: any;
+  params?: Record<string, unknown>;
   preserveFocus: boolean;
 };
 
@@ -65,7 +65,7 @@ export type PopToTopAction = {
 
 export type PushParams = {
   routeName: string;
-  params?: any;
+  params?: Record<string, unknown>;
   action?: RouterActions;
 };
 

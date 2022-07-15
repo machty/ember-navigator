@@ -5,16 +5,12 @@ import type NavigatorRoute from './navigator-route';
 export interface RouteableState {
   key: string;
   routeName: string;
-  params: any;
+  params: Record<string, unknown>;
   componentName: string;
 
   // TODO: consider getting rid of these? Do any apps in the wild use these?
   headerComponentName?: string;
   headerMode?: string;
-}
-
-export interface NavigatorRouteFactory {
-  create: (injections?: any) => NavigatorRoute;
 }
 
 export type RouteState = RouteableState;
@@ -42,14 +38,14 @@ export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 
 export type InitialStateOptions = {
   key?: string;
-  params?: any;
+  params?: Record<string, unknown>;
 };
 
 export interface RouteableReducer {
   name: string;
   children: RouteableReducer[];
   isRouter: boolean;
-  params?: any;
+  params?: Record<string, unknown>;
   getInitialState: (options?: InitialStateOptions) => RouteableState;
   dispatch: (action: RouterActions, state?: RouteableState) => ReducerResult;
   reconcile(routerState: RouteableState, mountedNode: MountedNode): void;
@@ -61,5 +57,5 @@ export interface RouterReducer extends RouteableReducer {
 }
 
 export interface Resolver {
-  resolve(componentName: string): typeof NavigatorRoute | any;
+  resolve(componentName: string): typeof NavigatorRoute | null;
 }

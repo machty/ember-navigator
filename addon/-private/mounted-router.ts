@@ -26,7 +26,6 @@ export default class MountedRouter {
 
     if (result.handled) {
       if (this.state !== result.state) {
-        console.log(result.state);
         set(this, 'state', result.state);
         this._update();
         this._sendEvents();
@@ -62,6 +61,7 @@ export default class MountedRouter {
   // constructor accepting one argument (a MountedNode instance).
 
   createNavigatorRoute(node: MountedNode) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     let RouteFactory = this.resolve(node.routeName)!;
 
     if (RouteFactory.create) {
