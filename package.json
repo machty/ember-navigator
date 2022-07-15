@@ -29,6 +29,8 @@
     "lint:hbs:fix": "ember-template-lint . --fix",
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix",
+    "prepack": "ember ts:precompile",
+    "postpack": "ember ts:clean",
     "start": "ember server",
     "test": "npm-run-all lint test:*",
     "test:ember": "ember test",
