@@ -77,6 +77,7 @@ export default class NavigatorRoute {
    * Returns the closest parent of the provided name.
    */
   parentNamed(name: string): NavigatorRoute | null {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cur: NavigatorRoute | null = this;
 
     while (cur && cur.name !== name) {
@@ -90,6 +91,7 @@ export default class NavigatorRoute {
    * Returns the nearest parent router, e.g. the stack router that this route is mounted in.
    */
   get parentRouter(): NavigatorRoute | null {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let cur: NavigatorRoute | null = this;
 
     while (cur && !(cur.node as MountedNode).isRouter) {
@@ -123,10 +125,12 @@ export default class NavigatorRoute {
    * Within this hook, you can access `this.params` to access any params passed into
    * this route (such as model IDs or any other information)
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   mount() {}
 
   /**
    * `unmount` is called after the route has been removed from the routing tree.
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   unmount() {}
 }
