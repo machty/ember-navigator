@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - master
-      - v1
-      - v2
       # npm version tags
       - /^v\d+.\d+.\d+(?:-(?:alpha|beta|rc)\.\d+)?/
   pull_request:
@@ -147,13 +145,12 @@ jobs:
       fail-fast: true
       matrix:
         ember-try-scenario:
-          - ember-lts-3.12
           - ember-lts-3.16
           - ember-lts-3.20
           - ember-lts-3.24
+          - ember-lts-3.28
           # - ember-release
           # - ember-default
-          # - typescript-3.7
           # - typescript-3.9
           # - embroider-safe
           # - embroider-optimized
@@ -193,10 +190,6 @@ jobs:
         run: yarn install --frozen-lockfile
         if: |
           steps.cache-dependencies.outputs.cache-hit != 'true'
-
-      - name: Strip ts-expect-error from tests (for TypeScript 3.7)
-        run: find tests/types -type f -name '*.ts' | xargs sed -i 's/@ts-expect-error/@ts-ignore/g'
-        if: matrix.ember-try-scenario == 'typescript-3.7'
 
       - name: Test
         env:
