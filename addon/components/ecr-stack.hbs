@@ -1,6 +1,6 @@
 <div class="ecr-stack">
 {{#if this.showHeader}}
-  {{component @headerComponentName route=@route}}
+  {{component this.headerComponentName route=@route}}
 {{/if}}
 
 {{#each this.currentNodes key="key" as |childNode|}}

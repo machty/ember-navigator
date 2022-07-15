@@ -7,7 +7,7 @@ export default class EcrStack extends Component {
   classNames = ["ecr-stack"]
   node!: MountedNode
 
-  @computed("route.node")
+  @computed("args.route.node")
   get currentNodes() {
     let routerState = this.args.node.routeableState as RouterState;
     let activeChild = routerState.routes[routerState.index];

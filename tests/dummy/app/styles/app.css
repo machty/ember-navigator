@@ -62,10 +62,6 @@ header h1 {
   text-align: center;
 }
 
-.ecr-stack-frame {
-  background: rgba(255,255,255,0.3);
-}
-
 a.back-button {
   text-decoration: none;
   color: white;
@@ -88,10 +84,4 @@ pre {
 .ecr-stack, .ecr-switch {
   flex: 1;
   height: 100%;
-}
-
-.ecr-stack-frame {
-  box-sizing: border-box;
-  border: 1px solid rgba(0,0,0,0.3);
-  flex: 1;
 }
