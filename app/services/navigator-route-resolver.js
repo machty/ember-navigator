@@ -1,1 +1,1 @@
-export { default } from "ember-navigator/services/navigator-route-resolver";
+export { default } from 'ember-navigator/services/navigator-route-resolver';

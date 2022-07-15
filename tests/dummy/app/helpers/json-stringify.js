@@ -1,4 +1,4 @@
-import { helper } from "@ember/component/helper";
+import { helper } from '@ember/component/helper';
 
 export function jsonStringify(params, hash) {
   if (hash.pretty) {

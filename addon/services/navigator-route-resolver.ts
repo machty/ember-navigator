@@ -8,9 +8,11 @@ export default class NavigatorRouteResolver extends Service {
     let owner = getOwner(this);
     let fullNavigatorRouteName = `${this.containerType}:${routeName}`;
     let factory = owner.factoryFor(fullNavigatorRouteName);
+
     if (factory) {
       return factory;
     }
+
     return owner.factoryFor(`${this.containerType}:basic`);
   }
 }

@@ -1,13 +1,14 @@
-import {
+import { generateKey } from './key-generator';
+
+import type { RouterActions } from './actions/types';
+import type { MountedNode } from './mounted-node';
+import type {
+  InitialStateOptions,
   RouteableReducer,
-  RouteState,
   RouterState,
+  RouteState,
   UnhandledReducerResult,
-  InitialStateOptions
-} from "./routeable";
-import { generateKey } from "./key-generator";
-import { RouterActions } from "./actions/types";
-import { MountedNode } from "./mounted-node";
+} from './routeable';
 
 export type RouteOptions = {
   componentName?: string;
@@ -40,11 +41,12 @@ export class RouteReducer implements RouteableReducer {
 
   getInitialState(options: InitialStateOptions = {}): RouteState {
     let routeName = this.name;
+
     return {
       params: options.params,
       routeName,
       key: options.key || generateKey(),
-      componentName: routeName
+      componentName: routeName,
     };
   }
 

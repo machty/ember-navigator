@@ -1,9 +1,11 @@
-import { RouterReducer, RouterState, Resolver } from "./routeable";
-import { RouterActions, NavigateParams, PopParams } from "./actions/types";
-import { navigate, pop } from "./actions/actions";
-import { set } from "@ember/object";
+import { set } from '@ember/object';
 import { sendEvent } from '@ember/object/events';
-import { MountedNode } from "./mounted-node";
+
+import { navigate, pop } from './actions/actions';
+import { MountedNode } from './mounted-node';
+
+import type { NavigateParams, PopParams, RouterActions } from './actions/types';
+import type { Resolver, RouterReducer, RouterState } from './routeable';
 
 export default class MountedRouter {
   router: RouterReducer;
@@ -21,6 +23,7 @@ export default class MountedRouter {
 
   dispatch(action: RouterActions) {
     let result = this.router.dispatch(action, this.state);
+
     if (result.handled) {
       if (this.state !== result.state) {
         console.log(result.state);
@@ -60,6 +63,7 @@ export default class MountedRouter {
 
   createNavigatorRoute(node: MountedNode) {
     let RouteFactory = this.resolve(node.routeName)!;
+
     if (RouteFactory.create) {
       return RouteFactory.create({ node });
     } else {

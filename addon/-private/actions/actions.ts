@@ -1,37 +1,40 @@
 import {
-  InitAction,
-  InitParams,
+  BACK,
+  BATCH,
   INIT,
   NAVIGATE,
-  SET_PARAMS,
-  BACK,
-  NavigateParams,
-  NavigateAction,
-  BackAction,
-  BackParams,
-  SetParamsParams,
-  PopParams,
   POP,
-  PopAction,
   POP_TO_TOP,
   PUSH,
-  PushParams,
-  PushAction,
-  RESET,
-  ResetParams,
-  ResetAction,
   REPLACE,
-  ReplaceParams,
-  ReplaceAction,
-  SetParamsAction,
-  BatchParams,
+  RESET,
+  SET_PARAMS,
+} from './types';
+
+import type {
+  BackAction,
+  BackParams,
   BatchAction,
-  BATCH
-} from "./types";
+  BatchParams,
+  InitAction,
+  InitParams,
+  NavigateAction,
+  NavigateParams,
+  PopAction,
+  PopParams,
+  PushAction,
+  PushParams,
+  ReplaceAction,
+  ReplaceParams,
+  ResetAction,
+  ResetParams,
+  SetParamsAction,
+  SetParamsParams,
+} from './types';
 
 export const back = (payload: BackParams = {}): BackAction => ({
   type: BACK,
-  payload
+  payload,
 });
 
 export const init = (payload: InitParams): InitAction => {
@@ -44,32 +47,32 @@ export const navigate = (payload: NavigateParams): NavigateAction => {
 
 export const setParams = (payload: SetParamsParams): SetParamsAction => ({
   type: SET_PARAMS,
-  payload
+  payload,
 });
 
 export const pop = (payload: PopParams = {}): PopAction => ({
   type: POP,
-  payload
+  payload,
 });
 
 export const popToTop = () => ({ type: POP_TO_TOP });
 
 export const push = (payload: PushParams): PushAction => ({
   type: PUSH,
-  payload
+  payload,
 });
 
 export const reset = (payload: ResetParams): ResetAction => ({
   type: RESET,
-  payload
+  payload,
 });
 
 export const replace = (payload: ReplaceParams): ReplaceAction => ({
   type: REPLACE,
-  payload
+  payload,
 });
 
 export const batch = (payload: BatchParams): BatchAction => ({
   type: BATCH,
-  payload
+  payload,
 });

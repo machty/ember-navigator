@@ -1,6 +1,7 @@
-import { notifyPropertyChange } from "@ember/object";
-import { NavigateParams, PopParams } from "./actions/types";
-import { MountedNode } from "./mounted-node";
+import { notifyPropertyChange } from '@ember/object';
+
+import type { NavigateParams, PopParams } from './actions/types';
+import type { MountedNode } from './mounted-node';
 
 /**
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
@@ -16,7 +17,9 @@ export default class NavigatorRoute {
 
   static create(props: { node: MountedNode }) {
     let instance = new this(props.node);
+
     Object.assign(instance, props);
+
     return instance;
   }
 
@@ -30,7 +33,7 @@ export default class NavigatorRoute {
 
   update(_state: any) {
     // this is how we signal to components to re-render with the new state.
-    notifyPropertyChange(this, "node");
+    notifyPropertyChange(this, 'node');
   }
 
   /**
@@ -62,6 +65,7 @@ export default class NavigatorRoute {
    */
   get parent(): NavigatorRoute | null {
     const parentNode = this.node.parentNode;
+
     if (!parentNode) {
       return null;
     }
@@ -74,9 +78,11 @@ export default class NavigatorRoute {
    */
   parentNamed(name: string): NavigatorRoute | null {
     let cur: NavigatorRoute | null = this;
+
     while (cur && cur.name !== name) {
       cur = cur.parent;
     }
+
     return cur;
   }
 
@@ -85,9 +91,11 @@ export default class NavigatorRoute {
    */
   get parentRouter(): NavigatorRoute | null {
     let cur: NavigatorRoute | null = this;
+
     while (cur && !(cur.node as MountedNode).isRouter) {
       cur = cur.parent;
     }
+
     return cur;
   }
 
@@ -96,6 +104,7 @@ export default class NavigatorRoute {
    */
   get parentRoute(): NavigatorRoute | null {
     const parent = this.parent;
+
     if (!parent) {
       return null;
     }

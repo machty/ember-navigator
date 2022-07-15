@@ -1,18 +1,18 @@
 /* eslint-env node */
-"use strict";
+'use strict';
 
-const EmberAddon = require("ember-cli/lib/broccoli/ember-addon");
+const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
 module.exports = function (defaults) {
   let app = new EmberAddon(defaults, {
     babel: {
-      exclude: ["transform-regenerator"],
+      exclude: ['transform-regenerator'],
     },
     isDevelopingAddon: function () {
       return false;
     },
-    snippetPaths: ["tests/dummy/snippets"],
-    snippetSearchPaths: ["app", "tests/dummy/app", "addon"],
+    snippetPaths: ['tests/dummy/snippets'],
+    snippetSearchPaths: ['app', 'tests/dummy/app', 'addon'],
   });
 
   /*

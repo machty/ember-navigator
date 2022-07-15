@@ -1,1 +1,1 @@
-export { default } from "ember-navigator/components/ecr-header";
+export { default } from 'ember-navigator/components/ecr-header';

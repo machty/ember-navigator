@@ -1,11 +1,11 @@
-import {
+import type { RouterActions } from '../actions/types';
+import type {
+  ReducerResult,
   RouteableReducer,
   RouterReducer,
+  RouterState,
   RouteState,
-  ReducerResult,
-  RouterState
-} from "../routeable";
-import { RouterActions } from "../actions/types";
+} from '../routeable';
 
 export interface BaseOptions {
   componentName?: string;
@@ -28,11 +28,7 @@ export class BaseRouter {
   options: BaseOptions;
   routeNames: string[];
 
-  constructor(
-    name: string,
-    children: RouteableReducer[],
-    options: BaseOptions
-  ) {
+  constructor(name: string, children: RouteableReducer[], options: BaseOptions) {
     this.isRouter = true;
     this.name = name;
     this.children = children;
@@ -40,20 +36,21 @@ export class BaseRouter {
     this.childRouteables = {};
     this.options = options;
 
-    children.forEach(c => {
+    children.forEach((c) => {
       this.childRouteables[c.name] = c;
       this.routeNames.push(c.name);
     });
 
-    this.componentName = this.options.componentName || "ecr-stack";
+    this.componentName = this.options.componentName || 'ecr-stack';
   }
 
   childRouterNamed(name: string): RouterReducer | null {
     let child = this.childRouteables[name];
+
     return child.isRouter ? (child as RouterReducer) : null;
   }
 
-  dispatchTo(routeStates: RouteState[], action: RouterActions) : RouterState | void {
+  dispatchTo(routeStates: RouteState[], action: RouterActions): RouterState | void {
     for (let routeState of routeStates) {
       let routeable = this.childRouteables[routeState.routeName];
 

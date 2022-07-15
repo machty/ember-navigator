@@ -1,15 +1,26 @@
-export default function invariant(condition: any, format: string, a?: any, b?: any, c?: any, d?: any, e?: any, f?: any) {
+export default function invariant(
+  condition: any,
+  format: string,
+  a?: any,
+  b?: any,
+  c?: any,
+  d?: any,
+  e?: any,
+  f?: any
+) {
   if (!condition) {
-    var error;
+    let error;
+
     if (format === undefined) {
       error = new Error(
         'Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.'
       );
     } else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
+      let args = [a, b, c, d, e, f];
+      let argIndex = 0;
+
       error = new Error(
-        format.replace(/%s/g, function() {
+        format.replace(/%s/g, function () {
           return args[argIndex++];
         })
       );
