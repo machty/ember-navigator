@@ -7,6 +7,10 @@ export interface RouteableState {
   routeName: string;
   params: any;
   componentName: string;
+
+  // TODO: consider getting rid of these? Do any apps in the wild use these?
+  headerComponentName?: string;
+  headerMode?: string;
 }
 
 export interface NavigatorRouteFactory {
