@@ -1,15 +1,21 @@
 import Component from '@glimmer/component';
-import { computed } from '@ember/object';
 import { action } from '@ember/object';
 
-import type { NavigatorRoute } from 'ember-navigator';
+import type { MountedNode } from 'ember-navigator/-private/mounted-node';
+import type NavigatorRoute from 'ember-navigator/-private/navigator-route';
 
-export default class EcrHeader extends Component {
-  route!: NavigatorRoute;
+interface Args {
+  node: MountedNode;
+  route: NavigatorRoute;
+}
 
-  @computed('args.route.node')
+export default class EcrHeader extends Component<Args> {
   get headerConfig() {
-    return this.args.route.node.getHeaderConfig();
+    return this.args.node.getHeaderConfig();
+  }
+
+  get route() {
+    return this.args.node.route;
   }
 
   @action

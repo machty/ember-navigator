@@ -1,16 +1,8 @@
-import Component from '@glimmer/component';
+import EcrRouterComponent from './ecr-router-component';
 
-import type { MountedNode } from 'ember-navigator/-private/mounted-node';
 import type { RouterState } from 'ember-navigator/-private/routeable';
 
-interface Args {
-  node: MountedNode;
-}
-
-export default class EcrStack extends Component<Args> {
-  classNames = ['ecr-stack'];
-  node!: MountedNode;
-
+export default class EcrStack extends EcrRouterComponent {
   get currentNodes() {
     let routerState = this.args.node.routeableState as RouterState;
     let activeChild = routerState.routes[routerState.index];

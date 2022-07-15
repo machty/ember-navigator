@@ -5,8 +5,8 @@ import * as QUnit from 'qunit';
 import { setup } from 'qunit-dom';
 import { start } from 'ember-qunit';
 
-import Application from '../app';
-import config from '../config/environment';
+import Application from 'dummy/app';
+import config from 'dummy/config/environment';
 
 setup(QUnit.assert);
 
