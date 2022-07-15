@@ -1,4 +1,5 @@
-# ember-navigator <img src="https://raw.githubusercontent.com/machty/ember-navigator/master/tests/dummy/public/ember-navigator-mark.svg" width=36 height=36 />
+# ember-navigator <img src="https://raw.githubusercontent.com/machty/ember-navigator/master/tests/dummy/public/ember-navigator-mark.svg" width=36 height=36 /> ![ci badge](https://github.com/machty/ember-navigator/actions/workflows/ci.yml/badge.svg)
+
 
 A routing/navigation library for Ember.js suitable for mobile app UI flows, modeled after
 [React Navigation](https://reactnavigation.org/) and a few other mobile-centric navigation
