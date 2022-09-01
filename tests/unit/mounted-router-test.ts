@@ -5,6 +5,7 @@ import { NavigatorRoute } from 'ember-navigator';
 import { _TESTING_ONLY_normalize_keys } from 'ember-navigator/-private/key-generator';
 import MountedRouter from 'ember-navigator/-private/mounted-router';
 
+import type { NavigatorRouteConstructorParams } from 'ember-navigator';
 import type { Resolver } from 'ember-navigator/-private/routeable';
 
 interface TestEvent {
@@ -19,6 +20,11 @@ function buildTestResolver() {
 
   class Route extends NavigatorRoute {
     id: number = delegateId++;
+
+    constructor(...params: NavigatorRouteConstructorParams) {
+      super(...params);
+      events.push({ id: this.id, type: 'constructor', key: this.node.key });
+    }
 
     update() {
       events.push({ id: this.id, type: 'update', key: this.node.key });
@@ -63,6 +69,11 @@ module('Unit - MountedRouter test', function (hooks) {
       {
         id: 2,
         key: 'bar',
+        type: 'constructor',
+      },
+      {
+        id: 2,
+        key: 'bar',
         type: 'mount',
       },
       {
@@ -97,7 +108,17 @@ module('Unit - MountedRouter test', function (hooks) {
       {
         id: 0,
         key: 'StackRouterRoot',
+        type: 'constructor',
+      },
+      {
+        id: 0,
+        key: 'StackRouterRoot',
         type: 'mount',
+      },
+      {
+        id: 1,
+        key: 'foo',
+        type: 'constructor',
       },
       {
         id: 1,
@@ -125,6 +146,11 @@ module('Unit - MountedRouter test', function (hooks) {
     events.length = 0;
     mountedRouter.navigate({ routeName: 'bar' });
     assert.deepEqual(events, [
+      {
+        id: 2,
+        key: 'id-1',
+        type: 'constructor',
+      },
       {
         id: 2,
         key: 'id-1',
@@ -165,6 +191,11 @@ module('Unit - MountedRouter test', function (hooks) {
     events.length = 0;
     mountedRouter.navigate({ routeName: 'bar', params: { bar_id: 123 } });
     assert.deepEqual(events, [
+      {
+        id: 2,
+        key: 'id-1',
+        type: 'constructor',
+      },
       {
         id: 2,
         key: 'id-1',
