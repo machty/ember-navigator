@@ -8,6 +8,8 @@ export type Header = {
   title?: string;
 };
 
+export type NavigatorRouteConstructorParams = [node: MountedNode];
+
 /**
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
  * that is meant to be subclassed with various lifecycle hooks that can be
@@ -17,8 +19,14 @@ export default class NavigatorRoute {
   node: MountedNode;
   header?: Header;
 
-  constructor(node: MountedNode) {
-    this.node = node;
+  /**
+   * Constructs a NavigatorRoute, which you can override in your NavigatorRoute subclasses
+   * to load data or perform other operations when the route is mounted.
+   *
+   * @param params NavigatorRouteConstructorParams
+   */
+  constructor(...params: NavigatorRouteConstructorParams) {
+    this.node = params[0];
   }
 
   static create(props: { node: MountedNode }) {
@@ -130,6 +138,10 @@ export default class NavigatorRoute {
    * `mount` is called after transitioning to a new route, or pushing a stack frame;
    * Within this hook, you can access `this.params` to access any params passed into
    * this route (such as model IDs or any other information)
+   *
+   * There is no difference between overriding this method vs just overriding the
+   * NavigatorRoute constructor (and calling super()), but overriding the constructor
+   * tends to be the happier path when working with TypeScript
    */
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   mount() {}

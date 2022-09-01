@@ -38,8 +38,8 @@ export class MountedNode {
     this.mountedRouter = mountedRouter;
     this.parentNode = parentNode;
     this.routeableState = routeableState;
-    this.route = this.mountedRouter.createNavigatorRoute(this);
     this.childNodes = {};
+    this.route = this.mountedRouter.createNavigatorRoute(this);
     this.mount();
   }
 

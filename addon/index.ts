@@ -10,7 +10,10 @@ import type { StackOptions } from './-private/routers/stack-router';
 import type { SwitchOptions } from './-private/routers/switch-router';
 import type { TabOptions } from './-private/routers/tab-router';
 
-export { default as NavigatorRoute } from './-private/navigator-route';
+export {
+  default as NavigatorRoute,
+  NavigatorRouteConstructorParams,
+} from './-private/navigator-route';
 
 export function mount(routerMap: RouterReducer, resolver: Resolver): MountedRouter {
   return new MountedRouter(routerMap, resolver);
