@@ -284,3 +284,9 @@ Ember router or with the location service directly. This is not a minor undertak
 For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
 
 [1]: https://youtu.be/5IsSpAOD6K8?t=48
+
+## Releasing / Publishing to NPM
+
+```
+yarn release
+```

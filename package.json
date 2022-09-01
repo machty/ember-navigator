@@ -31,6 +31,7 @@
     "lint:js:fix": "eslint . --fix",
     "prepack": "ember ts:precompile",
     "postpack": "ember ts:clean",
+    "release": "release-it",
     "start": "ember server",
     "test": "npm-run-all lint test:*",
     "test:ember": "ember test",
