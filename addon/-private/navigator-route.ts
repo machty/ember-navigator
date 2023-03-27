@@ -17,7 +17,7 @@ export type NavigatorRouteConstructorParams = [node: MountedNode];
  *
  * NOTE: even though this file is currently in the `-private` directory, it is
  * exported as part of the public API of ember-navigator
- * TODO: should we move it out of the private directory? I'm guessing 
+ * TODO: should we move it out of the private directory?
  */
 export default class NavigatorRoute {
   node: MountedNode;
