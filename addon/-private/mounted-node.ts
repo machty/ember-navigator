@@ -27,6 +27,7 @@ export class MountedNode {
   // header?: any;
   mountedRouter: MountedRouter;
   parentNode: MountedNode | null;
+  isMounted: boolean;
   isFocused: boolean;
 
   // NOTE: a potential split-screen navigator (common in tablet/iPad apps) would
@@ -47,6 +48,7 @@ export class MountedNode {
     this.childNodes = {};
     this.focusedChildNode = null;
     this.isFocused = false;
+    this.isMounted = true;
     this.route = this.mountedRouter.createNavigatorRoute(this);
     this.mount();
   }
@@ -66,6 +68,7 @@ export class MountedNode {
   }
 
   unmount() {
+    this.isMounted = false;
     this.route.unmount();
   }
 
