@@ -89,10 +89,12 @@ export class MountedNode {
           this.focusedChildNode.blurNode();
           this.focusedChildNode = null;
         }
-
-        nodeThatShouldHaveFocus.focusNode();
-        this.focusedChildNode = nodeThatShouldHaveFocus;
       }
+
+      // this needs to be moved outside of this if statement, because we need to
+      // call focusNode() even if it's already focused so it can recompute its subtree
+      nodeThatShouldHaveFocus.focusNode();
+      this.focusedChildNode = nodeThatShouldHaveFocus;
     } else {
       if (!this.isFocused) {
         this.route.focus();

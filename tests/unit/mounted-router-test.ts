@@ -9,9 +9,10 @@ import type { NavigatorRouteConstructorParams } from 'ember-navigator';
 import type { Resolver } from 'ember-navigator/-private/routeable';
 
 interface TestEvent {
-  id: number;
-  type: string;
-  key: string;
+  id?: number;
+  type?: string;
+  key?: string;
+  name?: string;
 }
 
 function buildTestResolver() {
@@ -39,11 +40,11 @@ function buildTestResolver() {
     }
 
     focus() {
-      events.push({ id: this.id, type: 'focus', key: this.node.key });
+      events.push({ type: 'focus', name: this.name });
     }
 
     blur() {
-      events.push({ id: this.id, type: 'blur', key: this.node.key });
+      events.push({ type: 'blur', name: this.name });
     }
   }
 
@@ -95,13 +96,11 @@ module('Unit - MountedRouter test', function (hooks) {
         type: 'update',
       },
       {
-        id: 1,
-        key: 'foo',
+        name: 'foo',
         type: 'blur',
       },
       {
-        id: 2,
-        key: 'bar',
+        name: 'bar',
         type: 'focus',
       },
     ]);
@@ -144,8 +143,7 @@ module('Unit - MountedRouter test', function (hooks) {
         type: 'mount',
       },
       {
-        id: 1,
-        key: 'foo',
+        name: 'foo',
         type: 'focus',
       },
     ]);
@@ -185,13 +183,11 @@ module('Unit - MountedRouter test', function (hooks) {
         type: 'update',
       },
       {
-        id: 1,
-        key: 'foo',
+        name: 'foo',
         type: 'blur',
       },
       {
-        id: 2,
-        key: 'id-1',
+        name: 'bar',
         type: 'focus',
       },
     ]);
@@ -240,13 +236,11 @@ module('Unit - MountedRouter test', function (hooks) {
         type: 'update',
       },
       {
-        id: 1,
-        key: 'foo',
+        name: 'foo',
         type: 'blur',
       },
       {
-        id: 2,
-        key: 'id-1',
+        name: 'bar',
         type: 'focus',
       },
     ]);
@@ -279,8 +273,7 @@ module('Unit - MountedRouter test', function (hooks) {
         type: 'mount',
       },
       {
-        id: 1,
-        key: 'foo',
+        name: 'foo',
         type: 'focus',
       },
     ]);
@@ -305,13 +298,11 @@ module('Unit - MountedRouter test', function (hooks) {
         type: 'update',
       },
       {
-        id: 1,
-        key: 'foo',
+        name: 'foo',
         type: 'blur',
       },
       {
-        id: 2,
-        key: 'id-1',
+        name: 'bar',
         type: 'focus',
       },
     ]);
@@ -330,13 +321,52 @@ module('Unit - MountedRouter test', function (hooks) {
         type: 'update',
       },
       {
-        id: 2,
-        key: 'id-1',
+        name: 'bar',
         type: 'blur',
       },
       {
-        id: 1,
-        key: 'foo',
+        name: 'foo',
+        type: 'focus',
+      },
+    ]);
+  });
+
+  test('nested stacks: focus events when pushing and popping from the same stack', function (assert) {
+    let router = stackRouter('root', [stackRouter('nested', [route('a'), route('b'), route('c')])]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+
+    events.length = 0;
+
+    function getFocusAndBlurs() {
+      const blursAndFocuses = events.filter((e) => e.type === 'focus' || e.type === 'blur');
+
+      events.length = 0;
+
+      return blursAndFocuses;
+    }
+
+    mountedRouter.navigate({ routeName: 'b' });
+    assert.deepEqual(getFocusAndBlurs(), [
+      {
+        name: 'a',
+        type: 'blur',
+      },
+      {
+        name: 'b',
+        type: 'focus',
+      },
+    ]);
+
+    mountedRouter.navigate({ routeName: 'a' });
+
+    assert.deepEqual(getFocusAndBlurs(), [
+      {
+        name: 'b',
+        type: 'blur',
+      },
+      {
+        name: 'a',
         type: 'focus',
       },
     ]);
