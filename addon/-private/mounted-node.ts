@@ -46,8 +46,8 @@ export class MountedNode {
     this.routeableState = routeableState;
     this.childNodes = {};
     this.focusedChildNode = null;
-    this.route = this.mountedRouter.createNavigatorRoute(this);
     this.isFocused = false;
+    this.route = this.mountedRouter.createNavigatorRoute(this);
     this.mount();
   }
 

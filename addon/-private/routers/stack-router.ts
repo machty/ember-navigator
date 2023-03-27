@@ -233,7 +233,6 @@ export class StackRouter extends BaseRouter implements RouterReducer {
 
         return;
       } else if (!childNode) {
-        // TODO: decide whether to focus this? if pushing multiple routes, no.
         childNode = new MountedNode(mountedNode.mountedRouter, parent, childRouteState);
       }
 
