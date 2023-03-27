@@ -3,7 +3,7 @@ import { tracked } from '@glimmer/tracking';
 import type MountedRouter from './mounted-router';
 import type { Header } from './navigator-route';
 import type NavigatorRoute from './navigator-route';
-import type { RouteableState, RouterState } from './routeable';
+import type { RouteableState, RouterState, StackRouterState } from './routeable';
 
 export type MountedNodeSet = { [key: string]: MountedNode };
 
@@ -27,6 +27,12 @@ export class MountedNode {
   // header?: any;
   mountedRouter: MountedRouter;
   parentNode: MountedNode | null;
+  isFocused: boolean;
+
+  // NOTE: a potential split-screen navigator (common in tablet/iPad apps) would
+  // have multiple focused nodes -- if we add support for such a navigator, we'll
+  // need to "dissolve" this singular focusedChildNode concept into multiple focusedChildNodes
+  focusedChildNode: MountedNode | null;
 
   constructor(
     mountedRouter: MountedRouter,
@@ -39,7 +45,9 @@ export class MountedNode {
     this.parentNode = parentNode;
     this.routeableState = routeableState;
     this.childNodes = {};
+    this.focusedChildNode = null;
     this.route = this.mountedRouter.createNavigatorRoute(this);
+    this.isFocused = false;
     this.mount();
   }
 
@@ -59,6 +67,55 @@ export class MountedNode {
 
   unmount() {
     this.route.unmount();
+  }
+
+  focusNode() {
+    if (this.isRouter) {
+      // TODO: this might be a SwitchRouter, but they share a similar enough structure
+      // that we can assume it's a StackRouter state here. Yes, this is hacky and
+      // at some point it'd be good to clean up the types here.
+      const stackRouterState = this.routeableState as StackRouterState;
+
+      const nodeThatShouldHaveFocus =
+        this.childNodes[stackRouterState.routes[stackRouterState.index].key];
+
+      if (nodeThatShouldHaveFocus !== this.focusedChildNode) {
+        if (this.focusedChildNode) {
+          // this is our opportunity to blur the old tree and focus the new.
+          // SO: how do we do that.
+          this.focusedChildNode.blurNode();
+          this.focusedChildNode = null;
+        }
+
+        nodeThatShouldHaveFocus.focusNode();
+        this.focusedChildNode = nodeThatShouldHaveFocus;
+      }
+    } else {
+      if (!this.isFocused) {
+        this.route.focus();
+      }
+    }
+
+    this.isFocused = true;
+  }
+
+  blurNode() {
+    if (!this.isFocused) {
+      // A node that's already blurred does not need any additional work/cleanup
+      // to ensure it or its children need to be blurred.
+      return;
+    }
+
+    if (this.isRouter) {
+      if (this.focusedChildNode) {
+        this.focusedChildNode.blurNode();
+        this.focusedChildNode = null;
+      }
+    } else {
+      this.route.blur();
+    }
+
+    this.isFocused = false;
   }
 
   resolve(name: string) {

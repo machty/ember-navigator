@@ -1,4 +1,5 @@
 import type { RouterActions } from '../actions/types';
+import { MountedNode } from '../mounted-node';
 import type {
   ReducerResult,
   RouteableReducer,

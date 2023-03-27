@@ -14,6 +14,10 @@ export type NavigatorRouteConstructorParams = [node: MountedNode];
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
  * that is meant to be subclassed with various lifecycle hooks that can be
  * overridden in the subclass.
+ *
+ * NOTE: even though this file is currently in the `-private` directory, it is
+ * exported as part of the public API of ember-navigator
+ * TODO: should we move it out of the private directory? I'm guessing 
  */
 export default class NavigatorRoute {
   node: MountedNode;
@@ -151,4 +155,28 @@ export default class NavigatorRoute {
    */
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   unmount() {}
+
+  /**
+   * `focus` is called when the route/component is focused, i.e. when the route is at
+   * the top of the stack, either because it was just pushed to the stack, or because
+   * the route on top of this route was popped off the stack, revealing this one.
+   *
+   * This hook fires immediately on the popping event; if you want to wait for any
+   * transitions/animations to run to completion, you'll have to await some promise
+   * from the animation library you're using, e.g. for ember-nav-stack you'd use
+   * `waitUntilTransitionIdle` from the `nav-stacks` service.
+   *
+   * See also `blur` for the "opposite" event.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  focus() {}
+
+  /**
+   * `blur` is called when the route/component is no longer focused.
+   *
+   * See also `focus` for the "opposite" event, and for notes on how to handle
+   * awaiting for animations to complete.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  blur() {}
 }
