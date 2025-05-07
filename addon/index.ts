@@ -12,7 +12,7 @@ import type { TabOptions } from './-private/routers/tab-router';
 
 export {
   default as NavigatorRoute,
-  NavigatorRouteConstructorParams,
+  type NavigatorRouteConstructorParams,
 } from './-private/navigator-route';
 
 export function mount(routerMap: RouterReducer, resolver: Resolver): MountedRouter {
