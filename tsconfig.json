@@ -20,8 +20,6 @@
     "inlineSources": true,
     "baseUrl": ".",
     "module": "es6",
-    "verbatimModuleSyntax": true,
-
     "paths": {
       "dummy/tests/*": [
         "tests/*"
