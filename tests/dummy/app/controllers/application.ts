@@ -1,16 +1,12 @@
 import Controller from '@ember/controller';
 import { action } from '@ember/object';
-import { inject as service } from '@ember/service';
 
 import { mount } from 'ember-navigator';
 import { route, stackRouter, switchRouter } from 'ember-navigator';
 
 import type { NavigateParams } from 'ember-navigator/-private/actions/types';
-import type NavigatorRouteResolver from 'ember-navigator/services/navigator-route-resolver';
 
 export default class extends Controller {
-  @service navigatorRouteResolver!: NavigatorRouteResolver;
-
   // eslint-disable-next-line ember/require-computed-property-dependencies
   mountedRouter = mount(
     // BEGIN-SNIPPET router-map
@@ -24,7 +20,7 @@ export default class extends Controller {
       route('no-header'),
     ]),
     // END-SNIPPET
-    this.navigatorRouteResolver
+    
   );
 
   @action

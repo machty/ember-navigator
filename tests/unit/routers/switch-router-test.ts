@@ -45,8 +45,6 @@ module('Unit - SwitchRouter test', function (hooks) {
     assert.strictEqual(state2.index, 1);
     assert.deepEqual(state2.routes[1], {
       componentName: 'ecr-stack',
-      headerComponentName: 'ecr-header',
-      headerMode: 'float',
       index: 0,
       key: 'b',
       params: {},

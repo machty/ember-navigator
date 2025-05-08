@@ -32,7 +32,7 @@
     "prepack": "ember ts:precompile",
     "postpack": "ember ts:clean",
     "release": "release-it",
-    "start": "ember server",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider ember server",
     "test": "npm-run-all lint test:*",
     "test:ember": "ember test",
     "test:ember-compatibility": "ember try:each"

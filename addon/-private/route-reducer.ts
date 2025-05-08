@@ -12,6 +12,7 @@ import type {
 
 export type RouteOptions = {
   componentName?: string;
+  component?: unknown;
 };
 
 /**
@@ -30,6 +31,9 @@ export class RouteReducer implements RouteableReducer {
   options: RouteOptions;
   isRouter: false;
   componentName: string;
+  component: unknown;
+
+  // TODO: you're getting tripped up on how to pass through RouteOptions through to the resolver and other various stuff.
 
   constructor(name: string, options: RouteOptions) {
     this.isRouter = false;
@@ -37,6 +41,7 @@ export class RouteReducer implements RouteableReducer {
     this.children = [];
     this.options = options;
     this.componentName = options.componentName || name;
+    this.component = options.component;
   }
 
   getInitialState(options: InitialStateOptions = {}): RouteState {
@@ -47,6 +52,7 @@ export class RouteReducer implements RouteableReducer {
       routeName,
       key: options.key || generateKey(),
       componentName: routeName,
+      component: this.component,
     };
   }
 

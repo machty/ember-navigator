@@ -1,16 +1,13 @@
-import type { RouterActions } from './actions/types';
-import type { MountedNode } from './mounted-node';
-import type NavigatorRoute from './navigator-route';
+import type { RouterActions } from "./actions/types";
+import type { MountedNode } from "./mounted-node";
+import type NavigatorRoute from "./navigator-route";
 
 export interface RouteableState {
   key: string;
   routeName: string;
   params: Record<string, unknown>;
   componentName: string;
-
-  // TODO: consider getting rid of these? Do any apps in the wild use these?
-  headerComponentName?: string;
-  headerMode?: string;
+  component?: unknown;
 }
 
 export type RouteState = RouteableState;
@@ -20,10 +17,7 @@ export interface RouterState extends RouteableState {
   routes: RouteableState[];
 }
 
-export interface StackRouterState extends RouterState {
-  headerComponentName: string;
-  headerMode: string;
-}
+export interface StackRouterState extends RouterState {}
 
 export type HandledReducerResult = {
   handled: true;
@@ -56,6 +50,12 @@ export interface RouterReducer extends RouteableReducer {
   getInitialState: (options?: InitialStateOptions) => RouterState;
 }
 
-export interface Resolver {
-  resolve(componentName: string): typeof NavigatorRoute | null;
+export interface ResolveOptions {
+  componentName: string;
+  component: unknown;
 }
+
+export type ResolverFn = (
+  componentName: string,
+  options: ResolveOptions
+) => typeof NavigatorRoute | null;

@@ -26,8 +26,6 @@ module('Unit - StackRouter test', function (hooks) {
     params: {},
     routeName: 'root',
     index: 0,
-    headerComponentName: 'ecr-header',
-    headerMode: 'float',
     routes: [
       {
         key: 'foo',
@@ -57,8 +55,6 @@ module('Unit - StackRouter test', function (hooks) {
     assert.deepEqual((state.routes[1] as RouterState).routes, [
       {
         componentName: 'ecr-stack',
-        headerComponentName: 'ecr-header',
-        headerMode: 'float',
         index: 0,
         key: 'nested',
         params: {},
@@ -97,13 +93,9 @@ module('Unit - StackRouter test', function (hooks) {
       key: 'StackRouterRoot',
       params: {},
       routeName: 'root',
-      headerComponentName: 'ecr-header',
-      headerMode: 'float',
       routes: [
         {
           componentName: 'ecr-stack',
-          headerComponentName: 'ecr-header',
-          headerMode: 'float',
           index: 0,
           key: 'nested',
           params: {},
@@ -145,8 +137,6 @@ module('Unit - StackRouter test', function (hooks) {
 
     assert.deepEqual(state, {
       componentName: 'ecr-stack',
-      headerComponentName: 'ecr-header',
-      headerMode: 'float',
       index: 1,
       key: 'StackRouterRoot',
       params: {},

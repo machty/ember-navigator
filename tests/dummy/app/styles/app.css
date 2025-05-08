@@ -72,16 +72,3 @@ pre {
   margin-left: 3px;
   font-size: 11px;
 }
-
-/* begin app copy pasta */
-
-.ecr-app-container, .ecr-stack, .ecr-switch {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.ecr-stack, .ecr-switch {
-  flex: 1;
-  height: 100%;
-}

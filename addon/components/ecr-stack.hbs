@@ -1,9 +1,0 @@
-<div class="ecr-stack">
-{{#if this.showHeader}}
-  {{component this.headerComponentName node=this.node route=this.node.route}}
-{{/if}}
-
-{{#each this.currentNodes key="key" as |childNode|}}
-  {{component childNode.componentName node=childNode route=childNode.route}}
-{{/each}}
-</div>

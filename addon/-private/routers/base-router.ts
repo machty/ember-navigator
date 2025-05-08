@@ -9,6 +9,7 @@ import type {
 
 export interface BaseOptions {
   componentName?: string;
+  component?: unknown;
 }
 
 export function handledAction(state: RouterState): ReducerResult {
@@ -27,6 +28,7 @@ export class BaseRouter {
   childRouteables: { [k: string]: RouteableReducer };
   options: BaseOptions;
   routeNames: string[];
+  component: unknown;
 
   constructor(name: string, children: RouteableReducer[], options: BaseOptions) {
     this.isRouter = true;
@@ -42,6 +44,7 @@ export class BaseRouter {
     });
 
     this.componentName = this.options.componentName || 'ecr-stack';
+    this.component = this.options.component;
   }
 
   childRouterNamed(name: string): RouterReducer | null {

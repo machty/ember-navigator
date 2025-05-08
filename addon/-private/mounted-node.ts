@@ -24,7 +24,6 @@ export class MountedNode {
   @tracked routeableState: RouteableState;
   route: NavigatorRoute;
   id: number;
-  // header?: any;
   mountedRouter: MountedRouter;
   parentNode: MountedNode | null;
 
@@ -39,6 +38,7 @@ export class MountedNode {
     this.parentNode = parentNode;
     this.routeableState = routeableState;
     this.childNodes = {};
+    debugger;
     this.route = this.mountedRouter.createNavigatorRoute(this);
     this.mount();
   }
@@ -67,6 +67,10 @@ export class MountedNode {
 
   get componentName() {
     return this.routeableState.componentName;
+  }
+
+  get component() {
+    return this.routeableState.component;
   }
 
   get routeName() {
