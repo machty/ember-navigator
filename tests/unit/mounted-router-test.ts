@@ -38,7 +38,8 @@ function buildTestResolver() {
     }
   }
 
-  let resolver = (componentName: string, options: ResolveOptions) => {
+  let resolver = (routeName: string, options: ResolveOptions) => {
+    debugger;
     return 123;
   };
 

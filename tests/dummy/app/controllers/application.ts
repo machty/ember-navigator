@@ -20,7 +20,10 @@ export default class extends Controller {
       route('no-header'),
     ]),
     // END-SNIPPET
-    
+    (routeName, options) => {
+      debugger;
+      console.log(routeName, options);
+    }
   );
 
   @action

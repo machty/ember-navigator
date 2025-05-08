@@ -12,9 +12,6 @@ import type {
   RouterReducer,
   RouterState,
 } from '../routeable';
-import type { BaseOptions } from './base-router';
-
-export type SwitchOptions = BaseOptions;
 
 export class SwitchRouter extends BaseRouter implements RouterReducer {
   defaultKey = 'SwitchRouterBase';
@@ -108,7 +105,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       key: options.key || this.defaultKey,
       params: {},
       routeName: this.name,
-      componentName: 'ecr-switch',
+      routeOptions: {},
       routes: childRoutes,
       index: 0,
     };

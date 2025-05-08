@@ -18,9 +18,6 @@ import type {
   RouterState,
   StackRouterState,
 } from "../routeable";
-import type { BaseOptions } from "./base-router";
-
-export interface StackOptions extends BaseOptions {}
 
 export class StackRouter extends BaseRouter implements RouterReducer {
   dispatch(action: RouterActions, state: RouterState) {

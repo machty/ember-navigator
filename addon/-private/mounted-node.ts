@@ -1,11 +1,19 @@
-import { tracked } from '@glimmer/tracking';
+import { tracked } from "@glimmer/tracking";
 
-import type MountedRouter from './mounted-router';
-import type { Header } from './navigator-route';
-import type NavigatorRoute from './navigator-route';
-import type { RouteableState, RouterState } from './routeable';
+import type MountedRouter from "./mounted-router";
+import type { Header } from "./navigator-route";
+import type NavigatorRoute from "./navigator-route";
+import type {
+  BaseResolveResult,
+  BaseRouteOptions,
+  RouteableState,
+  RouterState,
+} from "./routeable";
 
-export type MountedNodeSet = { [key: string]: MountedNode };
+export type MountedNodeSet<
+  RouteOptions extends BaseRouteOptions,
+  ResolveResult extends BaseResolveResult
+> = { [key: string]: MountedNode<RouteOptions, ResolveResult> };
 
 let ID = 0;
 
@@ -19,17 +27,20 @@ let ID = 0;
  * behavior when the route is mounted.
  */
 
-export class MountedNode {
-  @tracked childNodes: MountedNodeSet;
+export class MountedNode<
+  RouteOptions extends BaseRouteOptions,
+  ResolveResult extends BaseResolveResult
+> {
+  @tracked childNodes: MountedNodeSet<RouteOptions, ResolveResult>;
   @tracked routeableState: RouteableState;
-  route: NavigatorRoute;
+  resolveResult: ResolveResult;
   id: number;
-  mountedRouter: MountedRouter;
-  parentNode: MountedNode | null;
+  mountedRouter: MountedRouter<RouteOptions, ResolveResult>;
+  parentNode: MountedNode<RouteOptions, ResolveResult> | null;
 
   constructor(
-    mountedRouter: MountedRouter,
-    parentNode: MountedNode | null,
+    mountedRouter: MountedRouter<RouteOptions, ResolveResult>,
+    parentNode: MountedNode<RouteOptions, ResolveResult> | null,
     routeableState: RouteableState
   ) {
     // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
@@ -38,9 +49,22 @@ export class MountedNode {
     this.parentNode = parentNode;
     this.routeableState = routeableState;
     this.childNodes = {};
-    debugger;
-    this.route = this.mountedRouter.createNavigatorRoute(this);
+
+    this.resolveResult = this.mountedRouter.resolve(
+      this.routeableState.routeName,
+      this.routeableState.routeOptions
+    );
+
     this.mount();
+  }
+
+  // alias for navigatorRoute; I havve a lot of code in my app codebase that just uses route.
+  get route() {
+    return this.navigatorRoute;
+  }
+
+  get navigatorRoute() {
+    return this.resolveResult.navigatorRoute;
   }
 
   update(routeableState: RouteableState) {
@@ -62,15 +86,13 @@ export class MountedNode {
   }
 
   resolve(name: string) {
-    return this.mountedRouter.resolve(name);
+    return this.mountedRouter.resolve(name, this.routeableState.routeOptions);
   }
 
   get componentName() {
-    return this.routeableState.componentName;
-  }
-
-  get component() {
-    return this.routeableState.component;
+    throw new Error(
+      `MountedNode.componentName is no longer supported. If you are using component names/strings as part of your router mapping paradigm, it should be accessible on mountedNode.resolveResult.whateverYouNamedYourComponentNameProperty`
+    );
   }
 
   get routeName() {

@@ -1,19 +1,31 @@
-import { set } from '@ember/object';
-import { sendEvent } from '@ember/object/events';
+import { set } from "@ember/object";
+import { sendEvent } from "@ember/object/events";
 
-import { navigate, pop } from './actions/actions';
-import { MountedNode } from './mounted-node';
+import { navigate, pop } from "./actions/actions";
+import { MountedNode } from "./mounted-node";
 
-import type { NavigateParams, PopParams, RouterActions } from './actions/types';
-import type { ResolveOptions, ResolverFn, RouterReducer, RouterState } from './routeable';
+import type { NavigateParams, PopParams, RouterActions } from "./actions/types";
+import type {
+  BaseResolveResult,
+  BaseRouteOptions,
+  ResolverFn,
+  RouterReducer,
+  RouterState,
+} from "./routeable";
 
-export default class MountedRouter {
+export default class MountedRouter<
+  RouteOptions extends BaseRouteOptions,
+  ResolveResult extends BaseResolveResult
+> {
   router: RouterReducer;
   state: RouterState;
-  resolverFn: ResolverFn;
-  rootNode: MountedNode;
+  resolverFn: ResolverFn<RouteOptions, ResolveResult>;
+  rootNode: MountedNode<RouteOptions, ResolveResult>;
 
-  constructor(router: RouterReducer, resolverFn: ResolverFn) {
+  constructor(
+    router: RouterReducer,
+    resolverFn: ResolverFn<RouteOptions, ResolveResult>
+  ) {
     this.resolverFn = resolverFn;
     this.router = router;
     this.state = router.getInitialState();
@@ -26,7 +38,7 @@ export default class MountedRouter {
 
     if (result.handled) {
       if (this.state !== result.state) {
-        set(this, 'state', result.state);
+        set(this, "state", result.state);
         this._update();
         this._sendEvents();
       }
@@ -36,7 +48,7 @@ export default class MountedRouter {
   }
 
   _sendEvents() {
-    sendEvent(this, 'didTransition');
+    sendEvent(this, "didTransition");
   }
 
   _update() {
@@ -51,7 +63,7 @@ export default class MountedRouter {
     this.dispatch(pop(options));
   }
 
-  resolve(componentName: string, options: ResolveOptions) {
-    return this.resolverFn(componentName, options);
+  resolve(routeName: string, options: RouteOptions) {
+    return this.resolverFn(routeName, options);
   }
 }

@@ -1,44 +1,56 @@
-import MountedRouter from './-private/mounted-router';
-import { RouteReducer } from './-private/route-reducer';
-import { StackRouter } from './-private/routers/stack-router';
-import { SwitchRouter } from './-private/routers/switch-router';
-import { TabRouter } from './-private/routers/tab-router';
+import MountedRouter from "./-private/mounted-router";
+import { RouteReducer } from "./-private/route-reducer";
+import { StackRouter } from "./-private/routers/stack-router";
+import { SwitchRouter } from "./-private/routers/switch-router";
+import { TabRouter } from "./-private/routers/tab-router";
 
-import type { RouteOptions } from './-private/route-reducer';
-import type { Resolver, RouteableReducer, RouterReducer } from './-private/routeable';
-import type { StackOptions } from './-private/routers/stack-router';
-import type { SwitchOptions } from './-private/routers/switch-router';
-import type { TabOptions } from './-private/routers/tab-router';
+import type {
+  BaseRouteOptions,
+  ResolverFn,
+  RouteableReducer,
+  RouterReducer,
+} from "./-private/routeable";
 
 export {
   default as NavigatorRoute,
   type NavigatorRouteConstructorParams,
-} from './-private/navigator-route';
+} from "./-private/navigator-route";
 
-export function mount(routerMap: RouterReducer, resolver: Resolver): MountedRouter {
-  return new MountedRouter(routerMap, resolver);
+export function mount<RouteOptions extends BaseRouteOptions, ResolveResult>(
+  routerMap: RouterReducer,
+  resolveFn: ResolverFn<RouteOptions, ResolveResult>
+): MountedRouter<RouteOptions, ResolveResult> {
+  return new MountedRouter(routerMap, resolveFn);
 }
 
-export function route(name: string, options: RouteOptions = {}) {
-  return new RouteReducer(name, options);
+export function route<RouteOptions extends BaseRouteOptions>(
+  name: string,
+  routeOptions: RouteOptions = {} as RouteOptions
+) {
+  return new RouteReducer(name, routeOptions);
 }
 
-export function stackRouter(
+export function stackRouter<RouteOptions extends BaseRouteOptions>(
   name: string,
   children: RouteableReducer[],
-  options: StackOptions = {}
+  routeOptions: RouteOptions = { routeName: name } as RouteOptions
 ) {
-  return new StackRouter(name, children, options);
+  return new StackRouter(name, children, routeOptions);
 }
 
-export function switchRouter(
+export function switchRouter<RouteOptions extends BaseRouteOptions>(
   name: string,
   children: RouteableReducer[],
-  options: SwitchOptions = {}
+  routeOptions: RouteOptions = { routeName: name } as RouteOptions
 ) {
-  return new SwitchRouter(name, children, options);
+  debugger;
+  return new SwitchRouter(name, children, routeOptions);
 }
 
-export function tabRouter(name: string, children: RouteableReducer[], options: TabOptions = {}) {
-  return new TabRouter(name, children, options);
+export function tabRouter<RouteOptions extends BaseRouteOptions>(
+  name: string,
+  children: RouteableReducer[],
+  routeOptions: RouteOptions = { routeName: name } as RouteOptions
+) {
+  return new TabRouter(name, children, routeOptions);
 }
