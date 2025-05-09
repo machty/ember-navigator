@@ -6,7 +6,6 @@ import { MountedNode } from "./mounted-node";
 
 import type { NavigateParams, PopParams, RouterActions } from "./actions/types";
 import type {
-  BaseResolveResult,
   BaseRouteOptions,
   ResolverFn,
   RouterReducer,
@@ -16,7 +15,7 @@ import type {
 export default class MountedRouter {
   router: RouterReducer;
   state: RouterState;
-  resolverFn: ResolverFn<RouteOptions, ResolveResult>;
+  resolverFn: ResolverFn;
   rootNode: MountedNode;
 
   constructor(router: RouterReducer, resolverFn: ResolverFn) {

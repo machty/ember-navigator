@@ -1,8 +1,8 @@
-import type { NavigatorRouteConstructorParams } from "ember-navigator";
 import { NavigatorRoute, route, stackRouter, switchRouter } from "ember-navigator";
 import { _TESTING_ONLY_normalize_keys } from "ember-navigator/-private/key-generator";
 import MountedRouter from "ember-navigator/-private/mounted-router";
-import { BaseRouteOptions } from "ember-navigator/-private/routeable";
+import { BaseRouteOptions, ResolverFn } from "ember-navigator/-private/routeable";
+import { MountedNode } from "ember-navigator/-private/mounted-node";
 import { module, test } from "qunit";
 
 interface TestEvent {
@@ -18,8 +18,8 @@ function buildTestResolver() {
   class Route extends NavigatorRoute {
     id: number = delegateId++;
 
-    constructor(...params: NavigatorRouteConstructorParams) {
-      super(...params);
+    constructor(node: MountedNode) {
+      super(node);
       events.push({ id: this.id, type: "constructor", key: this.node.key });
     }
 
@@ -36,9 +36,10 @@ function buildTestResolver() {
     }
   }
 
-  let resolver = (routeName: string, options: BaseRouteOptions) => {
+  let resolver: ResolverFn = (routeName: string, options: BaseRouteOptions) => {
     return {
       navigatorRoute: new NavigatorRoute(routeName),
+      foo: 123,
     };
   };
 

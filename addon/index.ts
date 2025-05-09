@@ -11,10 +11,7 @@ import type {
   RouterReducer,
 } from "./-private/routeable";
 
-export {
-  default as NavigatorRoute,
-  type NavigatorRouteConstructorParams,
-} from "./-private/navigator-route";
+export { default as NavigatorRoute } from "./-private/navigator-route";
 
 export function mount(
   routerMap: RouterReducer,

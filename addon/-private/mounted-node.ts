@@ -1,7 +1,7 @@
 import { tracked } from "@glimmer/tracking";
 
 import type MountedRouter from "./mounted-router";
-import type { RouteableState, RouterState } from "./routeable";
+import type { BaseResolveResult, RouteableState, RouterState } from "./routeable";
 
 export type MountedNodeSet = {
   [key: string]: MountedNode;
@@ -22,7 +22,7 @@ let ID = 0;
 export class MountedNode {
   @tracked childNodes: MountedNodeSet;
   @tracked routeableState: RouteableState;
-  resolveResult: ResolveResult;
+  resolveResult: BaseResolveResult;
   id: number;
   mountedRouter: MountedRouter;
   parentNode: MountedNode | null;
