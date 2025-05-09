@@ -2,73 +2,52 @@ import type { RouterActions } from "./actions/types";
 import type { MountedNode } from "./mounted-node";
 import type NavigatorRoute from "./navigator-route";
 
-export interface RouteableState<RouteOptions extends BaseRouteOptions> {
+export interface RouteableState {
   key: string;
   routeName: string;
   params: Record<string, unknown>;
-  routeOptions: RouteOptions;
+  routeOptions: BaseRouteOptions;
 }
 
-export type RouteState<RouteOptions extends BaseRouteOptions> =
-  RouteableState<RouteOptions>;
+export type RouteState = RouteableState;
 
-export interface RouterState<RouteOptions extends BaseRouteOptions>
-  extends RouteableState<RouteOptions> {
+export interface RouterState extends RouteableState {
   index: number;
-  routes: RouteableState<RouteOptions>[];
+  routes: RouteableState[];
 }
 
-export interface StackRouterState<RouteOptions extends BaseRouteOptions>
-  extends RouterState<RouteOptions> {}
+export interface StackRouterState extends RouterState {}
 
-export type HandledReducerResult<RouteOptions extends BaseRouteOptions> = {
+export type HandledReducerResult = {
   handled: true;
-  state: RouterState<RouteOptions>;
+  state: RouterState;
 };
 
 export type UnhandledReducerResult = {
   handled: false;
 };
 
-export type ReducerResult<RouteOptions extends BaseRouteOptions> =
-  | HandledReducerResult<RouteOptions>
-  | UnhandledReducerResult;
+export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 
-export type InitialStateOptions<RouteOptions extends BaseRouteOptions> = {
+export type InitialStateOptions = {
   key?: string;
   params?: Record<string, unknown>;
-  routeOptions?: RouteOptions;
+  routeOptions?: BaseRouteOptions;
 };
 
-export interface RouteableReducer<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult
-> {
+export interface RouteableReducer {
   name: string;
-  children: RouteableReducer<RouteOptions, ResolveResult>[];
+  children: RouteableReducer[];
   isRouter: boolean;
   params?: Record<string, unknown>;
-  getInitialState: (
-    options?: InitialStateOptions<RouteOptions>
-  ) => RouteableState<RouteOptions>;
-  dispatch: (
-    action: RouterActions,
-    state?: RouteableState<RouteOptions>
-  ) => ReducerResult<RouteOptions>;
-  reconcile(
-    routerState: RouteableState<RouteOptions>,
-    mountedNode: MountedNode<RouteOptions, ResolveResult>
-  ): void;
+  getInitialState: (options?: InitialStateOptions) => RouteableState;
+  dispatch: (action: RouterActions, state?: RouteableState) => ReducerResult;
+  reconcile(routerState: RouteableState, mountedNode: MountedNode): void;
 }
 
-export interface RouterReducer<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult
-> extends RouteableReducer<RouteOptions, ResolveResult> {
+export interface RouterReducer extends RouteableReducer {
   isRouter: true;
-  getInitialState: (
-    options?: InitialStateOptions<RouteOptions>
-  ) => RouterState<RouteOptions>;
+  getInitialState: (options?: InitialStateOptions) => RouterState;
 }
 
 export interface BaseRouteOptions {
@@ -79,11 +58,11 @@ export interface BaseRouteOptions {
 // This base result is expected to be extended, either with a component name string or
 // a direct reference to the component class, depending on whether you're on older ember/ember-cli
 // or newer Polaris-y Ember + Embroider, which has stricter requirements re: {{component ...}} helper.
-export interface BaseResolveResult<RouteOptions extends BaseRouteOptions> {
-  navigatorRoute: NavigatorRoute<RouteOptions, any>;
+export interface BaseResolveResult {
+  navigatorRoute: NavigatorRoute;
 }
 
-export type ResolverFn<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult<RouteOptions>
-> = (componentName: string, options: RouteOptions) => ResolveResult;
+export type ResolverFn = (
+  routeName: string,
+  options: BaseRouteOptions
+) => BaseResolveResult;

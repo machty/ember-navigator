@@ -5,8 +5,8 @@ import type {
   RouterReducer,
   RouterState,
   RouteState,
+  BaseRouteOptions,
 } from "../routeable";
-import { RouteOptions } from "../route-reducer";
 export function handledAction(state: RouterState): ReducerResult {
   return { handled: true, state };
 }
@@ -20,13 +20,13 @@ export class BaseRouter {
   children: RouteableReducer[];
   isRouter: true;
   childRouteables: { [k: string]: RouteableReducer };
-  routeOptions: RouteOptions;
+  routeOptions: BaseRouteOptions;
   routeNames: string[];
 
   constructor(
     name: string,
     children: RouteableReducer[],
-    routeOptions: RouteOptions
+    routeOptions: BaseRouteOptions
   ) {
     this.isRouter = true;
     this.name = name;

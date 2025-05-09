@@ -13,19 +13,13 @@ import type {
   RouterState,
 } from "./routeable";
 
-export default class MountedRouter<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult
-> {
+export default class MountedRouter {
   router: RouterReducer;
   state: RouterState;
   resolverFn: ResolverFn<RouteOptions, ResolveResult>;
-  rootNode: MountedNode<RouteOptions, ResolveResult>;
+  rootNode: MountedNode;
 
-  constructor(
-    router: RouterReducer,
-    resolverFn: ResolverFn<RouteOptions, ResolveResult>
-  ) {
+  constructor(router: RouterReducer, resolverFn: ResolverFn) {
     this.resolverFn = resolverFn;
     this.router = router;
     this.state = router.getInitialState();
@@ -63,7 +57,7 @@ export default class MountedRouter<
     this.dispatch(pop(options));
   }
 
-  resolve(routeName: string, options: RouteOptions) {
+  resolve(routeName: string, options: BaseRouteOptions) {
     return this.resolverFn(routeName, options);
   }
 }

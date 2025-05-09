@@ -1,7 +1,7 @@
 import Controller from '@ember/controller';
 import { action } from '@ember/object';
 
-import { mount } from 'ember-navigator';
+import { mount, NavigatorRoute } from 'ember-navigator';
 import { route, stackRouter, switchRouter } from 'ember-navigator';
 
 import type { NavigateParams } from 'ember-navigator/-private/actions/types';
@@ -15,14 +15,15 @@ export default class extends Controller {
       stackRouter('logged-in', [
         route('frame-root'),
         route('frame-tweet'),
-        stackRouter('nested', [route('nested-a')], { headerMode: 'none' }),
+        stackRouter('nested', [route('nested-a')]),
       ]),
       route('no-header'),
     ]),
     // END-SNIPPET
     (routeName, options) => {
-      debugger;
-      console.log(routeName, options);
+      return {
+        navigatorRoute: new NavigatorRoute(routeName),
+      }
     }
   );
 

@@ -16,10 +16,10 @@ export {
   type NavigatorRouteConstructorParams,
 } from "./-private/navigator-route";
 
-export function mount<RouteOptions extends BaseRouteOptions, ResolveResult>(
+export function mount(
   routerMap: RouterReducer,
-  resolveFn: ResolverFn<RouteOptions, ResolveResult>
-): MountedRouter<RouteOptions, ResolveResult> {
+  resolveFn: ResolverFn
+): MountedRouter {
   return new MountedRouter(routerMap, resolveFn);
 }
 

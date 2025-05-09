@@ -1,19 +1,11 @@
 import { tracked } from "@glimmer/tracking";
 
 import type MountedRouter from "./mounted-router";
-import type { Header } from "./navigator-route";
-import type NavigatorRoute from "./navigator-route";
-import type {
-  BaseResolveResult,
-  BaseRouteOptions,
-  RouteableState,
-  RouterState,
-} from "./routeable";
+import type { RouteableState, RouterState } from "./routeable";
 
-export type MountedNodeSet<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult
-> = { [key: string]: MountedNode<RouteOptions, ResolveResult> };
+export type MountedNodeSet = {
+  [key: string]: MountedNode;
+};
 
 let ID = 0;
 
@@ -27,20 +19,17 @@ let ID = 0;
  * behavior when the route is mounted.
  */
 
-export class MountedNode<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult
-> {
-  @tracked childNodes: MountedNodeSet<RouteOptions, ResolveResult>;
+export class MountedNode {
+  @tracked childNodes: MountedNodeSet;
   @tracked routeableState: RouteableState;
   resolveResult: ResolveResult;
   id: number;
-  mountedRouter: MountedRouter<RouteOptions, ResolveResult>;
-  parentNode: MountedNode<RouteOptions, ResolveResult> | null;
+  mountedRouter: MountedRouter;
+  parentNode: MountedNode | null;
 
   constructor(
-    mountedRouter: MountedRouter<RouteOptions, ResolveResult>,
-    parentNode: MountedNode<RouteOptions, ResolveResult> | null,
+    mountedRouter: MountedRouter,
+    parentNode: MountedNode | null,
     routeableState: RouteableState
   ) {
     // TODO: odd that we pass in routeableState but don't stash it? Maybe we should call update immediately?
@@ -109,19 +98,5 @@ export class MountedNode<
 
   get isRouter() {
     return !!(this.routeableState as RouterState).routes;
-  }
-
-  getHeaderConfig(): Header | null {
-    let routerState = this.routeableState as RouterState;
-
-    if (routerState.routes) {
-      let key = routerState.routes[routerState.index].key;
-      let child = this.childNodes[key];
-
-      return child?.getHeaderConfig();
-    } else {
-      // this is leaf route, check the NavigatorRoute
-      return this.route.header || null;
-    }
   }
 }

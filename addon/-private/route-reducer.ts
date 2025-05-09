@@ -48,7 +48,7 @@ export class RouteReducer<RouteOptions extends BaseRouteOptions> implements Rout
     return { handled: false };
   }
 
-  reconcile(routeState: RouteState, mountedNode: MountedNode<RouteOptions, any>) {
+  reconcile(routeState: RouteState, mountedNode: MountedNode) {
     mountedNode.update(routeState);
   }
 }

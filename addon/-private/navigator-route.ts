@@ -2,32 +2,17 @@ import { notifyPropertyChange } from "@ember/object";
 
 import type { NavigateParams, PopParams } from "./actions/types";
 import type { MountedNode } from "./mounted-node";
-import type {
-  BaseResolveResult,
-  BaseRouteOptions,
-  RouteableState,
-} from "./routeable";
+import type { RouteableState } from "./routeable";
 
-export type Header = {
-  title?: string;
-};
-
-export type NavigatorRouteConstructorParams<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult
-> = [node: MountedNode<RouteOptions, ResolveResult>];
+export type NavigatorRouteConstructorParams = [node: MountedNode];
 
 /**
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
  * that is meant to be subclassed with various lifecycle hooks that can be
  * overridden in the subclass.
  */
-export default class NavigatorRoute<
-  RouteOptions extends BaseRouteOptions,
-  ResolveResult extends BaseResolveResult
-> {
-  node: MountedNode<RouteOptions, ResolveResult>;
-  header?: Header;
+export default class NavigatorRoute {
+  node: MountedNode;
 
   /**
    * Constructs a NavigatorRoute, which you can override in your NavigatorRoute subclasses
@@ -35,21 +20,8 @@ export default class NavigatorRoute<
    *
    * @param params NavigatorRouteConstructorParams
    */
-  constructor(
-    ...params: NavigatorRouteConstructorParams<RouteOptions, ResolveResult>
-  ) {
+  constructor(...params: NavigatorRouteConstructorParams) {
     this.node = params[0];
-  }
-
-  static create<
-    RouteOptions extends BaseRouteOptions,
-    ResolveResult extends BaseResolveResult
-  >(props: { node: MountedNode<RouteOptions, ResolveResult> }) {
-    let instance = new this(props.node);
-
-    Object.assign(instance, props);
-
-    return instance;
   }
 
   navigate(options: NavigateParams) {
@@ -92,22 +64,22 @@ export default class NavigatorRoute<
    * Returns the immediate parent route or router. For example, if this is the 3rd route
    * within a stack router, `parent()` will return the 2nd NavigatorRoute in the stack.
    */
-  get parent(): NavigatorRoute<RouteOptions, ResolveResult> | null {
+  get parent(): NavigatorRoute | null {
     const parentNode = this.node.parentNode;
 
     if (!parentNode) {
       return null;
     }
 
-    return (parentNode as MountedNode<RouteOptions, ResolveResult>).route;
+    return parentNode.route;
   }
 
   /**
    * Returns the closest parent of the provided name.
    */
-  parentNamed(name: string): NavigatorRoute<RouteOptions, ResolveResult> | null {
+  parentNamed(name: string): NavigatorRoute | null {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let cur: NavigatorRoute<RouteOptions, ResolveResult> | null = this;
+    let cur: NavigatorRoute | null = this;
 
     while (cur && cur.name !== name) {
       cur = cur.parent;
@@ -119,11 +91,11 @@ export default class NavigatorRoute<
   /**
    * Returns the nearest parent router, e.g. the stack router that this route is mounted in.
    */
-  get parentRouter(): NavigatorRoute<RouteOptions, ResolveResult> | null {
+  get parentRouter(): NavigatorRoute | null {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let cur: NavigatorRoute<RouteOptions, ResolveResult> | null = this;
+    let cur: NavigatorRoute | null = this;
 
-    while (cur && !(cur.node as MountedNode<RouteOptions, ResolveResult>).isRouter) {
+    while (cur && !(cur.node as MountedNode).isRouter) {
       cur = cur.parent;
     }
 
@@ -133,14 +105,14 @@ export default class NavigatorRoute<
   /**
    * Returns the parent route, and null if there is no parent, or the parent is a router.
    */
-  get parentRoute(): NavigatorRoute<RouteOptions, ResolveResult> | null {
+  get parentRoute(): NavigatorRoute | null {
     const parent = this.parent;
 
     if (!parent) {
       return null;
     }
 
-    if ((parent.node as MountedNode<RouteOptions, ResolveResult>).isRouter) {
+    if ((parent.node as MountedNode).isRouter) {
       return null;
     } else {
       return parent;
