@@ -65,3 +65,5 @@ export type {
   RouterReducer,
   RouterState,
 } from './-private/routeable';
+
+export type { MountedRouter };
