@@ -18,12 +18,6 @@ import type {
   RouterState,
   StackRouterState,
 } from '../routeable';
-import type { BaseOptions } from './base-router';
-
-export interface StackOptions extends BaseOptions {
-  headerComponentName?: string;
-  headerMode?: string; // TODO: type enum
-}
 
 export class StackRouter extends BaseRouter implements RouterReducer {
   dispatch(action: RouterActions, state: RouterState) {
@@ -205,14 +199,15 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     return {
       key: options.key || 'StackRouterRoot',
       index: 0,
-      componentName: this.componentName,
 
       // TODO: in RN, the root stack navigator doesn't have params/routeName; are we doing it wrong?
       params: {},
       routeName: this.name,
-      headerComponentName: (this.options as StackOptions).headerComponentName || 'ecr-header',
-      headerMode: (this.options as StackOptions).headerMode || 'float',
       routes: [childRouteableState],
+      routeOptions: {
+        ...this.routeOptions,
+        ...options.routeOptions,
+      },
     };
   }
 

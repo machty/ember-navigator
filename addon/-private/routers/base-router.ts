@@ -1,15 +1,12 @@
 import type { RouterActions } from '../actions/types';
 import type {
+  BaseRouteOptions,
   ReducerResult,
   RouteableReducer,
   RouterReducer,
   RouterState,
   RouteState,
 } from '../routeable';
-
-export interface BaseOptions {
-  componentName?: string;
-}
 
 export function handledAction(state: RouterState): ReducerResult {
   return { handled: true, state };
@@ -22,26 +19,23 @@ export function unhandledAction(): ReducerResult {
 export class BaseRouter {
   name: string;
   children: RouteableReducer[];
-  componentName: string;
   isRouter: true;
   childRouteables: { [k: string]: RouteableReducer };
-  options: BaseOptions;
+  routeOptions: BaseRouteOptions;
   routeNames: string[];
 
-  constructor(name: string, children: RouteableReducer[], options: BaseOptions) {
+  constructor(name: string, children: RouteableReducer[], routeOptions: BaseRouteOptions) {
     this.isRouter = true;
     this.name = name;
     this.children = children;
     this.routeNames = [];
     this.childRouteables = {};
-    this.options = options;
+    this.routeOptions = routeOptions;
 
     children.forEach((c) => {
       this.childRouteables[c.name] = c;
       this.routeNames.push(c.name);
     });
-
-    this.componentName = this.options.componentName || 'ecr-stack';
   }
 
   childRouterNamed(name: string): RouterReducer | null {

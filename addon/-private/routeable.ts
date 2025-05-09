@@ -6,11 +6,7 @@ export interface RouteableState {
   key: string;
   routeName: string;
   params: Record<string, unknown>;
-  componentName: string;
-
-  // TODO: consider getting rid of these? Do any apps in the wild use these?
-  headerComponentName?: string;
-  headerMode?: string;
+  routeOptions: BaseRouteOptions & Record<string, unknown>;
 }
 
 export type RouteState = RouteableState;
@@ -20,10 +16,7 @@ export interface RouterState extends RouteableState {
   routes: RouteableState[];
 }
 
-export interface StackRouterState extends RouterState {
-  headerComponentName: string;
-  headerMode: string;
-}
+export type StackRouterState = RouterState;
 
 export type HandledReducerResult = {
   handled: true;
@@ -39,6 +32,7 @@ export type ReducerResult = HandledReducerResult | UnhandledReducerResult;
 export type InitialStateOptions = {
   key?: string;
   params?: Record<string, unknown>;
+  routeOptions?: BaseRouteOptions;
 };
 
 export interface RouteableReducer {
@@ -56,6 +50,19 @@ export interface RouterReducer extends RouteableReducer {
   getInitialState: (options?: InitialStateOptions) => RouterState;
 }
 
-export interface Resolver {
-  resolve(componentName: string): typeof NavigatorRoute | null;
+export interface BaseRouteOptions {
+  // all routes have a route name, i.e. `route('this-is-the-route-name', { ... })`
+  routeName: string;
+
+  // e.g. 'route', 'stack', 'switch', 'tab'
+  type: string;
 }
+
+// This base result is expected to be extended, either with a component name string or
+// a direct reference to the component class, depending on whether you're on older ember/ember-cli
+// or newer Polaris-y Ember + Embroider, which has stricter requirements re: {{component ...}} helper.
+export interface BaseResolveResult {
+  navigatorRoute: NavigatorRoute;
+}
+
+export type ResolverFn = (node: MountedNode) => BaseResolveResult;

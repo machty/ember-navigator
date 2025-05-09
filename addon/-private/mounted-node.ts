@@ -1,11 +1,11 @@
 import { tracked } from '@glimmer/tracking';
 
 import type MountedRouter from './mounted-router';
-import type { Header } from './navigator-route';
-import type NavigatorRoute from './navigator-route';
-import type { RouteableState, RouterState } from './routeable';
+import type { BaseResolveResult, RouteableState, RouterState } from './routeable';
 
-export type MountedNodeSet = { [key: string]: MountedNode };
+export type MountedNodeSet = {
+  [key: string]: MountedNode;
+};
 
 let ID = 0;
 
@@ -22,9 +22,8 @@ let ID = 0;
 export class MountedNode {
   @tracked childNodes: MountedNodeSet;
   @tracked routeableState: RouteableState;
-  route: NavigatorRoute;
+  resolveResult: BaseResolveResult;
   id: number;
-  // header?: any;
   mountedRouter: MountedRouter;
   parentNode: MountedNode | null;
 
@@ -39,8 +38,23 @@ export class MountedNode {
     this.parentNode = parentNode;
     this.routeableState = routeableState;
     this.childNodes = {};
-    this.route = this.mountedRouter.createNavigatorRoute(this);
+
+    this.resolveResult = this.mountedRouter.resolve(this);
+
     this.mount();
+  }
+
+  // alias for navigatorRoute; I havve a lot of code in my app codebase that just uses route.
+  get route() {
+    return this.navigatorRoute;
+  }
+
+  get navigatorRoute() {
+    if (!this.resolveResult) {
+      throw new Error('resolveResult is not set');
+    }
+
+    return this.resolveResult.navigatorRoute;
   }
 
   update(routeableState: RouteableState) {
@@ -61,16 +75,18 @@ export class MountedNode {
     this.route.unmount();
   }
 
-  resolve(name: string) {
-    return this.mountedRouter.resolve(name);
-  }
-
   get componentName() {
-    return this.routeableState.componentName;
+    throw new Error(
+      `MountedNode.componentName is no longer supported. If you are using component names/strings as part of your router mapping paradigm, it should be accessible on mountedNode.resolveResult.whateverYouNamedYourComponentNameProperty, but you might want to consider passing imported component classes directly into your route()/stack()/switch()/etc options so that you don't need an additional mapper/resolver from strings to component classes elsewhere`
+    );
   }
 
   get routeName() {
     return this.routeableState.routeName;
+  }
+
+  get routerOptions() {
+    return this.routeableState.routeOptions;
   }
 
   get key() {
@@ -83,19 +99,5 @@ export class MountedNode {
 
   get isRouter() {
     return !!(this.routeableState as RouterState).routes;
-  }
-
-  getHeaderConfig(): Header | null {
-    let routerState = this.routeableState as RouterState;
-
-    if (routerState.routes) {
-      let key = routerState.routes[routerState.index].key;
-      let child = this.childNodes[key];
-
-      return child?.getHeaderConfig();
-    } else {
-      // this is leaf route, check the NavigatorRoute
-      return this.route.header || null;
-    }
   }
 }
