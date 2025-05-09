@@ -28,13 +28,14 @@ module('Unit - StackRouter test', function (hooks) {
         routeOptions: {
           routeName: 'foo',
           type: 'route',
+          customData: 123,
         },
       },
     ],
   };
 
   test('it provides a default state', function (assert) {
-    let children = [route('foo')];
+    let children = [route('foo', { customData: 123 })];
     let router = stackRouter('root', children);
     let state = router.getInitialState();
 
@@ -200,7 +201,7 @@ module('Unit - StackRouter test', function (hooks) {
   });
 
   test('it supports popping the stack', function (assert) {
-    let children = [route('foo'), route('bar')];
+    let children = [route('foo', { customData: 123 }), route('bar')];
     let router = stackRouter('root', children);
     let initialState = router.getInitialState();
 

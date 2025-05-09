@@ -6,7 +6,7 @@ export interface RouteableState {
   key: string;
   routeName: string;
   params: Record<string, unknown>;
-  routeOptions: BaseRouteOptions;
+  routeOptions: BaseRouteOptions & Record<string, unknown>;
 }
 
 export type RouteState = RouteableState;

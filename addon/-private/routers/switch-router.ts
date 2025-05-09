@@ -5,6 +5,7 @@ import { BaseRouter, handledAction, unhandledAction } from './base-router';
 import type { NavigateAction, RouterActions } from '../actions/types';
 import type { MountedNodeSet } from '../mounted-node';
 import type {
+  BaseRouteOptions,
   InitialStateOptions,
   ReducerResult,
   RouteableReducer,
@@ -105,7 +106,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       key: options.key || this.defaultKey,
       params: {},
       routeName: this.name,
-      routeOptions: this.routeOptions,
+      routeOptions: this.routeOptions as BaseRouteOptions & Record<string, unknown>,
       routes: childRoutes,
       index: 0,
     };

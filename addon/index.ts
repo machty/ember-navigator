@@ -4,13 +4,15 @@ import { StackRouter } from './-private/routers/stack-router';
 import { SwitchRouter } from './-private/routers/switch-router';
 import { TabRouter } from './-private/routers/tab-router';
 
+import type { ResolverFn, RouteableReducer, RouterReducer } from './-private/routeable';
+
 export { default as NavigatorRoute } from './-private/navigator-route';
 
 export function mount(routerMap: RouterReducer, resolveFn: ResolverFn): MountedRouter {
   return new MountedRouter(routerMap, resolveFn);
 }
 
-export function route(name: string, routeOptions: Partial<BaseRouteOptions> = {}) {
+export function route(name: string, routeOptions: Record<string, unknown> = {}) {
   return new RouteReducer(name, {
     routeName: name,
     type: 'route',
@@ -21,7 +23,7 @@ export function route(name: string, routeOptions: Partial<BaseRouteOptions> = {}
 export function stackRouter(
   name: string,
   children: RouteableReducer[],
-  routeOptions: Partial<BaseRouteOptions> = {}
+  routeOptions: Record<string, unknown> = {}
 ) {
   return new StackRouter(name, children, {
     routeName: name,
@@ -33,7 +35,7 @@ export function stackRouter(
 export function switchRouter(
   name: string,
   children: RouteableReducer[],
-  routeOptions: Partial<BaseRouteOptions> = {}
+  routeOptions: Record<string, unknown> = {}
 ) {
   return new SwitchRouter(name, children, {
     routeName: name,
@@ -45,7 +47,7 @@ export function switchRouter(
 export function tabRouter(
   name: string,
   children: RouteableReducer[],
-  routeOptions: Partial<BaseRouteOptions> = {}
+  routeOptions: Record<string, unknown> = {}
 ) {
   return new TabRouter(name, children, {
     routeName: name,
@@ -53,13 +55,6 @@ export function tabRouter(
     ...routeOptions,
   });
 }
-
-import type {
-  BaseRouteOptions,
-  ResolverFn,
-  RouteableReducer,
-  RouterReducer,
-} from './-private/routeable';
 
 export type { RouterActions } from './-private/actions/types';
 export type { MountedNode } from './-private/mounted-node';

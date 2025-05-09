@@ -24,10 +24,10 @@ import type {
 export class RouteReducer<RouteOptions extends BaseRouteOptions> implements RouteableReducer {
   name: string;
   children: RouteableReducer[];
-  routeOptions: RouteOptions;
+  routeOptions: RouteOptions & Record<string, unknown>;
   isRouter: false;
 
-  constructor(name: string, routeOptions: RouteOptions) {
+  constructor(name: string, routeOptions: RouteOptions & Record<string, unknown>) {
     this.isRouter = false;
     this.name = name;
     this.children = [];
