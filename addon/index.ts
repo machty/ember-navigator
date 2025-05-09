@@ -43,7 +43,6 @@ export function switchRouter<RouteOptions extends BaseRouteOptions>(
   children: RouteableReducer[],
   routeOptions: RouteOptions = { routeName: name } as RouteOptions
 ) {
-  debugger;
   return new SwitchRouter(name, children, routeOptions);
 }
 
