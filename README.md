@@ -1,9 +1,13 @@
 # ember-navigator <img src="https://raw.githubusercontent.com/machty/ember-navigator/master/tests/dummy/public/ember-navigator-mark.svg" width=36 height=36 /> ![ci badge](https://github.com/machty/ember-navigator/actions/workflows/ci.yml/badge.svg)
 
+A low-level state/navigation manager modeled off of [React Navigation](https://reactnavigation.org/).
 
-A routing/navigation library for Ember.js suitable for mobile app UI flows, modeled after
-[React Navigation](https://reactnavigation.org/) and a few other mobile-centric navigation
-libraries that have popped up over the years.
+- Supports more complex navigational flows/structures like stacked routing, tabbed routing, and other patterns common in mobile app UI development
+- BYO-UI: this library provides no UI components, but rather a simple data structure for you to build your own components for rendering stacked navigators, tab bars, etc.
+
+## Recent Changes
+
+Version 1.0.0 changed the API slightly and removed all built-in components. Details on the new scheme and how to migrate are in [this PR](https://github.com/machty/ember-navigator/pull/61).
 
 ## Status: Beta
 
@@ -27,6 +31,7 @@ Ember Navigator provides.
 ## Concepts
 
 - [ember-navigator  ](#ember-navigator--)
+  - [Recent Changes](#recent-changes)
   - [Status: Beta](#status-beta)
   - [Motivation](#motivation)
   - [Installation](#installation)
