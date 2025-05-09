@@ -1,7 +1,7 @@
-import { tracked } from "@glimmer/tracking";
+import { tracked } from '@glimmer/tracking';
 
-import type MountedRouter from "./mounted-router";
-import type { BaseResolveResult, RouteableState, RouterState } from "./routeable";
+import type MountedRouter from './mounted-router';
+import type { BaseResolveResult, RouteableState, RouterState } from './routeable';
 
 export type MountedNodeSet = {
   [key: string]: MountedNode;
@@ -39,10 +39,7 @@ export class MountedNode {
     this.routeableState = routeableState;
     this.childNodes = {};
 
-    this.resolveResult = this.mountedRouter.resolve(
-      this.routeableState.routeName,
-      this.routeableState.routeOptions
-    );
+    this.resolveResult = this.mountedRouter.resolve(this);
 
     this.mount();
   }
@@ -53,6 +50,10 @@ export class MountedNode {
   }
 
   get navigatorRoute() {
+    if (!this.resolveResult) {
+      throw new Error('resolveResult is not set');
+    }
+
     return this.resolveResult.navigatorRoute;
   }
 
@@ -74,18 +75,18 @@ export class MountedNode {
     this.route.unmount();
   }
 
-  resolve(name: string) {
-    return this.mountedRouter.resolve(name, this.routeableState.routeOptions);
-  }
-
   get componentName() {
     throw new Error(
-      `MountedNode.componentName is no longer supported. If you are using component names/strings as part of your router mapping paradigm, it should be accessible on mountedNode.resolveResult.whateverYouNamedYourComponentNameProperty`
+      `MountedNode.componentName is no longer supported. If you are using component names/strings as part of your router mapping paradigm, it should be accessible on mountedNode.resolveResult.whateverYouNamedYourComponentNameProperty, but you might want to consider passing imported component classes directly into your route()/stack()/switch()/etc options so that you don't need an additional mapper/resolver from strings to component classes elsewhere`
     );
   }
 
   get routeName() {
     return this.routeableState.routeName;
+  }
+
+  get routerOptions() {
+    return this.routeableState.routeOptions;
   }
 
   get key() {

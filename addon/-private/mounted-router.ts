@@ -1,20 +1,15 @@
-import { set } from "@ember/object";
-import { sendEvent } from "@ember/object/events";
+import { tracked } from '@glimmer/tracking';
+import { sendEvent } from '@ember/object/events';
 
-import { navigate, pop } from "./actions/actions";
-import { MountedNode } from "./mounted-node";
+import { navigate, pop } from './actions/actions';
+import { MountedNode } from './mounted-node';
 
-import type { NavigateParams, PopParams, RouterActions } from "./actions/types";
-import type {
-  BaseRouteOptions,
-  ResolverFn,
-  RouterReducer,
-  RouterState,
-} from "./routeable";
+import type { NavigateParams, PopParams, RouterActions } from './actions/types';
+import type { ResolverFn, RouterReducer, RouterState } from './routeable';
 
 export default class MountedRouter {
   router: RouterReducer;
-  state: RouterState;
+  @tracked state: RouterState;
   resolverFn: ResolverFn;
   rootNode: MountedNode;
 
@@ -31,7 +26,7 @@ export default class MountedRouter {
 
     if (result.handled) {
       if (this.state !== result.state) {
-        set(this, "state", result.state);
+        this.state = result.state;
         this._update();
         this._sendEvents();
       }
@@ -41,7 +36,7 @@ export default class MountedRouter {
   }
 
   _sendEvents() {
-    sendEvent(this, "didTransition");
+    sendEvent(this, 'didTransition');
   }
 
   _update() {
@@ -56,7 +51,7 @@ export default class MountedRouter {
     this.dispatch(pop(options));
   }
 
-  resolve(routeName: string, options: BaseRouteOptions) {
-    return this.resolverFn(routeName, options);
+  resolve(node: MountedNode) {
+    return this.resolverFn(node);
   }
 }

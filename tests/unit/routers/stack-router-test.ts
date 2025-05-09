@@ -6,32 +6,29 @@ import { batch, navigate as makeNavigateAction, pop } from 'ember-navigator/acti
 
 import { handle, navigate } from './helpers';
 
-import type { RouterState } from 'ember-navigator/-private/routeable';
+import type { RouterState, StackRouterState } from 'ember-navigator/-private/routeable';
 
 module('Unit - StackRouter test', function (hooks) {
   hooks.beforeEach(() => _TESTING_ONLY_normalize_keys());
 
-  test('it provides an overridable componentName', function (assert) {
-    let children = [route('foo')];
-    let stackRouter1 = stackRouter('root', children);
-    let stackRouter2 = stackRouter('root', children, { componentName: 'x-foo' });
-
-    assert.strictEqual(stackRouter1.componentName, 'ecr-stack');
-    assert.strictEqual(stackRouter2.componentName, 'x-foo');
-  });
-
-  const DEFAULT_STATE = {
-    componentName: 'ecr-stack',
+  const DEFAULT_STATE: StackRouterState = {
     key: 'StackRouterRoot',
     params: {},
     routeName: 'root',
     index: 0,
+    routeOptions: {
+      routeName: 'root',
+      type: 'stack',
+    },
     routes: [
       {
         key: 'foo',
         params: {},
         routeName: 'foo',
-        componentName: 'foo',
+        routeOptions: {
+          routeName: 'foo',
+          type: 'route',
+        },
       },
     ],
   };
@@ -54,17 +51,23 @@ module('Unit - StackRouter test', function (hooks) {
 
     assert.deepEqual((state.routes[1] as RouterState).routes, [
       {
-        componentName: 'ecr-stack',
         index: 0,
         key: 'nested',
         params: {},
         routeName: 'nested',
+        routeOptions: {
+          routeName: 'nested',
+          type: 'stack',
+        },
         routes: [
           {
-            componentName: 'b',
             key: 'b',
             params: {},
             routeName: 'b',
+            routeOptions: {
+              routeName: 'b',
+              type: 'route',
+            },
           },
         ],
       } as RouterState,
@@ -88,44 +91,62 @@ module('Unit - StackRouter test', function (hooks) {
     let initialState = router.getInitialState();
 
     assert.deepEqual(initialState, {
-      componentName: 'ecr-stack',
       index: 0,
       key: 'StackRouterRoot',
       params: {},
       routeName: 'root',
+      routeOptions: {
+        routeName: 'root',
+        type: 'stack',
+      },
       routes: [
         {
-          componentName: 'ecr-stack',
           index: 0,
           key: 'nested',
           params: {},
           routeName: 'nested',
+          routeOptions: {
+            routeName: 'nested',
+            type: 'stack',
+          },
           routes: [
             {
-              componentName: 'foo',
               key: 'foo',
               params: {},
               routeName: 'foo',
+              routeOptions: {
+                routeName: 'foo',
+                type: 'route',
+              },
             },
           ],
         } as RouterState,
       ],
     });
 
-    let state2 = navigate(router, initialState, { routeName: 'foo', key: 'other' });
+    let state2 = navigate(router, initialState, {
+      routeName: 'foo',
+      key: 'other',
+    });
 
     assert.deepEqual((state2.routes[0] as RouterState).routes, [
       {
-        componentName: 'foo',
         key: 'foo',
         params: {},
         routeName: 'foo',
+        routeOptions: {
+          routeName: 'foo',
+          type: 'route',
+        },
       },
       {
-        componentName: 'foo',
         key: 'other',
         params: {},
         routeName: 'foo',
+        routeOptions: {
+          routeName: 'foo',
+          type: 'route',
+        },
       },
     ]);
   });
@@ -136,23 +157,32 @@ module('Unit - StackRouter test', function (hooks) {
     let state = navigate(router, initialState, { routeName: 'bar' });
 
     assert.deepEqual(state, {
-      componentName: 'ecr-stack',
       index: 1,
       key: 'StackRouterRoot',
       params: {},
       routeName: 'root',
+      routeOptions: {
+        routeName: 'root',
+        type: 'stack',
+      },
       routes: [
         {
-          componentName: 'foo',
           key: 'foo',
           params: {},
           routeName: 'foo',
+          routeOptions: {
+            routeName: 'foo',
+            type: 'route',
+          },
         },
         {
           key: 'id-1',
           params: {},
           routeName: 'bar',
-          componentName: 'bar',
+          routeOptions: {
+            routeName: 'bar',
+            type: 'route',
+          },
         },
       ],
     });
@@ -196,9 +226,21 @@ module('Unit - StackRouter test', function (hooks) {
   test('it supports navigating with params', function (assert) {
     let router = stackRouter('root', [route('foo')]);
     let state = router.getInitialState();
-    let state2 = navigate(router, state, { routeName: 'foo', key: '1', params: { id: 4 } });
-    let state3 = navigate(router, state2, { routeName: 'foo', key: '2', params: { id: 5 } });
-    let state4 = navigate(router, state3, { routeName: 'foo', key: '3', params: { id: 6 } });
+    let state2 = navigate(router, state, {
+      routeName: 'foo',
+      key: '1',
+      params: { id: 4 },
+    });
+    let state3 = navigate(router, state2, {
+      routeName: 'foo',
+      key: '2',
+      params: { id: 5 },
+    });
+    let state4 = navigate(router, state3, {
+      routeName: 'foo',
+      key: '3',
+      params: { id: 6 },
+    });
     let allParams = state4.routes.map((r) => ({ params: r.params }));
 
     assert.deepEqual(allParams, [

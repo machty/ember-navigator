@@ -26,12 +26,21 @@ Ember Navigator provides.
 
 ## Concepts
 
-- [Router "map"](#router-map)
-- [Router State](#router-state)
-- [Actions](#actions)
-- ["Mounting"](#-mounting-)
-- [Routes](#routes)
-- [URLs and ember-navigator](#urls-and-ember-navigator)
+- [ember-navigator  ](#ember-navigator--)
+  - [Status: Beta](#status-beta)
+  - [Motivation](#motivation)
+  - [Installation](#installation)
+  - [Concepts](#concepts)
+    - [Router "map"](#router-map)
+    - [Router State](#router-state)
+    - [Actions](#actions)
+    - ["Mounting"](#mounting)
+    - [Routes](#routes)
+    - [URLs and ember-navigator](#urls-and-ember-navigator)
+  - [Running the example app](#running-the-example-app)
+  - [Running Tests](#running-tests)
+  - [Building](#building)
+  - [Releasing / Publishing to NPM](#releasing--publishing-to-npm)
 
 ### Router "map"
 
@@ -105,6 +114,8 @@ One thing to note in the above example is that some routes are shown under more 
 [You may ask yourself][1], "where do  I put this code?" There is not currently a prescriptive or opinionated answer to this question in ember-navigator. The mountedRouter property needs to be passed to a component for rendering eventually. You could do the router map definition and mounting in a service. The dummy app in this repository does it in the application controller.
 
 ### Router State
+
+**The structure of the objects below has recently changed but the general concepts still hold true**
 
 Like "outlet" state in vanilla Ember (or redux reducer state), this is a structure of plain old Javascript objects and arrays
 that is built up by the various routers and passed to the various navigator components for rendering.

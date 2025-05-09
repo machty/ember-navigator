@@ -105,7 +105,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       key: options.key || this.defaultKey,
       params: {},
       routeName: this.name,
-      routeOptions: {},
+      routeOptions: this.routeOptions,
       routes: childRoutes,
       index: 0,
     };

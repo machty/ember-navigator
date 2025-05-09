@@ -1,6 +1,6 @@
-import type { RouterActions } from "./actions/types";
-import type { MountedNode } from "./mounted-node";
-import type NavigatorRoute from "./navigator-route";
+import type { RouterActions } from './actions/types';
+import type { MountedNode } from './mounted-node';
+import type NavigatorRoute from './navigator-route';
 
 export interface RouteableState {
   key: string;
@@ -16,7 +16,7 @@ export interface RouterState extends RouteableState {
   routes: RouteableState[];
 }
 
-export interface StackRouterState extends RouterState {}
+export type StackRouterState = RouterState;
 
 export type HandledReducerResult = {
   handled: true;
@@ -53,6 +53,9 @@ export interface RouterReducer extends RouteableReducer {
 export interface BaseRouteOptions {
   // all routes have a route name, i.e. `route('this-is-the-route-name', { ... })`
   routeName: string;
+
+  // e.g. 'route', 'stack', 'switch', 'tab'
+  type: string;
 }
 
 // This base result is expected to be extended, either with a component name string or
@@ -62,7 +65,4 @@ export interface BaseResolveResult {
   navigatorRoute: NavigatorRoute;
 }
 
-export type ResolverFn = (
-  routeName: string,
-  options: BaseRouteOptions
-) => BaseResolveResult;
+export type ResolverFn = (node: MountedNode) => BaseResolveResult;

@@ -15,23 +15,32 @@ module('Unit - TabRouter test', function (hooks) {
     let state = router.getInitialState();
 
     assert.deepEqual(state, {
-      componentName: 'ecr-switch',
       index: 0,
       key: 'TabRouterBase',
       params: {},
       routeName: 'root',
+      routeOptions: {
+        routeName: 'root',
+        type: 'tab',
+      },
       routes: [
         {
-          componentName: 'foo',
           key: 'foo',
           params: {},
           routeName: 'foo',
+          routeOptions: {
+            routeName: 'foo',
+            type: 'route',
+          },
         },
         {
-          componentName: 'bar',
           key: 'bar',
           params: {},
           routeName: 'bar',
+          routeOptions: {
+            routeName: 'bar',
+            type: 'route',
+          },
         },
       ],
     });
@@ -44,17 +53,23 @@ module('Unit - TabRouter test', function (hooks) {
 
     assert.strictEqual(state2.index, 1);
     assert.deepEqual(state2.routes[1], {
-      componentName: 'ecr-stack',
       index: 0,
       key: 'b',
       params: {},
       routeName: 'b',
+      routeOptions: {
+        routeName: 'b',
+        type: 'stack',
+      },
       routes: [
         {
-          componentName: 'b1',
           key: 'b1',
           params: {},
           routeName: 'b1',
+          routeOptions: {
+            routeName: 'b1',
+            type: 'route',
+          },
         },
       ],
     } as RouterState);

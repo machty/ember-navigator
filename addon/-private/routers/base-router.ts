@@ -1,12 +1,13 @@
-import type { RouterActions } from "../actions/types";
+import type { RouterActions } from '../actions/types';
 import type {
+  BaseRouteOptions,
   ReducerResult,
   RouteableReducer,
   RouterReducer,
   RouterState,
   RouteState,
-  BaseRouteOptions,
-} from "../routeable";
+} from '../routeable';
+
 export function handledAction(state: RouterState): ReducerResult {
   return { handled: true, state };
 }
@@ -23,11 +24,7 @@ export class BaseRouter {
   routeOptions: BaseRouteOptions;
   routeNames: string[];
 
-  constructor(
-    name: string,
-    children: RouteableReducer[],
-    routeOptions: BaseRouteOptions
-  ) {
+  constructor(name: string, children: RouteableReducer[], routeOptions: BaseRouteOptions) {
     this.isRouter = true;
     this.name = name;
     this.children = children;
@@ -47,10 +44,7 @@ export class BaseRouter {
     return child.isRouter ? (child as RouterReducer) : null;
   }
 
-  dispatchTo(
-    routeStates: RouteState[],
-    action: RouterActions
-  ): RouterState | void {
+  dispatchTo(routeStates: RouteState[], action: RouterActions): RouterState | void {
     for (let routeState of routeStates) {
       let routeable = this.childRouteables[routeState.routeName];
 

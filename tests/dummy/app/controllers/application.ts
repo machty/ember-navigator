@@ -20,10 +20,10 @@ export default class extends Controller {
       route('no-header'),
     ]),
     // END-SNIPPET
-    (routeName, options) => {
+    (mountedNode) => {
       return {
-        navigatorRoute: new NavigatorRoute(routeName),
-      }
+        navigatorRoute: new NavigatorRoute(mountedNode),
+      };
     }
   );
 

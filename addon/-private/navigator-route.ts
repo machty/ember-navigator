@@ -1,7 +1,8 @@
-import type { NavigateParams, PopParams } from "./actions/types";
-import type { MountedNode } from "./mounted-node";
-import type { RouteableState } from "./routeable";
-import { tracked } from "@glimmer/tracking";
+import { tracked } from '@glimmer/tracking';
+
+import type { NavigateParams, PopParams } from './actions/types';
+import type { MountedNode } from './mounted-node';
+import type { RouteableState } from './routeable';
 
 /**
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
@@ -30,6 +31,7 @@ export default class NavigatorRoute {
   update(_state: RouteableState) {
     // this is how we signal to components to re-render with the new state.
     // NOTE: this is old and probably un-tested and i don't know if it really works/matters.
+    // eslint-disable-next-line no-self-assign
     this.node = this.node;
   }
 

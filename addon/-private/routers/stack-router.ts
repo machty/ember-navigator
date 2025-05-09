@@ -1,7 +1,7 @@
-import { BACK, BATCH, NAVIGATE, POP } from "../actions/types";
-import { MountedNode } from "../mounted-node";
-import StateUtils from "../utils/state";
-import { BaseRouter, handledAction, unhandledAction } from "./base-router";
+import { BACK, BATCH, NAVIGATE, POP } from '../actions/types';
+import { MountedNode } from '../mounted-node';
+import StateUtils from '../utils/state';
+import { BaseRouter, handledAction, unhandledAction } from './base-router';
 
 import type {
   BackAction,
@@ -9,15 +9,15 @@ import type {
   NavigateAction,
   PopAction,
   RouterActions,
-} from "../actions/types";
-import type { MountedNodeSet } from "../mounted-node";
+} from '../actions/types';
+import type { MountedNodeSet } from '../mounted-node';
 import type {
   InitialStateOptions,
   ReducerResult,
   RouterReducer,
   RouterState,
   StackRouterState,
-} from "../routeable";
+} from '../routeable';
 
 export class StackRouter extends BaseRouter implements RouterReducer {
   dispatch(action: RouterActions, state: RouterState) {
@@ -44,10 +44,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     );
   }
 
-  delegateToActiveChildRouters(
-    action: RouterActions,
-    state: RouterState
-  ): ReducerResult | void {
+  delegateToActiveChildRouters(action: RouterActions, state: RouterState): ReducerResult | void {
     // Traverse routes from the top of the stack to the bottom, so the
     // active route has the first opportunity, then the one before it, etc.
     let reversedStates = state.routes.slice().reverse();
@@ -57,19 +54,12 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       return;
     }
 
-    const newState = StateUtils.replaceAndPrune(
-      state,
-      nextRouteState.key,
-      nextRouteState
-    );
+    const newState = StateUtils.replaceAndPrune(state, nextRouteState.key, nextRouteState);
 
     return handledAction(newState);
   }
 
-  navigateToPreexisting(
-    action: NavigateAction,
-    state: RouterState
-  ): ReducerResult | void {
+  navigateToPreexisting(action: NavigateAction, state: RouterState): ReducerResult | void {
     let navParams = action.payload;
 
     if (!this.childRouteables[navParams.routeName]) {
@@ -117,10 +107,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
     });
   }
 
-  navigateToNew(
-    action: NavigateAction,
-    state: RouterState
-  ): ReducerResult | void {
+  navigateToNew(action: NavigateAction, state: RouterState): ReducerResult | void {
     let navParams = action.payload;
 
     // TODO: it seems wasteful to deeply recurse on every unknown route.
@@ -157,13 +144,13 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       // If set, navigation will go back from the given key
       // const backRoute = state.routes.find(route => route.key === key);
       // backRouteIndex = backRoute ? state.routes.indexOf(backRoute) : -1;
-      return notImplemented("goBack with key");
+      return notImplemented('goBack with key');
     } else if (key === null) {
       // navigation will go back anywhere.
-      return notImplemented("goBack with null key");
+      return notImplemented('goBack with null key');
     } else {
       // TODO: what happens here?
-      return notImplemented("goBack with missing key");
+      return notImplemented('goBack with missing key');
     }
   }
 
@@ -205,14 +192,12 @@ export class StackRouter extends BaseRouter implements RouterReducer {
 
   getInitialState(options: InitialStateOptions = {}): StackRouterState {
     const initialRouteName = this.routeNames[0];
-    let childRouteableState = this.childRouteables[
-      initialRouteName
-    ].getInitialState({
+    let childRouteableState = this.childRouteables[initialRouteName].getInitialState({
       key: initialRouteName,
     });
 
     return {
-      key: options.key || "StackRouterRoot",
+      key: options.key || 'StackRouterRoot',
       index: 0,
 
       // TODO: in RN, the root stack navigator doesn't have params/routeName; are we doing it wrong?
@@ -220,7 +205,7 @@ export class StackRouter extends BaseRouter implements RouterReducer {
       routeName: this.name,
       routes: [childRouteableState],
       routeOptions: {
-        routeName: this.name,
+        ...this.routeOptions,
         ...options.routeOptions,
       },
     };
@@ -243,15 +228,10 @@ export class StackRouter extends BaseRouter implements RouterReducer {
 
         return;
       } else if (!childNode) {
-        childNode = new MountedNode(
-          mountedNode.mountedRouter,
-          parent,
-          childRouteState
-        );
+        childNode = new MountedNode(mountedNode.mountedRouter, parent, childRouteState);
       }
 
-      let childRouteableReducer =
-        this.childRouteables[childRouteState.routeName];
+      let childRouteableReducer = this.childRouteables[childRouteState.routeName];
 
       childRouteableReducer.reconcile(childRouteState, childNode);
 

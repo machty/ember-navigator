@@ -1,6 +1,6 @@
 {
   "name": "ember-navigator",
-  "version": "0.4.1",
+  "version": "1.0.0-alpha.1",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
     "ember-addon"
