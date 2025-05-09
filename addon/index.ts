@@ -1,26 +1,25 @@
-import MountedRouter from './-private/mounted-router';
-import { RouteReducer } from './-private/route-reducer';
-import { StackRouter } from './-private/routers/stack-router';
-import { SwitchRouter } from './-private/routers/switch-router';
-import { TabRouter } from './-private/routers/tab-router';
+import MountedRouter from "./-private/mounted-router";
+import { RouteReducer } from "./-private/route-reducer";
+import { StackRouter } from "./-private/routers/stack-router";
+import { SwitchRouter } from "./-private/routers/switch-router";
+import { TabRouter } from "./-private/routers/tab-router";
 
-import type {
-  BaseRouteOptions,
-  ResolverFn,
-  RouteableReducer,
-  RouterReducer,
-} from './-private/routeable';
+export { default as NavigatorRoute } from "./-private/navigator-route";
 
-export { default as NavigatorRoute } from './-private/navigator-route';
-
-export function mount(routerMap: RouterReducer, resolveFn: ResolverFn): MountedRouter {
+export function mount(
+  routerMap: RouterReducer,
+  resolveFn: ResolverFn
+): MountedRouter {
   return new MountedRouter(routerMap, resolveFn);
 }
 
-export function route(name: string, routeOptions: Partial<BaseRouteOptions> = {}) {
+export function route(
+  name: string,
+  routeOptions: Partial<BaseRouteOptions> = {}
+) {
   return new RouteReducer(name, {
     routeName: name,
-    type: 'route',
+    type: "route",
     ...routeOptions,
   });
 }
@@ -32,7 +31,7 @@ export function stackRouter(
 ) {
   return new StackRouter(name, children, {
     routeName: name,
-    type: 'stack',
+    type: "stack",
     ...routeOptions,
   });
 }
@@ -44,7 +43,7 @@ export function switchRouter(
 ) {
   return new SwitchRouter(name, children, {
     routeName: name,
-    type: 'switch',
+    type: "switch",
     ...routeOptions,
   });
 }
@@ -56,7 +55,26 @@ export function tabRouter(
 ) {
   return new TabRouter(name, children, {
     routeName: name,
-    type: 'tab',
+    type: "tab",
     ...routeOptions,
   });
 }
+
+import type {
+  BaseRouteOptions,
+  ResolverFn,
+  RouteableReducer,
+  RouterReducer,
+} from "./-private/routeable";
+
+export type {
+  BaseRouteOptions,
+  ResolverFn,
+  RouteableReducer,
+  RouterReducer,
+  RouterState,
+} from "./-private/routeable";
+
+export type { RouterActions } from "./-private/actions/types";
+
+export type { MountedNode } from "./-private/mounted-node";
