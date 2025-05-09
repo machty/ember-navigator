@@ -33,8 +33,7 @@
     "postpack": "ember ts:clean",
     "release": "release-it",
     "start": "NODE_OPTIONS=--openssl-legacy-provider ember server",
-    "test": "npm-run-all lint test:*",
-    "test:ember": "ember test"
+    "test": "NODE_OPTIONS=--openssl-legacy-provider ember test"
   },
   "dependencies": {
     "@glimmer/component": "^1.0.0",
