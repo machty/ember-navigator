@@ -9,9 +9,10 @@ import type { NavigatorRouteConstructorParams } from 'ember-navigator';
 import type { Resolver } from 'ember-navigator/-private/routeable';
 
 interface TestEvent {
-  id: number;
-  type: string;
-  key: string;
+  id?: number;
+  type?: string;
+  key?: string;
+  name?: string;
 }
 
 function buildTestResolver() {
@@ -36,6 +37,14 @@ function buildTestResolver() {
 
     mount() {
       events.push({ id: this.id, type: 'mount', key: this.node.key });
+    }
+
+    focus() {
+      events.push({ type: 'focus', name: this.name });
+    }
+
+    blur() {
+      events.push({ type: 'blur', name: this.name });
     }
   }
 
@@ -86,6 +95,14 @@ module('Unit - MountedRouter test', function (hooks) {
         key: 'SwitchRouterBase',
         type: 'update',
       },
+      {
+        name: 'foo',
+        type: 'blur',
+      },
+      {
+        name: 'bar',
+        type: 'focus',
+      },
     ]);
   });
 
@@ -125,6 +142,10 @@ module('Unit - MountedRouter test', function (hooks) {
         key: 'foo',
         type: 'mount',
       },
+      {
+        name: 'foo',
+        type: 'focus',
+      },
     ]);
   });
 
@@ -160,6 +181,14 @@ module('Unit - MountedRouter test', function (hooks) {
         id: 0,
         key: 'StackRouterRoot',
         type: 'update',
+      },
+      {
+        name: 'foo',
+        type: 'blur',
+      },
+      {
+        name: 'bar',
+        type: 'focus',
       },
     ]);
 
@@ -206,6 +235,14 @@ module('Unit - MountedRouter test', function (hooks) {
         key: 'StackRouterRoot',
         type: 'update',
       },
+      {
+        name: 'foo',
+        type: 'blur',
+      },
+      {
+        name: 'bar',
+        type: 'focus',
+      },
     ]);
   });
 
@@ -214,7 +251,62 @@ module('Unit - MountedRouter test', function (hooks) {
     let { resolver, events } = buildTestResolver();
     let mountedRouter = new MountedRouter(router, resolver);
 
+    assert.deepEqual(events, [
+      {
+        id: 0,
+        key: 'StackRouterRoot',
+        type: 'constructor',
+      },
+      {
+        id: 0,
+        key: 'StackRouterRoot',
+        type: 'mount',
+      },
+      {
+        id: 1,
+        key: 'foo',
+        type: 'constructor',
+      },
+      {
+        id: 1,
+        key: 'foo',
+        type: 'mount',
+      },
+      {
+        name: 'foo',
+        type: 'focus',
+      },
+    ]);
+    events.length = 0;
+
     mountedRouter.navigate({ routeName: 'bar' });
+
+    assert.deepEqual(events, [
+      {
+        id: 2,
+        key: 'id-1',
+        type: 'constructor',
+      },
+      {
+        id: 2,
+        key: 'id-1',
+        type: 'mount',
+      },
+      {
+        id: 0,
+        key: 'StackRouterRoot',
+        type: 'update',
+      },
+      {
+        name: 'foo',
+        type: 'blur',
+      },
+      {
+        name: 'bar',
+        type: 'focus',
+      },
+    ]);
+
     events.length = 0;
     mountedRouter.navigate({ routeName: 'foo' });
     assert.deepEqual(events, [
@@ -227,6 +319,55 @@ module('Unit - MountedRouter test', function (hooks) {
         id: 0,
         key: 'StackRouterRoot',
         type: 'update',
+      },
+      {
+        name: 'bar',
+        type: 'blur',
+      },
+      {
+        name: 'foo',
+        type: 'focus',
+      },
+    ]);
+  });
+
+  test('nested stacks: focus events when pushing and popping from the same stack', function (assert) {
+    let router = stackRouter('root', [stackRouter('nested', [route('a'), route('b'), route('c')])]);
+    let { resolver, events } = buildTestResolver();
+    let mountedRouter = new MountedRouter(router, resolver);
+
+    events.length = 0;
+
+    function getFocusAndBlurs() {
+      const blursAndFocuses = events.filter((e) => e.type === 'focus' || e.type === 'blur');
+
+      events.length = 0;
+
+      return blursAndFocuses;
+    }
+
+    mountedRouter.navigate({ routeName: 'b' });
+    assert.deepEqual(getFocusAndBlurs(), [
+      {
+        name: 'a',
+        type: 'blur',
+      },
+      {
+        name: 'b',
+        type: 'focus',
+      },
+    ]);
+
+    mountedRouter.navigate({ routeName: 'a' });
+
+    assert.deepEqual(getFocusAndBlurs(), [
+      {
+        name: 'b',
+        type: 'blur',
+      },
+      {
+        name: 'a',
+        type: 'focus',
       },
     ]);
   });

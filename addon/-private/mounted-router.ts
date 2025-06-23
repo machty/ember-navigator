@@ -41,6 +41,7 @@ export default class MountedRouter {
 
   _update() {
     this.router.reconcile(this.state, this.rootNode);
+    this.rootNode.focusNode();
   }
 
   navigate(options: NavigateParams) {
