@@ -32,7 +32,7 @@ export default class NavigatorRoute {
     // this is how we signal to components to re-render with the new state.
     // NOTE: this is old and probably un-tested and i don't know if it really works/matters.
     // eslint-disable-next-line no-self-assign
-    // this.node = this.node;
+    this.node = this.node;
   }
 
   /**
