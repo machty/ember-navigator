@@ -4,41 +4,66 @@ import { StackRouter } from './-private/routers/stack-router';
 import { SwitchRouter } from './-private/routers/switch-router';
 import { TabRouter } from './-private/routers/tab-router';
 
-import type { RouteOptions } from './-private/route-reducer';
-import type { Resolver, RouteableReducer, RouterReducer } from './-private/routeable';
-import type { StackOptions } from './-private/routers/stack-router';
-import type { SwitchOptions } from './-private/routers/switch-router';
-import type { TabOptions } from './-private/routers/tab-router';
+import type { ResolverFn, RouteableReducer, RouterReducer } from './-private/routeable';
 
-export {
-  default as NavigatorRoute,
-  type NavigatorRouteConstructorParams,
-} from './-private/navigator-route';
+export { default as NavigatorRoute } from './-private/navigator-route';
 
-export function mount(routerMap: RouterReducer, resolver: Resolver): MountedRouter {
-  return new MountedRouter(routerMap, resolver);
+export function mount(routerMap: RouterReducer, resolveFn: ResolverFn): MountedRouter {
+  return new MountedRouter(routerMap, resolveFn);
 }
 
-export function route(name: string, options: RouteOptions = {}) {
-  return new RouteReducer(name, options);
+export function route(name: string, routeOptions: Record<string, unknown> = {}) {
+  return new RouteReducer(name, {
+    routeName: name,
+    type: 'route',
+    ...routeOptions,
+  });
 }
 
 export function stackRouter(
   name: string,
   children: RouteableReducer[],
-  options: StackOptions = {}
+  routeOptions: Record<string, unknown> = {}
 ) {
-  return new StackRouter(name, children, options);
+  return new StackRouter(name, children, {
+    routeName: name,
+    type: 'stack',
+    ...routeOptions,
+  });
 }
 
 export function switchRouter(
   name: string,
   children: RouteableReducer[],
-  options: SwitchOptions = {}
+  routeOptions: Record<string, unknown> = {}
 ) {
-  return new SwitchRouter(name, children, options);
+  return new SwitchRouter(name, children, {
+    routeName: name,
+    type: 'switch',
+    ...routeOptions,
+  });
 }
 
-export function tabRouter(name: string, children: RouteableReducer[], options: TabOptions = {}) {
-  return new TabRouter(name, children, options);
+export function tabRouter(
+  name: string,
+  children: RouteableReducer[],
+  routeOptions: Record<string, unknown> = {}
+) {
+  return new TabRouter(name, children, {
+    routeName: name,
+    type: 'tab',
+    ...routeOptions,
+  });
 }
+
+export type { RouterActions } from './-private/actions/types';
+export type { MountedNode } from './-private/mounted-node';
+export type {
+  BaseRouteOptions,
+  ResolverFn,
+  RouteableReducer,
+  RouterReducer,
+  RouterState,
+} from './-private/routeable';
+
+export type { MountedRouter };

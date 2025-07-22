@@ -3,16 +3,13 @@ import { generateKey } from './key-generator';
 import type { RouterActions } from './actions/types';
 import type { MountedNode } from './mounted-node';
 import type {
+  BaseRouteOptions,
   InitialStateOptions,
   RouteableReducer,
   RouterState,
   RouteState,
   UnhandledReducerResult,
 } from './routeable';
-
-export type RouteOptions = {
-  componentName?: string;
-};
 
 /**
  * This is the reducer object returned by the `route()` function in the mapping DSL, e.g.
@@ -24,29 +21,25 @@ export type RouteOptions = {
  *
  * It represents a leaf (child-less) route in the routing tree.
  */
-export class RouteReducer implements RouteableReducer {
+export class RouteReducer<RouteOptions extends BaseRouteOptions> implements RouteableReducer {
   name: string;
   children: RouteableReducer[];
-  options: RouteOptions;
+  routeOptions: RouteOptions & Record<string, unknown>;
   isRouter: false;
-  componentName: string;
 
-  constructor(name: string, options: RouteOptions) {
+  constructor(name: string, routeOptions: RouteOptions & Record<string, unknown>) {
     this.isRouter = false;
     this.name = name;
     this.children = [];
-    this.options = options;
-    this.componentName = options.componentName || name;
+    this.routeOptions = routeOptions;
   }
 
   getInitialState(options: InitialStateOptions = {}): RouteState {
-    let routeName = this.name;
-
     return {
       params: options.params || {},
-      routeName,
+      routeName: this.name,
       key: options.key || generateKey(),
-      componentName: routeName,
+      routeOptions: this.routeOptions,
     };
   }
 

@@ -1,67 +1,13 @@
 <header>
-  <img src="./ember-navigator-mark.svg" width="60" height="60"  alt="Ember Navigator" />
+  <img
+    src="./ember-navigator-mark.svg"
+    width="60"
+    height="60"
+    alt="Ember Navigator"
+  />
   <h1>Ember Navigator</h1>
 </header>
 
 <div class="outer-container">
-  <div class="ecr-app-container">
-    {{component this.mountedRouter.rootNode.componentName node=this.mountedRouter.rootNode route=this.mountedRouter.rootNode.route}}
-  </div>
-
-  <div class="debug-info">
-    <p>
-      This is a demo of ember-navigator.
-    </p>
-    <p>
-      Try clicking some of the links below and watch how the state changes.
-    </p>
-    <p>Note: GENERATE_UUID will be replaced with a random UUID at the time of navigation</p>
-    <ul>
-      {{#each this.links as |l|}}
-        <li>
-          <h4>{{l.routeName}}</h4>
-          <ul>
-            {{#each l.variations as |v index|}}
-              <li>
-                <a
-                  href="#"
-                  {{on 'click' (fn this.navigate (hash routeName=l.routeName key=v.key params=v.params))}}
-                  data-test-navigate={{concat l.routeName '-' (or v.key 'default') '-' index}}
-                >
-                  navigate() to {{l.routeName}}:
-                  <code>{{json-stringify v}}</code>
-                </a>
-              </li>
-            {{/each}}
-          </ul>
-        </li>
-      {{/each}}
-    </ul>
-  </div>
-
-  <div class="debug-info">
-    <p>
-      Router Map
-    </p>
-    <p>
-      Should seem familiar to the classic API, but functions
-      in a much simpler manner than the classic Ember DSL, and
-      should be easier to configure and experiment with.
-    </p>
-    {{#let (get-code-snippet "router-map.ts") as |snippet|}}
-      <pre>{{snippet.source}}</pre>
-    {{/let}}
-  </div>
-
-  <div class="debug-info">
-    <p>
-      Router State
-    </p>
-    <p>
-      Like "outlet" state in vanilla Ember (or redux reducer state), this is built up
-      by the various routers and passed to the various navigator
-      components for rendering.
-    </p>
-    <pre>{{json-stringify this.mountedRouter.state pretty=true}}</pre>
-  </div>
+  Once upon a time, there was a demo here, but no longer.
 </div>

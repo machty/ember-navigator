@@ -3,9 +3,6 @@ import { SwitchRouter } from './switch-router';
 
 import type { NavigateAction } from '../actions/types';
 import type { ReducerResult, RouteableState, RouterReducer, RouterState } from '../routeable';
-import type { SwitchOptions } from './switch-router';
-
-export type TabOptions = SwitchOptions;
 
 /* A TabRouter is a SwitchRouter that doesn't reset child state when switching between child routes */
 export class TabRouter extends SwitchRouter implements RouterReducer {

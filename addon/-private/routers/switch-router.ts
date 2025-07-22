@@ -5,6 +5,7 @@ import { BaseRouter, handledAction, unhandledAction } from './base-router';
 import type { NavigateAction, RouterActions } from '../actions/types';
 import type { MountedNodeSet } from '../mounted-node';
 import type {
+  BaseRouteOptions,
   InitialStateOptions,
   ReducerResult,
   RouteableReducer,
@@ -12,9 +13,6 @@ import type {
   RouterReducer,
   RouterState,
 } from '../routeable';
-import type { BaseOptions } from './base-router';
-
-export type SwitchOptions = BaseOptions;
 
 export class SwitchRouter extends BaseRouter implements RouterReducer {
   defaultKey = 'SwitchRouterBase';
@@ -108,7 +106,7 @@ export class SwitchRouter extends BaseRouter implements RouterReducer {
       key: options.key || this.defaultKey,
       params: {},
       routeName: this.name,
-      componentName: 'ecr-switch',
+      routeOptions: this.routeOptions as BaseRouteOptions & Record<string, unknown>,
       routes: childRoutes,
       index: 0,
     };

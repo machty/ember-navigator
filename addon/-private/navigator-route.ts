@@ -1,14 +1,8 @@
-import { notifyPropertyChange } from '@ember/object';
+import { tracked } from '@glimmer/tracking';
 
 import type { NavigateParams, PopParams } from './actions/types';
 import type { MountedNode } from './mounted-node';
 import type { RouteableState } from './routeable';
-
-export type Header = {
-  title?: string;
-};
-
-export type NavigatorRouteConstructorParams = [node: MountedNode];
 
 /**
  * NavigatorRoute is part of the public API of ember-navigator; it is a class
@@ -16,25 +10,14 @@ export type NavigatorRouteConstructorParams = [node: MountedNode];
  * overridden in the subclass.
  */
 export default class NavigatorRoute {
-  node: MountedNode;
-  header?: Header;
+  @tracked node: MountedNode;
 
   /**
    * Constructs a NavigatorRoute, which you can override in your NavigatorRoute subclasses
    * to load data or perform other operations when the route is mounted.
-   *
-   * @param params NavigatorRouteConstructorParams
    */
-  constructor(...params: NavigatorRouteConstructorParams) {
-    this.node = params[0];
-  }
-
-  static create(props: { node: MountedNode }) {
-    let instance = new this(props.node);
-
-    Object.assign(instance, props);
-
-    return instance;
+  constructor(node: MountedNode) {
+    this.node = node;
   }
 
   navigate(options: NavigateParams) {
@@ -47,7 +30,9 @@ export default class NavigatorRoute {
 
   update(_state: RouteableState) {
     // this is how we signal to components to re-render with the new state.
-    notifyPropertyChange(this, 'node');
+    // NOTE: this is old and probably un-tested and i don't know if it really works/matters.
+    // eslint-disable-next-line no-self-assign
+    this.node = this.node;
   }
 
   /**
@@ -84,7 +69,7 @@ export default class NavigatorRoute {
       return null;
     }
 
-    return (parentNode as MountedNode).route;
+    return parentNode.route;
   }
 
   /**

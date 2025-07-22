@@ -1,9 +1,13 @@
 # ember-navigator <img src="https://raw.githubusercontent.com/machty/ember-navigator/master/tests/dummy/public/ember-navigator-mark.svg" width=36 height=36 /> ![ci badge](https://github.com/machty/ember-navigator/actions/workflows/ci.yml/badge.svg)
 
+A low-level state/navigation manager modeled off of [React Navigation](https://reactnavigation.org/).
 
-A routing/navigation library for Ember.js suitable for mobile app UI flows, modeled after
-[React Navigation](https://reactnavigation.org/) and a few other mobile-centric navigation
-libraries that have popped up over the years.
+- Supports more complex navigational flows/structures like stacked routing, tabbed routing, and other patterns common in mobile app UI development
+- BYO-UI: this library provides no UI components, but rather a simple data structure for you to build your own components for rendering stacked navigators, tab bars, etc.
+
+## Recent Changes
+
+Version 1.0.0 changed the API slightly and removed all built-in components. Details on the new scheme and how to migrate are in [this PR](https://github.com/machty/ember-navigator/pull/61).
 
 ## Status: Beta
 
@@ -26,12 +30,22 @@ Ember Navigator provides.
 
 ## Concepts
 
-- [Router "map"](#router-map)
-- [Router State](#router-state)
-- [Actions](#actions)
-- ["Mounting"](#-mounting-)
-- [Routes](#routes)
-- [URLs and ember-navigator](#urls-and-ember-navigator)
+- [ember-navigator  ](#ember-navigator--)
+  - [Recent Changes](#recent-changes)
+  - [Status: Beta](#status-beta)
+  - [Motivation](#motivation)
+  - [Installation](#installation)
+  - [Concepts](#concepts)
+    - [Router "map"](#router-map)
+    - [Router State](#router-state)
+    - [Actions](#actions)
+    - ["Mounting"](#mounting)
+    - [Routes](#routes)
+    - [URLs and ember-navigator](#urls-and-ember-navigator)
+  - [Running the example app](#running-the-example-app)
+  - [Running Tests](#running-tests)
+  - [Building](#building)
+  - [Releasing / Publishing to NPM](#releasing--publishing-to-npm)
 
 ### Router "map"
 
@@ -105,6 +119,8 @@ One thing to note in the above example is that some routes are shown under more 
 [You may ask yourself][1], "where do  I put this code?" There is not currently a prescriptive or opinionated answer to this question in ember-navigator. The mountedRouter property needs to be passed to a component for rendering eventually. You could do the router map definition and mounting in a service. The dummy app in this repository does it in the application controller.
 
 ### Router State
+
+**The structure of the objects below has recently changed but the general concepts still hold true**
 
 Like "outlet" state in vanilla Ember (or redux reducer state), this is a structure of plain old Javascript objects and arrays
 that is built up by the various routers and passed to the various navigator components for rendering.
